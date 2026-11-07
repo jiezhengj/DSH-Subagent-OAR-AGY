@@ -1,0 +1,26 @@
+{
+  "name": "dsh-subagent-agy-bundle",
+  "version": "0.1.0",
+  "description": "把独立任务交给本机 Antigravity CLI（agy）执行的 DSH 插件组合包",
+  "type": "module",
+  "icon": "./icon.svg",
+  "files": [
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md",
+    "docs"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml",
+      "listedByDefault": false
+    }
+  },
+  "engines": {
+    "dsh": ">=0.2.2-rc.1 <0.3.0"
+  },
+  "dependencies": {
+    "dsh-subagent-agy": "workspace:*",
+    "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1"
+  }
+}

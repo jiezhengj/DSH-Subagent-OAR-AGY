@@ -1,0 +1,13 @@
+# 组合包 patch：提供方 + 官方 subagent_oar 工具（工具默认名 subagent_oar）。
+- insert:
+    - id: subagent-agy
+      name: dsh-subagent-agy
+      config:
+        providerName: agy
+        command: agy
+        permissionMode: yolo
+    - id: tool-subagent-oar-agy
+      name: "@deepseek-ai/dsh-experimental-tool-subagent-oar"
+      config:
+        providers:
+          agy: agy
