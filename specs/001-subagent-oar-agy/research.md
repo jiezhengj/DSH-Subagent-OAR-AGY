@@ -56,7 +56,7 @@
 
 ## D8. 组合包结构与版本门禁
 
-- **Decision**：组合包 `dsh-subagent-agy-bundle` 的 `package.json` 声明 `dsh.bundle.patch: ./cordis.patch.yml`、`listedByDefault: false`、`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`；依赖 `dsh-subagent-agy`（同版本）与官方工具包（精确版本）；patch 为单条 `insert` 组，含两行。
+- **Decision**：组合包 `@jiezhengj/subagent_oar_agy` 的 `package.json` 声明 `dsh.bundle.patch: ./cordis.patch.yml`、`listedByDefault: false`、`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`；依赖 `@jiezhengj/subagent_oar_agy-provider`（同版本）与官方工具包（精确版本）；patch 为单条 `insert` 组，含两行。
 - **Rationale**：与官方 `ralph-bundle` 的打包方式一致；`listedByDefault: false` 表示不随默认模板自动启用，需用户安装后选择。
 - **Alternatives considered**：
   - 单包（提供方即组合包）：DSH 组合包 patch 行需要引用独立包名，单包自引用不是官方模式。

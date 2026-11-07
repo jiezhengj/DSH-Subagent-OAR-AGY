@@ -1,5 +1,5 @@
 import { writeFileSync } from 'node:fs'
-import { startAgyRun } from '../packages/dsh-subagent-agy/dist/run.js'
+import { startAgyRun } from '../packages/subagent-oar-agy-provider/dist/run.js'
 
 const runs = Number(process.argv[2] ?? 1)
 const cwd = process.cwd()

@@ -15,7 +15,7 @@
 **Primary Dependencies**:
 - 运行时（由宿主提供，只声明 peer/dev 依赖，不重复打包）：`@deepseek-ai/cordis`、`@deepseek-ai/dsh-subagent`（`SubagentProvider`、`NO_START_CAPABILITIES`、`subprocessRunHandle`、`settleRunResult`、`assertUsableCwd`）、`@deepseek-ai/schemastery`、`@deepseek-ai/dsh-timeout`（`MAX_TIMER_DELAY_MS`）
 - 组合包依赖（随包安装）：`@deepseek-ai/dsh-experimental-tool-subagent-oar`（精确锁定已验证版本 `0.2.2-rc.1`）
-- 本仓库内依赖：`dsh-subagent-agy`（workspace）
+- 本仓库内依赖：`@jiezhengj/subagent_oar_agy-provider`（workspace）
 
 **Storage**: 无持久化存储；不写 AGY 凭据、不写会话数据
 
@@ -74,7 +74,7 @@ package.json                     # pnpm workspace 根
 pnpm-workspace.yaml
 tsconfig.base.json
 packages/
-├── dsh-subagent-agy/            # 自写提供方（发布名 dsh-subagent-agy）
+├── @jiezhengj/subagent_oar_agy-provider/            # 自写提供方（发布名 @jiezhengj/subagent_oar_agy-provider）
 │   ├── package.json             # type: module, exports dist
 │   ├── tsconfig.json
 │   ├── src/
@@ -97,7 +97,7 @@ packages/
 │       ├── timeout.test.ts
 │       ├── integration.test.ts  # 假 agy fixture 驱动
 │       └── fixtures/fake-agy.mjs
-└── dsh-subagent-agy-bundle/     # 组合包（发布名 dsh-subagent-agy-bundle）
+└── @jiezhengj/subagent_oar_agy/     # 组合包（发布名 @jiezhengj/subagent_oar_agy）
     ├── package.json             # dsh.bundle.patch + engines.dsh + icon
     ├── cordis.patch.yml         # 两行：提供方 + 官方工具
     ├── README.md                # 安装、三种权限档、免责声明
@@ -119,7 +119,8 @@ packages/
 5. **超时与终止**：提供方自管 `timeoutMs`（从 `init` 事件起算，排除启动）；超时/取消走 SIGTERM 进程组 → `killGraceMs`（默认 10s）→ SIGKILL；Windows 用 `taskkill /PID <pid> /T /F`；`dispose` 幂等并等待退出。
 6. **官方工具复用**：`providers` 接受任意已注册的一次性 provider 名；工具拒绝 `prepareContinuable` 或 `inheritsParentContext: true` 的 provider——我们的 provider 两者都不满足，符合校验。
 7. **组合包与版本门禁**：官方 ralph-bundle 的 `dsh.bundle.patch` / `listedByDefault: false` / `engines` 写法已确认；官方工具包精确锁定 `0.2.2-rc.1`，升级前必须重跑 spike。
-8. **工具名与共存**：默认工具名取 `subagent_oar_agy`，与官方 OAR 组合包的 `subagent_oar` 区分，二者可同时启用；README 提供 `toolName` 覆盖（改为 `subagent_oar`）作为可选兼容路径。实测 DSH 对重复工具名会明确报错并拒绝第二个注册，不会静默覆盖。
+8. **本地化**：包内 `locale/<lang>.json` 提供 8 种界面语言的 `meta.title`/`meta.description`（详情指向 `docs/DETAIL.<lang>.md`）；提供方运行时文案用同一语言表输出，语言由 `locale` 配置（默认 `auto`）解析。
+9. **工具名与共存**：默认工具名取 `subagent_oar_agy`，与官方 OAR 组合包的 `subagent_oar` 区分，二者可同时启用；README 提供 `toolName` 覆盖（改为 `subagent_oar`）作为可选兼容路径。实测 DSH 对重复工具名会明确报错并拒绝第二个注册，不会静默覆盖。
 
 ## Phase 1：设计与契约（详见 data-model.md、contracts/、quickstart.md）
 

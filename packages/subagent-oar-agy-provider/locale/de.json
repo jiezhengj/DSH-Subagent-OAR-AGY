@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "AGY-Subagent-Laufzeit",
+    "description": "Stellt die lokale Antigravity-CLI-Laufzeit (agy) für den AGY-Subagenten bereit: startet den Prozess, liest den Ereignisstrom, behandelt Timeouts/Abbruch und liefert die endgültige Antwort."
+  }
+}

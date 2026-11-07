@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "AGY 子智能体",
+    "description": "把独立任务交给本机 Antigravity CLI（agy）执行：模型通过 subagent_oar_agy 工具发起委派，插件启动 agy 子进程并取回最终答复。复用官方 OAR 工具形态，只提供非 ACP 的 AGY 运行时；与官方 OAR 组合包可共存。",
+    "detail": "docs/DETAIL.zh.md"
+  }
+}

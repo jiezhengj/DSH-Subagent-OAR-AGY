@@ -16,7 +16,7 @@
 3. `Config` 字段：`providers`、`toolName`；`Config({})` 报错 `$.providers missing required value`（providers 必填）。
 4. `Config({providers:{agy:'agy'}})` → `{"providers":{"agy":"agy"},"toolName":"subagent_oar"}`（默认工具名 `subagent_oar`）。
 5. `Config({providers:{agy:'agy'},toolName:'subagent_agy'})` → 接受覆盖（`toolName` 为真实配置项）。
-6. 组合包 patch 两行经 `Config` 解析通过（bundle 契约测试，见 `packages/dsh-subagent-agy-bundle/test/bundle.test.ts`）。
+6. 组合包 patch 两行经 `Config` 解析通过（bundle 契约测试，见 `packages/subagent-oar-agy-bundle/test/bundle.test.ts`）。
 
 ## 结论与限制
 

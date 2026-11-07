@@ -1,5 +1,22 @@
 本插件把独立任务委派给本机 Antigravity CLI（`agy`）执行：模型通过 `subagent_oar_agy` 工具把任务交给 agy，取回最终答复。本插件是非官方封装，与 DeepSeek 或 Google 均无隶属关系，使用风险自担。
 
+## 显示名与界面语言
+
+插件页里的正式显示名是「AGY 子智能体」，跟随 DSH 界面语言显示：
+
+| 语言 | 显示名 |
+|---|---|
+| 简体中文（zh） | AGY 子智能体 |
+| English（en） | AGY subagent |
+| Deutsch（de） | AGY-Subagent |
+| Español（es） | Subagente AGY |
+| Français（fr） | Sous-agent AGY |
+| 日本語（ja） | AGY サブエージェント |
+| Português（pt） | Subagente AGY |
+| Русский（ru） | Субагент AGY |
+
+插件页的介绍正文与详情文档同样提供这 8 种语言（`locale/<lang>.json` 的 `meta.title`/`meta.description`，以及 `docs/DETAIL.<lang>.md`）。运行时面向用户的错误、超时、取消与权限拒绝说明也会按界面语言输出：默认 `locale: auto` 跟随 DSH 的 `locale.preference` 或系统语言，也可显式设为 `de`/`en`/`es`/`fr`/`ja`/`pt`/`ru`/`zh`。
+
 ## 默认是否自动执行？
 
 默认自动执行：插件以 `yolo` 档运行 agy，即传入 `--dangerously-skip-permissions`，agy 可以在你给它的工作目录中读写文件、运行命令，不再逐次询问权限。
@@ -27,7 +44,7 @@ permissionMode: plan
 
 ## 安装
 
-见 [docs/INSTALL.md](./docs/INSTALL.md)。最短路径：`dsh plugin add dsh-subagent-agy-bundle`（或本地目录）。
+见 [docs/INSTALL.md](./docs/INSTALL.md)。最短路径：`dsh plugin add @jiezhengj/subagent_oar_agy`（或本地目录）。
 
 ## 配置项
 

@@ -1,4 +1,6 @@
-/** 失败分类与面向用户的安全诊断文案。 */
+/** 失败分类与面向用户的安全诊断文案（按界面语言输出）。 */
+
+import { t, type Locale } from '../i18n.js'
 
 /** 诊断文本上限（UTF-8 字节），与 DSH 接缝的 4096 字节限制一致。 */
 export const DIAGNOSTIC_MAX_BYTES = 4096
@@ -51,18 +53,21 @@ export function looksLikeAuthenticationFailure(text: string | undefined): boolea
   return /authentication required|not (?:logged|signed) in|please (?:log|sign) ?in|unauthorized/i.test(text)
 }
 
-/** 构造分类诊断；`detail` 可选，会被清洗并截断。 */
-export function failureDiagnostic(category: FailureCategory, detail?: string): string {
-  const head: Record<FailureCategory, string> = {
-    'not-installed': 'AGY 未安装或不在 PATH 中。请安装 Antigravity CLI，或通过 command 配置指定 agy 的绝对路径。',
-    'not-authenticated': 'AGY 需要先登录。请先在终端运行一次 agy 完成交互登录，再重试委派。',
-    'timeout': '委派超时，AGY 进程已被终止。可调大 timeoutMs 或让任务更聚焦后重试。',
-    'spawn-failed': '无法启动 AGY 进程。请检查 command 路径、cwd 是否可进入以及执行权限。',
-    'protocol': 'AGY 输出无法解析或缺少终态结果。请检查 AGY 版本与输出是否被其他程序干扰。',
-    'cancelled': '委派已被取消（AGY 进程已终止，父会话可继续）。',
-  }
-  const tail = detail === undefined || detail.length === 0 ? '' : ` 详情：${detail}`
-  return truncateUtf8(`${head[category]}${tail}`)
+/** 分类与文案键的对应。 */
+const DIAGNOSTIC_KEYS = {
+  'not-installed': 'notInstalled',
+  'not-authenticated': 'notAuthenticated',
+  'timeout': 'timeout',
+  'spawn-failed': 'spawnFailed',
+  'protocol': 'protocol',
+  'cancelled': 'cancelled',
+} as const
+
+/** 构造分类诊断；`detail` 可选，会被清洗并截断；`locale` 决定语言。 */
+export function failureDiagnostic(category: FailureCategory, detail?: string, locale: Locale = 'en'): string {
+  const head = t(locale, DIAGNOSTIC_KEYS[category])
+  const tail = detail === undefined || detail.length === 0 ? '' : ` ${t(locale, 'detailLabel')}: ${detail}`
+  return truncateUtf8(`${head}${tail}`)
 }
 
 /** 运行时错误转文本（不泄漏堆栈以外的敏感内容）。 */

@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { parse as parseYaml } from 'yaml'
 import * as oar from '@deepseek-ai/dsh-experimental-tool-subagent-oar'
-import { Config as ProviderConfig } from 'dsh-subagent-agy'
+import { Config as ProviderConfig } from '@jiezhengj/subagent_oar_agy-provider'
 
 const bundleRoot = fileURLToPath(new URL('..', import.meta.url))
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
@@ -18,15 +18,15 @@ const patch = parseYaml(readFileSync(patchPath, 'utf8')) as Array<{ insert: Arra
 
 describe('bundle manifest', () => {
   it('declares the patch, engine range, and both dependencies', () => {
-    expect(pkg.name).toBe('dsh-subagent-agy-bundle')
+    expect(pkg.name).toBe('@jiezhengj/subagent_oar_agy')
     expect(pkg.dsh.bundle.listedByDefault).toBe(false)
     expect(pkg.engines.dsh).toBe('>=0.2.2-rc.1 <0.3.0')
-    expect(pkg.dependencies['dsh-subagent-agy']).toBeDefined()
+    expect(pkg.dependencies['@jiezhengj/subagent_oar_agy-provider']).toBeDefined()
     expect(pkg.dependencies['@deepseek-ai/dsh-experimental-tool-subagent-oar']).toBe('0.2.2-rc.1')
   })
 
   it('ships the patch, icon, README and docs', () => {
-    for (const file of ['cordis.patch.yml', 'icon.svg', 'README.md', 'docs/INSTALL.md', 'docs/DETAIL.md']) {
+    for (const file of ['cordis.patch.yml', 'icon.svg', 'README.md', 'docs/INSTALL.md', 'docs/DETAIL.zh.md', 'docs/DETAIL.en.md']) {
       expect(existsSync(`${bundleRoot}/${file}`)).toBe(true)
     }
   })
@@ -35,7 +35,7 @@ describe('bundle manifest', () => {
     const entries = patch?.flatMap(entry => entry.insert) ?? []
     expect(entries.map(entry => entry.id)).toEqual(['subagent-agy', 'tool-subagent-oar-agy'])
     const provider = entries.find(entry => entry.id === 'subagent-agy')
-    expect(provider?.name).toBe('dsh-subagent-agy')
+    expect(provider?.name).toBe('@jiezhengj/subagent_oar_agy-provider')
     const parsed = ProviderConfig(provider?.config ?? {}) as { providerName: string; command: string; permissionMode: string }
     expect(parsed.providerName).toBe('agy')
     expect(parsed.permissionMode).toBe('yolo')
@@ -55,6 +55,23 @@ describe('bundle manifest', () => {
     const override = oar.Config({ providers: { agy: 'agy' }, toolName: 'subagent_oar' }) as { toolName: string }
     expect(override.toolName).toBe('subagent_oar')
     expect(readFileSync(new URL('../README.md', import.meta.url), 'utf8')).toContain('toolName: subagent_oar')
+  })
+
+  it('localizes its display name and description into the eight DSH languages', () => {
+    const languages = ['de', 'en', 'es', 'fr', 'ja', 'pt', 'ru', 'zh']
+    const titles = new Set<string>()
+    for (const language of languages) {
+      const file = `${bundleRoot}/locale/${language}.json`
+      expect(existsSync(file)).toBe(true)
+      const meta = JSON.parse(readFileSync(file, 'utf8')).meta as { title: string; description: string; detail: string }
+      expect(meta.title.length).toBeGreaterThan(0)
+      expect(meta.description.length).toBeGreaterThan(0)
+      expect(existsSync(`${bundleRoot}/${meta.detail}`)).toBe(true)
+      titles.add(meta.title)
+    }
+    expect(titles.size).toBeGreaterThanOrEqual(2)
+    const zh = JSON.parse(readFileSync(`${bundleRoot}/locale/zh.json`, 'utf8')).meta as { title: string }
+    expect(zh.title).toBe('AGY 子智能体')
   })
 
   it('answers the three user questions and disclaims official support', () => {

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Runtime del subagente AGY",
+    "description": "Proporciona el runtime local de la CLI de Antigravity (agy) para el subagente AGY: inicia el proceso, interpreta el flujo de eventos, gestiona tiempos de espera/cancelación y devuelve la respuesta final."
+  }
+}

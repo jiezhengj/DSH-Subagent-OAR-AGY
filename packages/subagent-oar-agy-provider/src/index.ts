@@ -6,6 +6,7 @@ import { MAX_TIMER_DELAY_MS } from '@deepseek-ai/dsh-timeout'
 import Schema from '@deepseek-ai/schemastery'
 import { startAgyRun, type AgyRunSpec } from './run.js'
 import type { PermissionMode } from './agy/spawn.js'
+import { detectLocale, isLocale, readSettingsText, LOCALES, type Locale } from './i18n.js'
 
 /** 插件名（Cordis 识别用）。 */
 export const name = 'subagent-agy'
@@ -31,6 +32,8 @@ export interface Config {
   killGraceMs?: number
   /** 子进程环境变量覆盖；null 表示删除。 */
   env?: Record<string, string | null>
+  /** 面向用户文案的语言：`auto`（跟随 DSH 设置/系统）或 de/en/es/fr/ja/pt/ru/zh。 */
+  locale?: string
 }
 
 const PERMISSION_MODES: readonly PermissionMode[] = ['yolo', 'plan', 'strict']
@@ -45,6 +48,7 @@ export const Config = Schema.object({
   timeoutMs: Schema.number().min(1).max(MAX_TIMER_DELAY_MS),
   killGraceMs: Schema.number().min(1).max(MAX_TIMER_DELAY_MS).default(10_000),
   env: Schema.dict(Schema.union([Schema.string(), Schema.const(null)])).default({}),
+  locale: Schema.string().min(1).default('auto'),
 }) as unknown as Schema<Config>
 
 /** 应用插件：校验配置并注册提供方。 */
@@ -61,6 +65,10 @@ export function apply(ctx: Context, config: Config): void {
     }
   }
   assertPositiveFinite('subagent-agy', 'killGraceMs', config.killGraceMs ?? 10_000)
+  if (config.locale !== undefined && config.locale !== 'auto' && !isLocale(config.locale)) {
+    throw new Error(`subagent-agy: locale 必须是 auto 或 ${LOCALES.join(' / ')}，收到 ${String(config.locale)}`)
+  }
+  const locale: Locale = detectLocale(config.locale ?? 'auto', process.env, readSettingsText())
 
   const spec: AgyRunSpec = {
     providerName,
@@ -68,6 +76,7 @@ export function apply(ctx: Context, config: Config): void {
     ...(config.model === undefined ? {} : { model: config.model }),
     ...(config.effort === undefined ? {} : { effort: config.effort }),
     permissionMode,
+    locale,
     ...(config.timeoutMs === undefined ? {} : { timeoutMs: config.timeoutMs }),
     killGraceMs: config.killGraceMs ?? 10_000,
     env: config.env ?? {},

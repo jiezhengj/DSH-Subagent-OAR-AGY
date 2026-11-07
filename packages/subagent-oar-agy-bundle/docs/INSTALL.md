@@ -8,9 +8,9 @@
 ## 安装
 
 1. 在 DSH 插件管理中安装组合包：
-   - 本地目录：`dsh plugin add /path/to/dsh-subagent-agy-bundle`
-   - 或发布后：`dsh plugin add dsh-subagent-agy-bundle`
-2. 在插件列表启用 `dsh-subagent-agy-bundle`，按提示重载；模型工具列表出现 `subagent_oar_agy`。
+   - 本地目录：`dsh plugin add /path/to/subagent-oar-agy-bundle`
+   - 或发布后：`dsh plugin add @jiezhengj/subagent_oar_agy`
+2. 在插件列表启用「AGY 子智能体」（包名 `@jiezhengj/subagent_oar_agy`），按提示重载；模型工具列表出现 `subagent_oar_agy`。
 
 安装后默认 `permissionMode: yolo`，如不希望自动执行，先改成 `plan` 或 `strict` 再启用（见 README）。
 
@@ -28,4 +28,4 @@
 
 ## 卸载
 
-`dsh plugin remove dsh-subagent-agy-bundle`（或在插件管理中移除）。卸载不会修改 agy 的安装、登录状态或配置。
+`dsh plugin remove @jiezhengj/subagent_oar_agy`（或在插件管理中移除）。卸载不会修改 agy 的安装、登录状态或配置。

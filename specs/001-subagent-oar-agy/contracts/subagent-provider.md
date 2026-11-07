@@ -1,6 +1,6 @@
 # 契约：DSH 子代理提供方
 
-提供方包 `dsh-subagent-agy` 对 DSH `@deepseek-ai/dsh-subagent` 接缝的契约。DSH 侧类型以 tag `dsh-v0.2.2-rc.1` 源码为准。
+提供方包 `@jiezhengj/subagent_oar_agy-provider` 对 DSH `@deepseek-ai/dsh-subagent` 接缝的契约。DSH 侧类型以 tag `dsh-v0.2.2-rc.1` 源码为准。
 
 ## 必需形状
 
@@ -12,7 +12,7 @@ export const Config: z<Config> = z.object({ /* … */ })
 export function apply(ctx: Context, config: Config): void
 ```
 
-说明：`export const name = 'subagent-agy'` 是 Cordis 插件名（供组合包/加载器识别）；组合包 patch 行的 `name: dsh-subagent-agy` 是 npm 包名（供模块解析）。两者用途不同，不可互相替代。
+说明：`export const name = 'subagent-agy'` 是 Cordis 插件名（供组合包/加载器识别）；组合包 patch 行的 `name: @jiezhengj/subagent_oar_agy-provider` 是 npm 包名（供模块解析）。两者用途不同，不可互相替代。
 
 `apply` 内：
 

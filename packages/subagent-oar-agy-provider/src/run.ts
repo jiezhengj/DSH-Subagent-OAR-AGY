@@ -27,6 +27,7 @@ import {
 } from './agy/errors.js'
 import { resolveAgyCommand } from './agy/resolve.js'
 import { terminate } from './teardown.js'
+import { t, type Locale } from './i18n.js'
 
 const PROVIDER_PREFIX = 'subagent-agy'
 
@@ -37,6 +38,8 @@ export interface AgyRunSpec {
   readonly model?: string
   readonly effort?: string
   readonly permissionMode: PermissionMode
+  /** 面向用户文案的语言。 */
+  readonly locale: Locale
   readonly timeoutMs?: number
   readonly killGraceMs: number
   readonly env: Readonly<Record<string, string | null>>
@@ -44,21 +47,21 @@ export interface AgyRunSpec {
 }
 
 /** 提取任务文本；没有可用文本时按协议失败拒绝。 */
-function textTask(prompt: readonly ContentBlock[]): string {
+function textTask(prompt: readonly ContentBlock[], locale: Locale): string {
   const parts: string[] = []
   for (const block of prompt) {
     if (block.type === 'text') parts.push(block.text)
   }
   const text = parts.join('')
   if (text.trim().length === 0) {
-    throw new AgyFailure('protocol', '委派任务必须包含文本内容（AGY 运行时不接受纯图片/结构化输入）')
+    throw new AgyFailure('protocol', t(locale, 'textRequired'))
   }
   return text
 }
 
 /** 已取消失败（启动前检查用）。 */
-function cancelledFailure(): AgyFailure {
-  return new AgyFailure('cancelled', failureDiagnostic('cancelled'))
+function cancelledFailure(locale: Locale): AgyFailure {
+  return new AgyFailure('cancelled', failureDiagnostic('cancelled', undefined, locale))
 }
 
 /** 创建一次运行并在进程发布后返回握手。 */
@@ -96,7 +99,7 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
     stopped.resolve({
       output: collectOutput(),
       stopReason: reason === 'cancelled' ? 'aborted' : 'error',
-      ...(reason === 'timeout' ? { diagnostic: failureDiagnostic('timeout') } : {}),
+      ...(reason === 'timeout' ? { diagnostic: failureDiagnostic('timeout', undefined, spec.locale) } : {}),
     })
     void dispose()
   }
@@ -144,9 +147,9 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
 
   const terminal = (): SubagentResult => {
     if (phase === 'cancelled') return { output: collectOutput(), stopReason: 'aborted' }
-    if (phase === 'timeout') return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic('timeout') }
+    if (phase === 'timeout') return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic('timeout', undefined, spec.locale) }
     if (spawnError !== undefined) {
-      return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic('spawn-failed', spawnError.message) }
+      return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic('spawn-failed', spawnError.message, spec.locale) }
     }
     const result = resultEvent?.result
     if (result !== undefined) {
@@ -154,8 +157,8 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
       if (stopReason === 'completed') {
         const denied = permissionDeniedTools.size > 0 || permissionDeniedFromStderr
         if (!denied) return { output: collectOutput(), stopReason }
-        const tools = [...permissionDeniedTools].join('、') || '需要权限的工具'
-        const note = `[subagent-agy] 权限档 ${spec.permissionMode}：AGY 已自动拒绝需要权限的动作（${tools}），相关修改未执行。若要允许，请把 permissionMode 改为 yolo，或在 AGY 的 settings.json 中配置 allow 规则。`
+        const tools = [...permissionDeniedTools].join(', ') || t(spec.locale, 'permissionToolFallback')
+        const note = t(spec.locale, 'permissionDenied', { mode: spec.permissionMode, tools })
         const answer = collectOutput()
         const prefix = answer
           .map(block => (block.type === 'text' ? block.text : ''))
@@ -166,12 +169,12 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
       if (stopReason === 'aborted') return { output: collectOutput(), stopReason }
       const errorText = result.error ?? result.response
       const category: FailureCategory = looksLikeAuthenticationFailure(errorText) ? 'not-authenticated' : 'protocol'
-      return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic(category, summarizeStderr(stderr)) }
+      return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic(category, summarizeStderr(stderr), spec.locale) }
     }
     const detail = summarizeStderr(stderr)
     const category: FailureCategory = looksLikeAuthenticationFailure(detail) ? 'not-authenticated' : 'protocol'
-    const suffix = malformedOutput ? 'AGY 输出包含无法解析的行。' : detail
-    return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic(category, suffix) }
+    const suffix = malformedOutput ? t(spec.locale, 'malformedLines') : detail
+    return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic(category, suffix, spec.locale) }
   }
 
   const attempt = async (): Promise<SubagentResult> => {
@@ -219,10 +222,15 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
  * @returns 已发布的运行句柄；启动前失败会抛出分类明确的 AgyFailure。
  */
 export async function startAgyRun(request: ResolvedSubagentStartRequest, spec: AgyRunSpec): Promise<SubagentRun> {
-  const prompt = textTask(request.prompt)
-  if (request.signal.aborted) throw cancelledFailure()
+  const prompt = textTask(request.prompt, spec.locale)
+  if (request.signal.aborted) throw cancelledFailure(spec.locale)
   const cwd = assertUsableCwd(PROVIDER_PREFIX, 'child cwd', request.cwd)
-  const command = resolveAgyCommand(spec.command)
+  let command: string
+  try {
+    command = resolveAgyCommand(spec.command)
+  } catch (error) {
+    throw new AgyFailure('not-installed', failureDiagnostic('not-installed', undefined, spec.locale), { cause: error })
+  }
 
   let child: ChildProcess
   try {
@@ -235,18 +243,18 @@ export async function startAgyRun(request: ResolvedSubagentStartRequest, spec: A
       env: spec.env,
     })
   } catch (error) {
-    throw new AgyFailure('spawn-failed', failureDiagnostic('spawn-failed', error instanceof Error ? error.message : String(error)))
+    throw new AgyFailure('spawn-failed', failureDiagnostic('spawn-failed', error instanceof Error ? error.message : String(error), spec.locale))
   }
 
   if (request.signal.aborted) {
     await terminate(child, { graceMs: spec.killGraceMs })
-    throw cancelledFailure()
+    throw cancelledFailure(spec.locale)
   }
 
   const run = publishRun(child, prompt, request, spec)
   if (request.signal.aborted) {
     await run.dispose()
-    throw cancelledFailure()
+    throw cancelledFailure(spec.locale)
   }
   return run
 }

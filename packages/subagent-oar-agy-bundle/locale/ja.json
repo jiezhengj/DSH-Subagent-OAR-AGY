@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "AGY サブエージェント",
+    "description": "独立したタスクをローカルの Antigravity CLI（agy）に委任します。モデルが subagent_oar_agy を呼び、プラグインが agy サブプロセスを起動して最終回答を返します。公式 OAR ツールの形を再利用し、ACP を使わない AGY ランタイムのみを提供します。公式 OAR バンドルと共存できます。",
+    "detail": "docs/DETAIL.ja.md"
+  }
+}

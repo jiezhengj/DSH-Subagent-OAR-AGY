@@ -50,7 +50,7 @@
 
 ```yaml
 - id: subagent-agy
-  name: dsh-subagent-agy
+  name: @jiezhengj/subagent_oar_agy-provider
   config: {providerName: agy, command: agy, permissionMode: yolo}
 - id: tool-subagent-oar-agy
   name: '@deepseek-ai/dsh-experimental-tool-subagent-oar'
@@ -125,7 +125,7 @@ node scripts/mode-smoke.mjs yolo
 ```bash
 # 从 app.asar 解包 CLI 后
 DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js \
-  plugin --profile headless add /path/to/dsh-subagent-agy-bundle
+  plugin --profile headless add /path/to/@jiezhengj/subagent_oar_agy
 DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js \
   --profile headless --json "Use subagent_oar with runtime agy to reply exactly OK"
 ```
@@ -136,12 +136,12 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 
 | 步骤 | 结果 |
 |---|---|
-| 打包 | 组合包本地 tarball，provider 依赖指向本仓库 `packages/dsh-subagent-agy` |
+| 打包 | 组合包本地 tarball，provider 依赖指向本仓库 `packages/subagent-oar-agy-provider` |
 | 安装 | `plugin_manager install_bundle`：`stage: enable`、`application: applied`，pnpm 394 ms |
 | 生效 | `include:subagent-agy`、`include:tool-subagent-oar-agy` 均 `fiberPhase: active` |
 | 实机冒烟 | 新建子代理调用 `subagent_oar(runtime=agy)`，AGY 返回 `LIVE_GUI_OK`，未使用其他子代理工具 |
 
-- `list_bundles` 显示 `dsh-subagent-agy-bundle` 0.1.0 `enabled: true`、`installed: true`。
+- `list_bundles` 显示 `@jiezhengj/subagent_oar_agy` 0.1.0 `enabled: true`、`installed: true`。
 - 安装来源是本机 tarball，provider 依赖以 `file:` 指向仓库路径；移动/删除仓库后需重新安装。
 - 卸载/禁用可在 DSH「设置 → 插件」中操作，或 `plugin_manager remove_bundle`。
 
@@ -160,3 +160,11 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 用户确认沿用项目本名。`subagent_oar_agy` 是合法工具名且天然唯一，与官方 OAR 的 `subagent_oar` 不冲突，因此作为发布默认名；`toolName` 仍可覆盖（改为 `subagent_oar` 或任意唯一名）。spec FR-016、plan/research/contracts、README/INSTALL/DETAIL、quickstart、组合包测试同步更新。
 
 **实装验证**（桌面 profile）：卸载 0.1.1 → 安装 0.1.2（`application: applied`，371 ms）→ 新会话子代理调用 `subagent_oar_agy(runtime=agy)` 返回 `LIVE_OAR_AGY_OK`，未使用其他子代理工具。
+
+## 本地化与改名（v0.2.1，SC-008）
+
+- **包名**：组合包 `@jiezhengj/subagent_oar_agy`，提供方 `@jiezhengj/subagent_oar_agy-provider`；插件显示名固定为「AGY 子智能体」（按界面语言本地化）。
+- **8 语言元数据**：两个包的 `locale/<lang>.json` 均含 `meta.title`/`meta.description`；组合包另有 `docs/DETAIL.<lang>.md`（zh/en/de/es/fr/ja/pt/ru）。
+- **运行时文案**：`src/i18n.ts` 覆盖 8 语言的失败、超时、取消、权限拒绝等文案；`locale: auto` 时依次读取 `locale` 配置、DSH `settings.yaml` 的 `locale.preference`、`DSH_LOCALE`/`LC_ALL`/`LANG`，最后回退英文。
+- **测试**：58 项全绿，新增 `i18n.test.ts`（语言表完整性、占位符、检测顺序、8 语言 locale 文件）与组合包 8 语言元数据/详情文件断言。
+- **实装**：卸载旧包名 0.1.2 → 安装 `@jiezhengj/subagent_oar_agy` 0.2.1（`application: applied`），`locale/*.json` 与 `docs/DETAIL.*.md` 均已落入 profile；真实会话 `subagent_oar_agy(runtime=agy)` 返回 `FINAL_INSTALL_OK`。

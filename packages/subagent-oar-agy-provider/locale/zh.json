@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "AGY 子智能体运行时",
+    "description": "为 AGY 子智能体提供本机 Antigravity CLI（agy）运行时：启动子进程、解析事件流、处理超时/取消并交回最终答复。"
+  }
+}

@@ -1,12 +1,12 @@
 # 契约：组合包与 patch
 
-组合包 `dsh-subagent-agy-bundle` 是唯一用户安装入口。
+组合包 `@jiezhengj/subagent_oar_agy` 是唯一用户安装入口。
 
 ## package.json 关键字段
 
 ```jsonc
 {
-  "name": "dsh-subagent-agy-bundle",
+  "name": "@jiezhengj/subagent_oar_agy",
   "version": "0.1.0",
   "type": "module",
   "icon": "./icon.svg",
@@ -21,7 +21,7 @@
     "dsh": ">=0.2.2-rc.1 <0.3.0"
   },
   "dependencies": {
-    "dsh-subagent-agy": "0.1.0",
+    "@jiezhengj/subagent_oar_agy-provider": "0.1.0",
     "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1"
   },
   "files": ["cordis.patch.yml", "icon.svg", "README.md", "docs"]
@@ -33,7 +33,7 @@
 ```yaml
 - insert:
     - id: subagent-agy
-      name: dsh-subagent-agy
+      name: @jiezhengj/subagent_oar_agy-provider
       config:
         providerName: agy
         permissionMode: yolo

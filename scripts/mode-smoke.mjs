@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { startAgyRun } from '../packages/dsh-subagent-agy/dist/run.js'
+import { startAgyRun } from '../packages/subagent-oar-agy-provider/dist/run.js'
 
 const mode = process.argv[2] ?? 'plan'
 const dir = mkdtempSync(path.join(tmpdir(), `agy-mode-${mode}-`))

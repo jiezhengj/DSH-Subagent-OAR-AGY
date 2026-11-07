@@ -206,7 +206,16 @@ importers:
         specifier: ^2.8.0
         version: 2.9.1
 
-  packages/dsh-subagent-agy:
+  packages/subagent-oar-agy-bundle:
+    dependencies:
+      '@deepseek-ai/dsh-experimental-tool-subagent-oar':
+        specifier: 0.2.2-rc.1
+        version: 0.2.2-rc.1(@deepseek-ai/cordis@4.1.0)(@deepseek-ai/dsh-subagent@0.2.2-rc.1(a8c42b9e24048cd5340e9349f0fd6799))(@deepseek-ai/dsh-tools@0.2.2-rc.1(a13a0f05e8644f33708fe2540ec79e5a))
+      '@jiezhengj/subagent_oar_agy-provider':
+        specifier: workspace:*
+        version: link:../subagent-oar-agy-provider
+
+  packages/subagent-oar-agy-provider:
     devDependencies:
       '@deepseek-ai/cordis':
         specifier: 4.1.0
@@ -229,15 +238,6 @@ importers:
       '@deepseek-ai/schemastery':
         specifier: 3.19.0
         version: 3.19.0
-
-  packages/dsh-subagent-agy-bundle:
-    dependencies:
-      '@deepseek-ai/dsh-experimental-tool-subagent-oar':
-        specifier: 0.2.2-rc.1
-        version: 0.2.2-rc.1(@deepseek-ai/cordis@4.1.0)(@deepseek-ai/dsh-subagent@0.2.2-rc.1(a8c42b9e24048cd5340e9349f0fd6799))(@deepseek-ai/dsh-tools@0.2.2-rc.1(a13a0f05e8644f33708fe2540ec79e5a))
-      dsh-subagent-agy:
-        specifier: workspace:*
-        version: link:../dsh-subagent-agy
 
 packages:
 

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "AGY subagent runtime",
+    "description": "Provides the local Antigravity CLI (agy) runtime for the AGY subagent: spawns the process, parses its event stream, handles timeouts/cancellation and returns the final answer."
+  }
+}

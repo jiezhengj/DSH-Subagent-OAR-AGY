@@ -28,6 +28,7 @@ function spec(env: Record<string, string | null> = {}, overrides: Partial<AgyRun
     providerName: 'agy',
     command: fixture,
     permissionMode: 'yolo',
+    locale: 'en',
     killGraceMs: 150,
     env,
     ...overrides,
@@ -55,7 +56,7 @@ describe('startAgyRun', () => {
     const run = await startAgyRun(request(), spec({ FAKE_AGY_MODE: 'auth-failure' }))
     const result = await run.result
     expect(result.stopReason).toBe('error')
-    expect(result.diagnostic).toContain('登录')
+    expect(result.diagnostic).toContain('sign in')
     await run.dispose()
   })
 
@@ -63,7 +64,7 @@ describe('startAgyRun', () => {
     const run = await startAgyRun(request(), spec({ FAKE_AGY_MODE: 'malformed' }))
     const result = await run.result
     expect(result.stopReason).toBe('error')
-    expect(result.diagnostic).toContain('无法解析')
+    expect(result.diagnostic).toContain('could not be parsed')
     await run.dispose()
   })
 
@@ -77,7 +78,7 @@ describe('startAgyRun', () => {
   })
 
   it('surfaces an automatic permission denial in plan/strict mode', async () => {
-    const run = await startAgyRun(request(), spec({ FAKE_AGY_MODE: 'denied' }, { permissionMode: 'strict' }))
+    const run = await startAgyRun(request(), spec({ FAKE_AGY_MODE: 'denied' }, { permissionMode: 'strict', locale: 'zh' }))
     const result = await run.result
     expect(result.stopReason).toBe('completed')
     const text = JSON.stringify(result.output)
@@ -87,7 +88,7 @@ describe('startAgyRun', () => {
   })
 
   it('times out after the configured limit', async () => {
-    const run = await startAgyRun(request(), spec({ FAKE_AGY_MODE: 'slow' }, { timeoutMs: 200 }))
+    const run = await startAgyRun(request(), spec({ FAKE_AGY_MODE: 'slow' }, { timeoutMs: 200, locale: 'zh' }))
     const result = await run.result
     expect(result.stopReason).toBe('error')
     expect(result.diagnostic).toContain('超时')

@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "AGY-Subagent",
+    "description": "Unabhängige Aufgaben an die lokale Antigravity CLI (agy) delegieren: Das Modell ruft subagent_oar_agy auf, das Plugin startet einen agy-Unterprozess und liefert die endgültige Antwort. Nutzt die offizielle OAR-Tool-Form mit einer AGY-Laufzeit ohne ACP; koexistiert mit dem offiziellen OAR-Bundle.",
+    "detail": "docs/DETAIL.de.md"
+  }
+}

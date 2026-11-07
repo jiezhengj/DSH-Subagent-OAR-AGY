@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Subagente AGY",
+    "description": "Delegue tarefas independentes à CLI local do Antigravity (agy): o modelo chama subagent_oar_agy, o plugin inicia um subprocesso agy e devolve a resposta final. Reutiliza a forma da ferramenta OAR oficial com um runtime AGY sem ACP; coexiste com o bundle OAR oficial.",
+    "detail": "docs/DETAIL.pt.md"
+  }
+}
