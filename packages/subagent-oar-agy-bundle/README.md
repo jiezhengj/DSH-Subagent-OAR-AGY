@@ -1,5 +1,7 @@
 本插件把独立任务委派给本机 Antigravity CLI（`agy`）执行：模型通过 `subagent_oar_agy` 工具把任务交给 agy，取回最终答复。本插件是非官方封装，与 DeepSeek 或 Google 均无隶属关系，使用风险自担。
 
+其他语言：[English](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.en.md) · [Deutsch](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.de.md) · [Español](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.es.md) · [Français](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.fr.md) · [日本語](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.ja.md) · [Português](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.pt.md) · [Русский](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.ru.md)
+
 ## 安装
 
 1. 打开 DeepSeek Harness 的插件管理（设置 → 插件）。
