@@ -144,3 +144,13 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 - `list_bundles` 显示 `dsh-subagent-agy-bundle` 0.1.0 `enabled: true`、`installed: true`。
 - 安装来源是本机 tarball，provider 依赖以 `file:` 指向仓库路径；移动/删除仓库后需重新安装。
 - 卸载/禁用可在 DSH「设置 → 插件」中操作，或 `plugin_manager remove_bundle`。
+
+## 发布前修正：默认工具名改为 `subagent_agy`（v0.1.1）
+
+**问题**：发布版若默认占用 `subagent_oar`，用户同时启用官方 OAR 组合包时第二个注册者必然失败（实测报错 `tool "subagent_oar" is already registered`，宿主丢弃该插件行）。这对第三方插件不可接受。
+
+**决策**：组合包默认 `toolName: subagent_agy`，与官方 `subagent_oar` 天然区分，可同时启用；没有官方 OAR 的用户可覆盖回 `subagent_oar`。官方 OAR 工具实现与 patch 形态完全复用，仅改工具名。
+
+**同步改动**：spec FR-016、US1 场景、plan/research/contracts、README/INSTALL/DETAIL、quickstart、组合包测试均更新；版本升至 0.1.1。
+
+**实装验证**（桌面 profile，2026-11-08）：`remove_bundle` 卸载 0.1.0 → 安装 0.1.1 tarball（`application: applied`，pnpm 391 ms）→ 新会话子代理调用 `subagent_agy(runtime=agy)` 返回 `LIVE_AGY_OK`，未使用其他子代理工具。

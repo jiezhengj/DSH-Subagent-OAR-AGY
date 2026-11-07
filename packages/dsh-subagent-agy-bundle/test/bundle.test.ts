@@ -42,19 +42,19 @@ describe('bundle manifest', () => {
     expect(parsed.command).toBe('agy')
   })
 
-  it('wires the official tool to the agy provider with the default tool name', () => {
+  it('wires the official tool to the agy provider with a conflict-free default name', () => {
     const entries = patch?.flatMap(entry => entry.insert) ?? []
     const tool = entries.find(entry => entry.id === 'tool-subagent-oar-agy')
     expect(tool?.name).toBe('@deepseek-ai/dsh-experimental-tool-subagent-oar')
     const parsed = oar.Config(tool?.config ?? {}) as { providers: Record<string, string>; toolName: string }
     expect(parsed.providers).toEqual({ agy: 'agy' })
-    expect(parsed.toolName).toBe('subagent_oar')
+    expect(parsed.toolName).toBe('subagent_agy')
   })
 
-  it('documents the toolName override for coexistence with official OAR', () => {
-    const override = oar.Config({ providers: { agy: 'agy' }, toolName: 'subagent_agy' }) as { toolName: string }
-    expect(override.toolName).toBe('subagent_agy')
-    expect(readFileSync(new URL('../README.md', import.meta.url), 'utf8')).toContain('toolName: subagent_agy')
+  it('documents the optional subagent_oar override', () => {
+    const override = oar.Config({ providers: { agy: 'agy' }, toolName: 'subagent_oar' }) as { toolName: string }
+    expect(override.toolName).toBe('subagent_oar')
+    expect(readFileSync(new URL('../README.md', import.meta.url), 'utf8')).toContain('toolName: subagent_oar')
   })
 
   it('answers the three user questions and disclaims official support', () => {

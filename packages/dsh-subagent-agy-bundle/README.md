@@ -1,4 +1,4 @@
-本插件把独立任务委派给本机 Antigravity CLI（`agy`）执行：模型通过 `subagent_oar` 工具把任务交给 agy，取回最终答复。本插件是非官方封装，与 DeepSeek 或 Google 均无隶属关系，使用风险自担。
+本插件把独立任务委派给本机 Antigravity CLI（`agy`）执行：模型通过 `subagent_agy` 工具把任务交给 agy，取回最终答复。本插件是非官方封装，与 DeepSeek 或 Google 均无隶属关系，使用风险自担。
 
 ## 默认是否自动执行？
 
@@ -55,18 +55,19 @@ command: /Users/your-name/.local/bin/agy
 - **同一目录并发**：允许多个委派并行，文件竞争风险由你承担；重要任务建议分开工作目录。
 - **重试**：插件不会自动重试；失败后由你或模型显式再次发起。每次重试都会再次消耗 agy 的配额。
 
-## 工具名冲突
+## 工具名与共存
 
-本插件使用官方 OAR 工具，默认工具名 `subagent_oar`。如果同时启用官方 OAR 组合包，两者工具名相同；请在配置里把工具行的 `toolName` 改为 `subagent_agy`：
+本插件默认工具名是 **`subagent_agy`**，与官方 OAR 组合包的 `subagent_oar` 天然区分，可以同时启用、互不冲突。
+
+如果你没有安装官方 OAR 组合包，又希望沿用 `subagent_oar` 这个名字，可在自己的 profile patch 中覆盖：
 
 ```yaml
 - id: tool-subagent-oar-agy
-  name: "@deepseek-ai/dsh-experimental-tool-subagent-oar"
   config:
-    providers:
-      agy: agy
-    toolName: subagent_agy
+    toolName: subagent_oar
 ```
+
+反向也可：官方 OAR 已占用 `subagent_oar` 时不要覆盖，保持默认即可。
 
 ## 合规声明
 

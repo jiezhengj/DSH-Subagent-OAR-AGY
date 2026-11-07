@@ -64,7 +64,7 @@
 
 ## D9. 工具名与冲突
 
-- **Decision**：组合包默认不覆盖 `toolName`（即官方默认 `subagent_oar`），但在 README 说明：若用户同时启用官方 OAR 组合包，需要把本组合包的工具名改为 `subagent_agy`（配置项 `toolName`）。实现阶段验证 DSH 对重复工具名的处理（覆盖或报错）。
+- **Decision**：组合包默认把 `toolName` 设为 `subagent_agy`，与官方 OAR 组合包的 `subagent_oar` 区分，二者可同时启用；没有官方 OAR 的用户可覆盖回 `subagent_oar`。实测 DSH 对重复工具名会报错并拒绝第二个注册（`tool "subagent_oar" is already registered`），不会静默覆盖，因此发布版 MUST NOT 默认占用官方名字。
 - **Rationale**：用户要求"像官方新插件"，名称一致最直观；官方 OAR 组合包目前不在桌面默认组合包中，冲突是少数场景。
 - **Alternatives considered**：默认 `subagent_agy`：永远不会冲突，但偏离用户对"像官方"的预期。
 

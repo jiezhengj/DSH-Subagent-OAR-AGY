@@ -32,7 +32,7 @@
 3. **Given** 父会话位于某个项目目录，**When** 用户发起委派且未指定目录，**Then** AGY 在该目录下工作；**When** 用户指定了另一个目录，**Then** AGY 在指定目录下工作。
 4. **Given** 用户同时发起多个互不依赖的委派（其中两次指向同一目录），**When** 它们并行执行，**Then** 每个都独立返回结果，互不覆盖或串扰。
 5. **Given** 一次委派已启动，**When** 父会话尝试对该子任务追问或继续，**Then** 系统明确拒绝（该委派只执行一次，不继承父上下文）。
-6. **Given** 插件已安装且官方 OAR 工具可用，**When** 查看模型工具列表，**Then** 看到名为 `subagent_oar` 的专用工具，其 `runtime` 参数只有 `agy`。
+6. **Given** 插件已安装且官方 OAR 工具可用，**When** 查看模型工具列表，**Then** 看到名为 `subagent_agy` 的专用工具，其 `runtime` 参数只有 `agy`。
 
 ---
 
@@ -126,7 +126,7 @@
 - **FR-013**：系统 MUST 支持安装、禁用、启用和升级；插件导致的启动异常 MUST 可通过禁用恢复。
 - **FR-014**：系统 MUST 在 DSH 版本不满足时拒绝安装/加载，并说明所需版本范围。插件加载与升级时 MUST 校验官方 OAR 工具包可用；不可用时 MUST 明确报错并回退到备选形态（自写同形工具），且 FR-016 的工具表面保持不变。
 - **FR-015**：系统 MUST NOT 索取、存储或转发 AGY 的登录凭据，也不得修改 AGY 的认证状态或全局配置。
-- **FR-016**：模型可见的委派入口 MUST 与官方 OAR 插件形态一致：工具名为 `subagent_oar`，参数为 `runtime`/`description`/`prompt` 与可选 `cwd`，`runtime` 枚举只含 `agy`，返回 `started subagent <id>`；不得复用通用 `subagent` 工具作为主入口。
+- **FR-016**：模型可见的委派入口 MUST 复用官方 OAR 工具的形态与实现，默认工具名为 `subagent_agy`（与官方 OAR 组合包的 `subagent_oar` 区分，保证可共存）；参数为 `runtime`/`description`/`prompt` 与可选 `cwd`，`runtime` 枚举只含 `agy`，返回 `started subagent <id>`；工具名 MUST 可配置覆盖（如改为 `subagent_oar`）；不得复用通用 `subagent` 工具作为主入口。
 - **FR-017**：用户文档 MUST 声明本插件是非官方封装、自担风险，并说明其与 Antigravity 政策表述的关系；不得暗示获得官方支持。
 - **FR-018**：AGY 中途失败或输出不可解析时，已获得的助手文本 MAY 作为部分输出随失败结果呈现，但 MUST 与失败诊断分开，且不得把部分输出伪装为成功。
 - **FR-019**：系统 MUST NOT 自动重试失败的委派；失败后由用户或模型显式再次发起，文档 MUST 说明重试会再次消耗 AGY 配额。

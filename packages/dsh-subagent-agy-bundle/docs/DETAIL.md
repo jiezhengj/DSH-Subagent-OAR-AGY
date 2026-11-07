@@ -3,7 +3,7 @@
 ## 架构
 
 - 提供方包 `dsh-subagent-agy`：实现 DSH 子代理接缝 `SubagentProvider`，一次性委派；每次委派启动一个 agy 子进程，`--input-format stream-json` 写入一条用户消息，`--output-format stream-json` 读取事件流。
-- 组合包 `dsh-subagent-agy-bundle`：DSH 插件清单 + `cordis.patch.yml`，同时插入提供方与官方 `subagent_oar` 工具（`providers: {agy: agy}`）。
+- 组合包 `dsh-subagent-agy-bundle`：DSH 插件清单 + `cordis.patch.yml`，同时插入提供方与官方 OAR 工具（`providers: {agy: agy}`，默认 `toolName: subagent_agy`）。
 - 不使用 ACP、不调用 agy 的 ACP server、不实现多轮对话或会话恢复。
 
 ## 运行流程

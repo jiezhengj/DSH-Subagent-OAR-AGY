@@ -1,6 +1,6 @@
 {
   "name": "dsh-subagent-agy-bundle",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "把独立任务交给本机 Antigravity CLI（agy）执行的 DSH 插件组合包",
   "type": "module",
   "icon": "./icon.svg",
