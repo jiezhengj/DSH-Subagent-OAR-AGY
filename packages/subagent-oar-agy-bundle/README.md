@@ -1,5 +1,18 @@
 本插件把独立任务委派给本机 Antigravity CLI（`agy`）执行：模型通过 `subagent_oar_agy` 工具把任务交给 agy，取回最终答复。本插件是非官方封装，与 DeepSeek 或 Google 均无隶属关系，使用风险自担。
 
+## 安装
+
+1. 打开 DeepSeek Harness 的插件管理（设置 → 插件）。
+2. 在安装输入框粘贴这一行并安装：
+
+```
+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz
+```
+
+3. 启用「AGY 子智能体」，新会话即可让模型调用 `subagent_oar_agy`。
+
+前置条件：DSH 0.2.2-rc.1 及以上（低于 0.3.0）、本机已安装并登录 Antigravity CLI（`agy`）。这个 tarball 自带本插件的运行时代码，官方 OAR 工具会从 npm 安装，无需等待本插件上架 npm。也可以手动执行 `dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz`。
+
 ## 显示名与界面语言
 
 插件页里的正式显示名是「AGY 子智能体」，跟随 DSH 界面语言显示：

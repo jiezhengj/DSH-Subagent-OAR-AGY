@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { parse as parseYaml } from 'yaml'
 import * as oar from '@deepseek-ai/dsh-experimental-tool-subagent-oar'
-import { Config as ProviderConfig } from '@jiezhengj/subagent_oar_agy-provider'
+import { Config as ProviderConfig } from '@jiezhengj/subagent_oar_agy/agy-provider'
 
 const bundleRoot = fileURLToPath(new URL('..', import.meta.url))
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
@@ -21,12 +21,12 @@ describe('bundle manifest', () => {
     expect(pkg.name).toBe('@jiezhengj/subagent_oar_agy')
     expect(pkg.dsh.bundle.listedByDefault).toBe(false)
     expect(pkg.engines.dsh).toBe('>=0.2.2-rc.1 <0.3.0')
-    expect(pkg.dependencies['@jiezhengj/subagent_oar_agy-provider']).toBeDefined()
+    expect(pkg.devDependencies?.['@jiezhengj/subagent_oar_agy-provider']).toBeDefined()
     expect(pkg.dependencies['@deepseek-ai/dsh-experimental-tool-subagent-oar']).toBe('0.2.2-rc.1')
   })
 
   it('ships the patch, icon, README and docs', () => {
-    for (const file of ['cordis.patch.yml', 'icon.svg', 'README.md', 'docs/INSTALL.md', 'docs/DETAIL.zh.md', 'docs/DETAIL.en.md']) {
+    for (const file of ['cordis.patch.yml', 'icon.svg', 'README.md', 'docs/INSTALL.md', 'docs/DETAIL.zh.md', 'docs/DETAIL.en.md', 'provider/index.js']) {
       expect(existsSync(`${bundleRoot}/${file}`)).toBe(true)
     }
   })
@@ -35,7 +35,7 @@ describe('bundle manifest', () => {
     const entries = patch?.flatMap(entry => entry.insert) ?? []
     expect(entries.map(entry => entry.id)).toEqual(['subagent-agy', 'tool-subagent-oar-agy'])
     const provider = entries.find(entry => entry.id === 'subagent-agy')
-    expect(provider?.name).toBe('@jiezhengj/subagent_oar_agy-provider')
+    expect(provider?.name).toBe('@jiezhengj/subagent_oar_agy/agy-provider')
     const parsed = ProviderConfig(provider?.config ?? {}) as { providerName: string; command: string; permissionMode: string }
     expect(parsed.providerName).toBe('agy')
     expect(parsed.permissionMode).toBe('yolo')

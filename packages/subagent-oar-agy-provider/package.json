@@ -38,5 +38,11 @@
   },
   "engines": {
     "node": ">=22"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY.git",
+    "directory": "packages/subagent-oar-agy-provider"
+  },
+  "homepage": "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY"
 }

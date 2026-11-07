@@ -6,3 +6,4 @@ packages/*/dist/
 coverage/
 *.tgz
 *.tsbuildinfo
+packages/subagent-oar-agy-bundle/provider/
