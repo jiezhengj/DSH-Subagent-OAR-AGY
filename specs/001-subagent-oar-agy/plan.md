@@ -6,7 +6,7 @@
 
 ## 摘要
 
-发布一个可分发的 DSH 组合包：组合包挂载**官方** `@deepseek-ai/dsh-experimental-tool-subagent-oar`（模型侧工具名默认 `subagent_agy`，`providers: {agy: agy}`），并挂载我们自写的**只做 AGY 运行时**的提供方包。提供方收到委派后启动本机 `agy --input-format stream-json --output-format stream-json`，通过 stdin 送入一条 `user` 事件，解析 NDJSON 事件流，把终态 `result.response` 作为最终答复交回 DSH；进程生命周期、取消、超时与进程树清理由提供方负责。全程不实现 ACP，不接触 AGY 凭据或后端 API。
+发布一个可分发的 DSH 组合包：组合包挂载**官方** `@deepseek-ai/dsh-experimental-tool-subagent-oar`（模型侧工具名默认 `subagent_oar_agy`，`providers: {agy: agy}`），并挂载我们自写的**只做 AGY 运行时**的提供方包。提供方收到委派后启动本机 `agy --input-format stream-json --output-format stream-json`，通过 stdin 送入一条 `user` 事件，解析 NDJSON 事件流，把终态 `result.response` 作为最终答复交回 DSH；进程生命周期、取消、超时与进程树清理由提供方负责。全程不实现 ACP，不接触 AGY 凭据或后端 API。
 
 ## 技术上下文
 
@@ -119,7 +119,7 @@ packages/
 5. **超时与终止**：提供方自管 `timeoutMs`（从 `init` 事件起算，排除启动）；超时/取消走 SIGTERM 进程组 → `killGraceMs`（默认 10s）→ SIGKILL；Windows 用 `taskkill /PID <pid> /T /F`；`dispose` 幂等并等待退出。
 6. **官方工具复用**：`providers` 接受任意已注册的一次性 provider 名；工具拒绝 `prepareContinuable` 或 `inheritsParentContext: true` 的 provider——我们的 provider 两者都不满足，符合校验。
 7. **组合包与版本门禁**：官方 ralph-bundle 的 `dsh.bundle.patch` / `listedByDefault: false` / `engines` 写法已确认；官方工具包精确锁定 `0.2.2-rc.1`，升级前必须重跑 spike。
-8. **工具名与共存**：默认工具名取 `subagent_agy`，与官方 OAR 组合包的 `subagent_oar` 区分，二者可同时启用；README 提供 `toolName` 覆盖（改为 `subagent_oar`）作为可选兼容路径。实测 DSH 对重复工具名会明确报错并拒绝第二个注册，不会静默覆盖。
+8. **工具名与共存**：默认工具名取 `subagent_oar_agy`，与官方 OAR 组合包的 `subagent_oar` 区分，二者可同时启用；README 提供 `toolName` 覆盖（改为 `subagent_oar`）作为可选兼容路径。实测 DSH 对重复工具名会明确报错并拒绝第二个注册，不会静默覆盖。
 
 ## Phase 1：设计与契约（详见 data-model.md、contracts/、quickstart.md）
 

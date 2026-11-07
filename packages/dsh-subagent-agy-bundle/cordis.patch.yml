@@ -1,4 +1,4 @@
-# 组合包 patch：提供方 + 官方 OAR 工具（默认工具名 subagent_agy，避免与官方 OAR 组合包冲突）。
+# 组合包 patch：提供方 + 官方 OAR 工具（默认工具名 subagent_oar_agy，与官方 OAR 组合包的 subagent_oar 区分，可共存）。
 - insert:
     - id: subagent-agy
       name: dsh-subagent-agy
@@ -11,4 +11,4 @@
       config:
         providers:
           agy: agy
-        toolName: subagent_agy
+        toolName: subagent_oar_agy

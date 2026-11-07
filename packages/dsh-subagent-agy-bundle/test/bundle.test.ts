@@ -48,7 +48,7 @@ describe('bundle manifest', () => {
     expect(tool?.name).toBe('@deepseek-ai/dsh-experimental-tool-subagent-oar')
     const parsed = oar.Config(tool?.config ?? {}) as { providers: Record<string, string>; toolName: string }
     expect(parsed.providers).toEqual({ agy: 'agy' })
-    expect(parsed.toolName).toBe('subagent_agy')
+    expect(parsed.toolName).toBe('subagent_oar_agy')
   })
 
   it('documents the optional subagent_oar override', () => {

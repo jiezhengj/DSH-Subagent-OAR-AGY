@@ -51,6 +51,6 @@
 3. **官方工具包精确锁版本**：spike 通过后锁定 `0.2.2-rc.1`；升级时必须重跑 spike 并更新 `engines.dsh`。
 4. **`engines.dsh` 拒绝加载**：DSH 版本不满足时，插件安装/加载被拒绝并说明所需范围（DSH 插件管理器行为），组合包不得绕过。
 5. **禁用语义**：用户禁用组合包后两行都移除，模型工具列表恢复；重新启用恢复配置，无需重新填写。
-6. **工具名与共存**：默认 `toolName: subagent_agy`，与官方 OAR 组合包（`subagent_oar`）可同时启用；用户可覆盖为 `subagent_oar`（仅无官方 OAR 时）。DSH 对重复工具名报错并拒绝第二个注册，不静默覆盖。
+6. **工具名与共存**：默认 `toolName: subagent_oar_agy`，与官方 OAR 组合包（`subagent_oar`）可同时启用；用户可覆盖为 `subagent_oar`（仅无官方 OAR 时）。DSH 对重复工具名报错并拒绝第二个注册，不静默覆盖。
 7. **不修改 AGY 环境**：安装/升级/禁用组合包不得写入 `~/.gemini`、`~/.local/bin` 或任何 AGY 配置。
 8. **可选 locale/display meta**：v1 不提供 UI 文案；插件页展示 `package.json` 的 name/description/icon。后续如需本地化再补 `locale/*.json`。

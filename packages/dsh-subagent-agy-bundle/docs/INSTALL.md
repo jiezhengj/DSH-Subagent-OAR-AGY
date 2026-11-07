@@ -10,7 +10,7 @@
 1. 在 DSH 插件管理中安装组合包：
    - 本地目录：`dsh plugin add /path/to/dsh-subagent-agy-bundle`
    - 或发布后：`dsh plugin add dsh-subagent-agy-bundle`
-2. 在插件列表启用 `dsh-subagent-agy-bundle`，按提示重载；模型工具列表出现 `subagent_agy`。
+2. 在插件列表启用 `dsh-subagent-agy-bundle`，按提示重载；模型工具列表出现 `subagent_oar_agy`。
 
 安装后默认 `permissionMode: yolo`，如不希望自动执行，先改成 `plan` 或 `strict` 再启用（见 README）。
 
@@ -20,11 +20,11 @@
 
 ## 禁用与重新启用
 
-禁用组合包后，`subagent_agy` 工具与 `agy` 提供方一并移除；DSH 其他功能不受影响。重新启用后原配置继续生效。
+禁用组合包后，`subagent_oar_agy` 工具与 `agy` 提供方一并移除；DSH 其他功能不受影响。重新启用后原配置继续生效。
 
 ## 工具名冲突
 
-本插件默认工具名是 `subagent_agy`，与官方 OAR 组合包的 `subagent_oar` 不冲突，可同时启用。若你希望本插件也用 `subagent_oar`（仅在没有官方 OAR 时），按 README 覆盖 `toolName`；DSH 对重复工具名会明确报错并拒绝注册第二个，不会静默覆盖。
+本插件默认工具名是 `subagent_oar_agy`，与官方 OAR 组合包的 `subagent_oar` 不冲突，可同时启用。若你希望本插件也用 `subagent_oar`（仅在没有官方 OAR 时），按 README 覆盖 `toolName`；DSH 对重复工具名会明确报错并拒绝注册第二个，不会静默覆盖。
 
 ## 卸载
 

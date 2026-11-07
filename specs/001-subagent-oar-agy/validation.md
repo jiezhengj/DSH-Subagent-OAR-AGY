@@ -154,3 +154,7 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 **同步改动**：spec FR-016、US1 场景、plan/research/contracts、README/INSTALL/DETAIL、quickstart、组合包测试均更新；版本升至 0.1.1。
 
 **实装验证**（桌面 profile，2026-11-08）：`remove_bundle` 卸载 0.1.0 → 安装 0.1.1 tarball（`application: applied`，pnpm 391 ms）→ 新会话子代理调用 `subagent_agy(runtime=agy)` 返回 `LIVE_AGY_OK`，未使用其他子代理工具。
+
+## 定名：默认工具名 `subagent_oar_agy`（v0.1.2）
+
+用户确认沿用项目本名。`subagent_oar_agy` 是合法工具名且天然唯一，与官方 OAR 的 `subagent_oar` 不冲突，因此作为发布默认名；`toolName` 仍可覆盖（改为 `subagent_oar` 或任意唯一名）。spec FR-016、plan/research/contracts、README/INSTALL/DETAIL、quickstart、组合包测试同步更新。
