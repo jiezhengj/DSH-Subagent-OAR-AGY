@@ -12,6 +12,8 @@ export const Config: z<Config> = z.object({ /* … */ })
 export function apply(ctx: Context, config: Config): void
 ```
 
+说明：`export const name = 'subagent-agy'` 是 Cordis 插件名（供组合包/加载器识别）；组合包 patch 行的 `name: dsh-subagent-agy` 是 npm 包名（供模块解析）。两者用途不同，不可互相替代。
+
 `apply` 内：
 
 ```ts

@@ -2,7 +2,7 @@
 
 **Branch**: `001-subagent-oar-agy` | **Date**: 2026-11-07 | **Spec**: [spec.md](./spec.md)
 
-**Input**: 功能规格 `specs/001-subagent-oar-agy/spec.md`；评估决策 `decision.md`（Option D：官方 `subagent_oar` 工具 + 自写非 ACP 提供方）。
+**Input**: 功能规格 `specs/001-subagent-oar-agy/spec.md`；评估决策 `.specify/assessments/subagent-oar-agy/decision.md`（Option D：官方 `subagent_oar` 工具 + 自写非 ACP 提供方）。
 
 ## 摘要
 
@@ -55,12 +55,15 @@ specs/001-subagent-oar-agy/
 ├── research.md          # Phase 0 研究结论
 ├── data-model.md        # Phase 1 实体与状态机
 ├── quickstart.md        # Phase 1 验证指南
+├── spike.md             # T005 官方工具 spike 结论（实施期生成）
+├── validation.md        # 验收记录汇总（实施期生成）
 ├── contracts/           # Phase 1 接口契约
 │   ├── subagent-provider.md
 │   ├── bundle-patch.md
 │   └── agy-cli.md
 ├── checklists/
-│   └── requirements.md
+│   ├── requirements.md
+│   └── security-and-failures.md
 └── tasks.md             # 由 /speckit-tasks 生成
 ```
 
@@ -82,18 +85,23 @@ packages/
 │   │   │   ├── spawn.ts         # 子进程、stdio、进程组/进程树
 │   │   │   ├── stream.ts        # NDJSON 行缓冲、事件解析、未知事件容错
 │   │   │   ├── protocol.ts      # stream-json 事件类型（宽松判别联合）
-│   │   │   └── errors.ts        # 失败分类与诊断文案
+│   │   │   ├── errors.ts        # 失败分类与诊断文案
+│   │   │   └── timer.ts         # timeoutMs 计时器（T013，测试 timeout.test.ts）
 │   │   └── teardown.ts          # SIGTERM→宽限→SIGKILL 阶梯（含 Windows）
 │   └── test/
 │       ├── stream.test.ts
+│       ├── protocol.test.ts
 │       ├── errors.test.ts
 │       ├── resolve.test.ts
+│       ├── teardown.test.ts
 │       ├── timeout.test.ts
-│       └── integration.test.ts  # 假 agy fixture 驱动
+│       ├── integration.test.ts  # 假 agy fixture 驱动
+│       └── fixtures/fake-agy.mjs
 └── dsh-subagent-agy-bundle/     # 组合包（发布名 dsh-subagent-agy-bundle）
     ├── package.json             # dsh.bundle.patch + engines.dsh + icon
     ├── cordis.patch.yml         # 两行：提供方 + 官方工具
     ├── README.md                # 安装、三种权限档、免责声明
+    ├── docs/INSTALL.md          # 安装/升级/禁用步骤（T031）
     ├── docs/DETAIL.md
     └── icon.svg
 ```
@@ -122,13 +130,13 @@ packages/
 
 ## 实施顺序（供 /speckit-tasks 使用）
 
-1. **Spike（阻塞后续实现）**：在隔离 profile 或临时目录验证官方工具包 `0.2.2-rc.1` 可安装、patch 行可加载、`providers` 接受 `agy`；失败则切换 Option B（自写同形工具），并同步修订本计划。
+1. **Spike（硬门禁，T005）**：在隔离 profile 或临时目录验证官方工具包 `0.2.2-rc.1` 可安装、patch 行可加载、`providers` 接受 `agy`；**未通过前不开始任何实现任务**；失败则切换 Option B（自写同形工具），并同步修订本计划。
 2. 搭建 pnpm workspace、TS 配置与测试脚手架。
 3. 实现 `agy/stream.ts`、`protocol.ts`、`errors.ts`、`resolve.ts`（纯函数优先，先测）。
 4. 实现 `spawn.ts` 与 `teardown.ts`（含 Windows 分支），用假 `agy` 脚本做集成测试。
 5. 实现 `run.ts` 与 `index.ts`（注册、config 校验、run handle、结算）。
 6. 组合包：`package.json`、`cordis.patch.yml`、README、`engines.dsh`、图标。
-7. 端到端：真实 AGY 冒烟（需用户授权，消耗配额）、三种权限档、超时/取消、禁用恢复。
+7. 端到端：真实 AGY 冒烟（需用户授权，消耗配额）、三种权限档、超时/取消、禁用恢复、并发委派与入口选择（SC-007）。
 
 ## 风险与缓解
 
