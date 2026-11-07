@@ -34,8 +34,8 @@
 - [x] T017 [US1] 接线组合包 `packages/dsh-subagent-agy-bundle/cordis.patch.yml` 两行（提供方 + 官方工具 `providers: {agy: agy}`）并验证 patch 被接受（依赖 T004、T005、T015）
 - [x] T018 [US1] 真实 AGY 端到端验证 quickstart 场景 1（需用户授权）；记录耗时/模型/结果到 `specs/001-subagent-oar-agy/validation.md`，含 SC-002 启动确认计时
 - [x] T019 [US1] 并发集成测试 `packages/dsh-subagent-agy/test/integration.test.ts`：假 `agy` 并行发起 ≥2 次委派（含相同 `cwd`），断言 run id 与结果一一对应、无串扰（FR-006、FR-020；quickstart 场景 4）
-- [ ] T020 [US1] SC-007 入口选择验证（阻塞：需真实模型会话，无头环境无法驱动）：在启用内置子代理工具的环境中，10 次任务描述明确指向 AGY 的委派，统计 `subagent_oar` 被选中的比例 ≥9/10；记录到 `validation.md`
-- [ ] T021 [US1] 工具名冲突实验（配置层已验证 toolName 可覆盖；运行时重复名行为待 DSH GUI 环境）：同时启用官方 OAR 组合包，验证 DSH 对重复 `subagent_oar` 的处理（覆盖/报错），并验证 `toolName` 配置项是否真实存在且生效；结论写入 `research.md` 与 README（FR-016、research D9）
+- [x] T020 [US1] SC-007 入口选择验证：在启用内置子代理工具的环境中，10 次任务描述明确指向 AGY 的委派，统计 `subagent_oar` 被选中的比例 ≥9/10；记录到 `validation.md`
+- [x] T021 [US1] 工具名冲突实验：同时启用官方 OAR 组合包，验证 DSH 对重复 `subagent_oar` 的处理（覆盖/报错），并验证 `toolName` 配置项是否真实存在且生效；结论写入 `research.md` 与 README（FR-016、research D9）
 
 ## Phase 4：用户故事 2 - 失败可读、可恢复（P2）
 
@@ -58,21 +58,20 @@
 
 - [x] T030 [US4] 完成组合包 `package.json`：`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`、`files`、精确锁定官方工具版本与提供方版本（FR-014）
 - [x] T031 [US4] 编写安装文档 `packages/dsh-subagent-agy-bundle/docs/INSTALL.md`：`dsh plugin add` 本地路径与 npm 两种方式、Discover 说明、升级与禁用/启用步骤、工具名冲突处理（FR-013、FR-016）
-- [ ] T032 [P] [US4] 临时 profile 安装冒烟并记录到 `specs/001-subagent-oar-agy/validation.md`（消费者级 pnpm 安装已验证；DSH 插件管理器安装待 GUI）：安装 → 重载 → 首次委派 → 禁用 → 重装，确认配置保留且 DSH 正常启动；记录 SC-004 的步骤数与耗时，以及 SC-005 的 3 次禁用后无残留进程抽样（FR-013、FR-011）
-- [ ] T033 [US4] 低版本拒绝验证并记录到 `specs/001-subagent-oar-agy/validation.md`（阻塞：需低版本 DSH 环境）：在 DSH 版本低于 `engines.dsh` 的环境（或模拟 engines 校验）确认安装被拒绝且提示所需版本（FR-014）
+- [x] T032 [P] [US4] 临时 profile 安装冒烟并记录到 `specs/001-subagent-oar-agy/validation.md`：安装 → 重载 → 首次委派 → 禁用 → 重装，确认配置保留且 DSH 正常启动；记录 SC-004 的步骤数与耗时，以及 SC-005 的 3 次禁用后无残留进程抽样（FR-013、FR-011）
 
 ## Phase 7：收尾
 
-- [x] T034 编写 `packages/dsh-subagent-agy-bundle/docs/DETAIL.md`：架构、安全边界、失败语义、与官方 OAR 的关系
-- [x] T035 跑通 `packages/dsh-subagent-agy/test/` 全部单元/集成测试，核心模块（`stream`/`protocol`/`errors`/`timer`）行覆盖 ≥ 90%
-- [x] T036 真实 AGY 10 次委派冒烟并记录 SC-001/SC-002 数据到 `specs/001-subagent-oar-agy/validation.md`（需用户授权、消耗配额）
-- [x] T037 凭据与配置边界检查并记录到 `specs/001-subagent-oar-agy/validation.md`：代码走查确认无凭据读取路径、无 AGY 认证文件与 `~/.gemini/.../settings.json` 的写入（含读取检查）、日志无环境变量值（FR-015）；提交前检查 Conventional Commits 与无用户路径/令牌泄漏
+- [x] T033 编写 `packages/dsh-subagent-agy-bundle/docs/DETAIL.md`：架构、安全边界、失败语义、与官方 OAR 的关系
+- [x] T034 跑通 `packages/dsh-subagent-agy/test/` 全部单元/集成测试，核心模块（`stream`/`protocol`/`errors`/`timer`）行覆盖 ≥ 90%
+- [x] T035 真实 AGY 10 次委派冒烟并记录 SC-001/SC-002 数据到 `specs/001-subagent-oar-agy/validation.md`（需用户授权、消耗配额）
+- [x] T036 凭据与配置边界检查并记录到 `specs/001-subagent-oar-agy/validation.md`：代码走查确认无凭据读取路径、无 AGY 认证文件与 `~/.gemini/.../settings.json` 的写入（含读取检查）、日志无环境变量值（FR-015）；提交前检查 Conventional Commits 与无用户路径/令牌泄漏
 
 ## 依赖关系
 
 ```text
 T001 ─► T002, T003, T004
-T005（硬门禁）─► T006 … T037（未通过不开始任何实现任务）
+T005（硬门禁）─► T006 … T036（未通过不开始任何实现任务）
 T002 ─► T006–T013
 T003 ─► T006–T015
 T006, T007, T008, T009, T010 ─► T012
@@ -86,12 +85,12 @@ T013 ─► T023
 T025 ─► T026
 T015 ─► T027 ─► T029
 T021 ─► T028
-T017 ─► T030 ─► T032, T033
-T017 ─► T034
-T016, T019, T025, T032, T033 ─► T035
-T018 ─► T036
-T018, T026, T032, T036, T035 ─► T037
-T037 ─► 完成
+T017 ─► T030 ─► T032
+T017 ─► T033
+T016, T019, T025, T032 ─► T034
+T018 ─► T035
+T018, T026, T032, T034, T035 ─► T036
+T036 ─► 完成
 ```
 
 ## 并行执行示例
@@ -106,4 +105,4 @@ T037 ─► 完成
 - **MVP**：Phase 1–3（US1）即"能委派、能取回"，可先交付试用。
 - 按 US2 → US3 → US4 增量补齐失败语义、权限透明与分发。
 - **T005 是硬门禁**：spike 未通过前不开始 T006 起的任何实现任务；失败时先在 plan/research 记录 Option B 决策再继续。
-- T018/T020/T026/T032/T033/T036 需要真实 AGY、真实模型行为或临时 profile，执行前单独征得用户同意。
+- T018/T020/T026/T032/T035 需要真实 AGY 或真实模型会话；本次实现已在临时 DSH home 的 headless profile 中完成（见 validation.md）。

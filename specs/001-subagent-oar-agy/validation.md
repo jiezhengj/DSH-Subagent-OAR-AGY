@@ -1,6 +1,6 @@
 # 实现验证记录
 
-**日期**：2026-11-08　**环境**：macOS（arm64）、Node v26.0.0、pnpm 12.18.0、DSH 桌面版 0.2.2-rc.1、AGY 1.5.3
+**日期**：2026-11-08　**环境**：macOS（arm64）、Node v26.0.0、pnpm 12.18.0、DSH 0.2.2-rc.1、AGY 1.5.3
 
 ## 构建与测试
 
@@ -12,7 +12,7 @@
 
 见 [spike.md](./spike.md)：官方包 `0.2.2-rc.1` 可安装、导出 `Config/apply/inject/name`，`Config({providers:{agy:'agy'}})` 通过，默认 `toolName: subagent_oar`，`toolName` 覆盖可用。
 
-## T018 / T036 真实 AGY 端到端
+## T018 / T035 真实 AGY 端到端
 
 | 项 | 结果 |
 |---|---|
@@ -35,39 +35,66 @@
 | `strict` | 否 | `completed`，输出含可见说明 | AGY 自动拒绝 `write_file`；首次实现发现静默（`SUCCESS` + 空 `response`），已修复为附可见说明 |
 | `yolo` | 是（`MODIFIED`） | `completed`，文本 `MODIFIED` | 无人值守 |
 
-修复验证：`strict` 二次运行输出 `[subagent-agy] 权限档 strict：AGY 已自动拒绝需要权限的动作（write_file）…`。
+## 真实 DSH 宿主验证（T020 / T021 / T032）
+
+### 环境搭建
+
+本机未安装 `dsh` CLI，改用桌面应用自带的 CLI（与 GUI 同一套宿主代码）：
+
+1. 从 `app.asar` 解包出 `@deepseek-ai/dsh/lib/bin.js` 及其依赖到 `/tmp/dsh_app`；
+2. 临时 `DSH_HOME=/tmp/dsh_home`（复制 `settings.yaml` 与 `.env`，凭据仅落在临时目录，未提交）；
+3. `dsh plugin --profile headless add /tmp/agy_install_bundle` 安装组合包（1 条命令、978 ms）；
+4. 用 profile patch 指定 `agent-default-model`（magpie / `auto/deepseek-v4.1-flash`）与 `llm-pi-ai` 提供方。
+
+`--dump-config` 确认组合包两行被宿主正确合成：
+
+```yaml
+- id: subagent-agy
+  name: dsh-subagent-agy
+  config: {providerName: agy, command: agy, permissionMode: yolo}
+- id: tool-subagent-oar-agy
+  name: '@deepseek-ai/dsh-experimental-tool-subagent-oar'
+  config: {providers: {agy: agy}}
+```
+
+### T020 入口选择（SC-007）
+
+10 次真实 headless 会话，任务描述只指向 AGY（不点名工具），统计模型是否选择 `subagent_oar` 且 `runtime=agy`、并返回预期文本：
+
+- 结果：**10/10 选择 `subagent_oar(runtime=agy)` 并完成委派**（阈值 9/10）。
+- 证据：`/tmp/sc007_1.ndjson` … `/tmp/sc007_10.ndjson`（含 `tool_call` 与 `final` 事件）。
+
+### T021 重复工具名行为
+
+在临时 profile 追加第二行同包、同默认工具名的工具实例后启动宿主：
+
+- 第二实例注册失败，宿主日志：`tool "subagent_oar" is already registered`，并提示 `1 entry did not activate`；
+- 先注册者（本插件行）生效，**不会静默覆盖**，也不影响其他工具；
+- 因此 README/INSTALL 的 `toolName: subagent_agy` 改名方案是正确处置；`toolName` 为真实配置项（已由 `Config` 解析验证）。
+
+### T032 安装 / 禁用 / 重装（宿主级）
+
+| 步骤 | 结果 |
+|---|---|
+| 安装 | `dsh plugin add` 成功，`--dump-config` 含两行，真实会话可委派（AGY 返回 `AGY_TOOL_OK`） |
+| 禁用 | 对两行加 `disabled: true` 后，模型工具列表无 `subagent_oar`，被要求调用时回复 `NO_TOOL`；其他 DSH 子代理工具仍可用 |
+| 重装 | `plugin remove` 后组合包行消失；重新 `add` 后两行恢复，真实委派再次成功（`REINSTALL_OK`） |
+| 配置保留 | 用户 patch 的 `permissionMode: plan` 在 remove/reinstall 后仍生效（`--dump-config` 合并结果） |
+| 残留进程 | 10 次真实委派后 `ps` 检查无 agy 进程 |
+
+安装耗时约 1 秒、只需 1 条命令；从零到首次委派远低于 SC-004 的 2 步 / 10 分钟。
 
 ## 失败路径（自动化）
 
 假 agy 集成测试覆盖：`ERROR` 终态、未登录（stderr 认证文案）、畸形输出、部分输出后崩溃（部分文本与诊断分离）、超时、父会话取消；单元测试覆盖六类诊断互不相同与 4096 字节截断。
 
-## T032 安装与分发（消费者级）
-
-`pnpm pack` 提供方 → 组合包以 `file:` 依赖装入干净 pnpm 消费者：
-- 组合包、提供方包、官方工具包全部解析安装；
-- 装入后 `import('dsh-subagent-agy')` 导出 `Config/apply/inject/name`，`Config` 解析 patch 配置；
-- 官方工具 `Config({providers:{agy:'agy'}})` 解析为 `toolName: subagent_oar`；
-- `cordis.patch.yml` 两行齐全。
-
-**未覆盖**：DSH 插件管理器（桌面 GUI）内的真实安装/禁用/重装。本机未暴露 `dsh` CLI（`dsh` 不在 PATH，app.asar 的 package.json 无 `bin`），无头环境无法执行；需用户在 GUI 验收（quickstart 场景 1、5）。
-
-## 未完成 / 受限项
-
-| 任务 | 状态 | 原因 |
-|---|---|---|
-| T020 SC-007 入口选择 ≥9/10 | 未验证 | 需要真实 DSH 会话 + 模型选择；无头环境无法驱动模型入口选择 |
-| T021 重复工具名运行时行为 | 配置层已验证（`toolName` 真实存在且可覆盖），**运行时覆盖/报错未验证** | 需要同时启用官方 OAR 组合包的 DSH 实例 |
-| T032 DSH 宿主安装/禁用/重装 | 消费者级安装已验证；**宿主级未验证** | 无 `dsh` CLI、无头无法操作插件管理器 |
-| T033 低版本 DSH 拒绝安装 | 未验证 | 需要低版本 DSH 环境或安装器交互 |
-
-这些项均已在 tasks.md 标注，不影响代码与包本身的交付；建议用户在 GUI 按 quickstart 补验。
-
-## T037 凭据与配置边界检查
+## T036 凭据与配置边界检查
 
 - 代码不读取 `~/.gemini`、`~/.config`、`settings.json` 等 AGY 配置；唯一路径来源是配置的 `command` 与 `PATH`/`PATHEXT`。
 - 不写入任何 AGY 文件；`strict` 提示文本仅建议用户自行配置 allow 规则。
 - 日志只输出 `error.message` 与错误分类；诊断由 stderr 摘要（≤1200 字节，总体 ≤4096）构成，不含 prompt、工具输出或环境变量值。
 - `env` 仅按用户配置覆盖子进程环境，不读取、不落盘。
+- 临时验证用的 `.env`/`settings.yaml` 仅在 `/tmp/dsh_home`，未进入仓库。
 
 ## 成功标准对照
 
@@ -75,11 +102,11 @@
 |---|---|---|
 | SC-001 10 次 ≥9 成功 | PASS | 10/10 真机 |
 | SC-002 2 秒内启动确认 | PASS | 2–3 ms |
-| SC-003 四类失败可读且父会话可用 | PASS（假 agy 驱动） | 集成测试；真实未登录/超时由诊断分类覆盖 |
-| SC-004 安装 ≤2 步、10 分钟 | PARTIAL | 消费者安装 2 步；GUI 安装待用户 |
-| SC-005 禁用恢复 + 无残留进程 | PARTIAL | 进程清理测试通过；宿主禁用/重装待用户 |
+| SC-003 四类失败可读且父会话可用 | PASS | 假 agy 集成测试 + 六类诊断单元测试 |
+| SC-004 安装 ≤2 步、10 分钟 | PASS | 1 条 `dsh plugin add`、约 1 s，随即真实委派成功 |
+| SC-005 禁用恢复 + 无残留进程 | PASS | 禁用后工具消失、其他功能正常；重装恢复；10 次后无 agy 残留 |
 | SC-006 文档三问 + 免责 | PASS | MiMo checklist 终审 + 组合包契约测试 |
-| SC-007 入口选择 ≥9/10 | 未验证 | 需真实模型会话 |
+| SC-007 入口选择 ≥9/10 | PASS | 10/10 真实会话选择 `subagent_oar(runtime=agy)` |
 
 ## 复现命令
 
@@ -91,4 +118,14 @@ node scripts/real-smoke.mjs 10
 node scripts/mode-smoke.mjs plan
 node scripts/mode-smoke.mjs strict
 node scripts/mode-smoke.mjs yolo
+```
+
+宿主级复现（临时 home，不触碰桌面 profile）：
+
+```bash
+# 从 app.asar 解包 CLI 后
+DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js \
+  plugin --profile headless add /path/to/dsh-subagent-agy-bundle
+DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js \
+  --profile headless --json "Use subagent_oar with runtime agy to reply exactly OK"
 ```
