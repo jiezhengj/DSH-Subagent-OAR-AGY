@@ -168,3 +168,11 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 - **运行时文案**：`src/i18n.ts` 覆盖 8 语言的失败、超时、取消、权限拒绝等文案；`locale: auto` 时依次读取 `locale` 配置、DSH `settings.yaml` 的 `locale.preference`、`DSH_LOCALE`/`LC_ALL`/`LANG`，最后回退英文。
 - **测试**：58 项全绿，新增 `i18n.test.ts`（语言表完整性、占位符、检测顺序、8 语言 locale 文件）与组合包 8 语言元数据/详情文件断言。
 - **实装**：卸载旧包名 0.1.2 → 安装 `@jiezhengj/subagent_oar_agy` 0.2.1（`application: applied`），`locale/*.json` 与 `docs/DETAIL.*.md` 均已落入 profile；真实会话 `subagent_oar_agy(runtime=agy)` 返回 `FINAL_INSTALL_OK`。
+
+## 公开分发（GitHub，v0.2.2）
+
+- **隐私检查**：全仓库无令牌、密钥、邮箱、个人绝对路径（仅 `/tmp` 临时验证路径）；`node_modules`、`dist`、`coverage`、构建出的 `provider/` 与 tarball 均被忽略。
+- **仓库**：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY`，public，topics：`dsh-plugin`、`dsh`、`deepseek-harness`、`antigravity`、`agy`、`subagent`；`main` 分支已推送。
+- **发布包**：组合包改为自包含（构建时把提供方 `dist` 复制为 `provider/`，patch 引用 `@jiezhengj/subagent_oar_agy/agy-provider`），tarball 依赖只剩 npm 上的宿主包与官方 OAR 工具。
+- **Release**：`v0.2.2` 附带 `subagent_oar_agy-0.2.2.tgz`；安装框输入 `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz`。
+- **安装验证**：临时 `DSH_HOME` 用该 URL 安装成功（pnpm 拉取 tarball，官方 OAR 工具从 npm 安装）；本机桌面 profile 已卸载 0.2.1 并按同一 URL 安装 0.2.2（`application: applied`）。
