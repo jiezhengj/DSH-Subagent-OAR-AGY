@@ -129,3 +129,18 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js \
   --profile headless --json "Use subagent_oar with runtime agy to reply exactly OK"
 ```
+
+## 桌面 profile 实装（2026-11-08 02:2x）
+
+经用户明确要求，把组合包直接装入正在运行的桌面 DSH profile（`~/.dsh/profiles/desktop`），不重启应用：
+
+| 步骤 | 结果 |
+|---|---|
+| 打包 | 组合包本地 tarball，provider 依赖指向本仓库 `packages/dsh-subagent-agy` |
+| 安装 | `plugin_manager install_bundle`：`stage: enable`、`application: applied`，pnpm 394 ms |
+| 生效 | `include:subagent-agy`、`include:tool-subagent-oar-agy` 均 `fiberPhase: active` |
+| 实机冒烟 | 新建子代理调用 `subagent_oar(runtime=agy)`，AGY 返回 `LIVE_GUI_OK`，未使用其他子代理工具 |
+
+- `list_bundles` 显示 `dsh-subagent-agy-bundle` 0.1.0 `enabled: true`、`installed: true`。
+- 安装来源是本机 tarball，provider 依赖以 `file:` 指向仓库路径；移动/删除仓库后需重新安装。
+- 卸载/禁用可在 DSH「设置 → 插件」中操作，或 `plugin_manager remove_bundle`。
