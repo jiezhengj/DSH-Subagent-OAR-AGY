@@ -85,7 +85,7 @@ description: "Task list for npm 短名称安装（注册表分发）"
 - [ ] T018 [US2] 读取 `/tmp/vhome/profiles/deskclone/package.json` 与 `node_modules/@jiezhengj/subagent_oar_agy/package.json`，记录依赖值与解析版本，确认 `dependencySpec` 为注册表规格而非 URL
 - [ ] T019 [US2] 在 T015 最后一轮的 18131 隔离实例中，先回插件列表页点「刷新」（或整页重载）触发 `checkAllVersions`，再进「版本」区，确认显示当前版本 `$V` 与「已是最新版本」；记录上次检查时间与界面文案。T016 已留下 refused 缓存，不刷新会读到「无法连接安装源」；若刷新后仍缓存，记录例外并重载
 - [ ] T020 [US2] 更新可用性验证：在隔离副本编辑 `/tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent_oar_agy/package.json` 的 `version` 为 `0.2.5`（不改依赖规格、不触发安装），回列表页刷新后重新读取版本区，期望出现「可更新到 0.2.6」；如有更新入口，点击一次并确认安装回到 `$V`、依赖仍是注册表规格（不点则记录例外）；若界面受缓存影响，记录 `updateRefusal()` 的 registry 分支证据与例外，并还原该文件
-- [ ] T021 [US2] 不兼容过滤核对：读取 `dsh-client-ui-plugin-manager` 与 `dsh-plugin-manager` 中 `engines.dsh`/`versionsBlocked` 的过滤路径，记录一条单版本无实测的例外说明
+- [ ] T021 [US2] 不兼容过滤核对：读取 `dsh-client-ui-plugin-manager` 与 `dsh-plugin-manager` 中 `engines.dsh`/`versionsBlocked` 的过滤路径，记录一条单版本无实测的例外说明，并在 validation.md 标注 US2 场景 3 的验收方式为代码路径核对
 - [ ] T022 [US2] 把 T018–T021 的证据（依赖值、版本区文案、更新判定、过滤例外）记录到 `specs/002-npm-distribution/validation.md` 的「US2 版本面板」小节（该文件在 T033 汇总，T022 先创建并追加）
 
 **Checkpoint**: US1 与 US2 均可独立验证；版本区与依赖形态有结论
@@ -104,8 +104,8 @@ description: "Task list for npm 短名称安装（注册表分发）"
 - [ ] T024 [US3] 创建并推送 tag：`git tag v$V`、`git push origin v$V`；确认 `git ls-remote --tags origin "refs/tags/v$V"` 命中
 - [ ] T025 [US3] 生成 Release 说明并创建 GitHub Release：`gh release create v$V /tmp/subagent_oar_agy-$V.tgz --notes-file /tmp/release-notes.md`；核对 `gh release view v$V --json assets` 含 `subagent_oar_agy-$V.tgz`；T023–T025 应在 T012 成功后立即执行（不必等待 US1/US2 验证），记录 publish→Release 间隔 ≤5 分钟；若先做验证再发 Release，则在 validation 记录超出 SC-003 的例外
 - [ ] T026 [US3] 双渠道 parity：`gh release download v$V -p subagent_oar_agy-$V.tgz -D /tmp/rel` 下载 Release 资产；比对 `/tmp/rel/subagent_oar_agy-$V.tgz` 与 `/tmp/subagent_oar_agy-$V.tgz` 的 SHA-256；用 `npm view @jiezhengj/subagent_oar_agy@$V dist.shasum dist.integrity dist.tarball` 核对 `dist.shasum` 与本地 SHA-1 一致；`npm pack @jiezhengj/subagent_oar_agy@$V --dry-run --json` 的文件清单与本地一致
-- [ ] T027 [US3] 旧版本与 tgz 备选（命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：确认 `v0.2.5` 的 tag/Release 资产未变；先在隔离 profile 移除按名称安装的条目（`plugin --profile deskclone remove @jiezhengj/subagent_oar_agy`），再用 Release 的 `subagent_oar_agy-$V.tgz` 安装一次，确认依赖保存为 URL、插件可用、版本区不出现或无更新入口（tarball 来源 updatable=false；不要断言存在「不可更新」文案）
-- [ ] T028 [US3] 迁移验证（命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：在已用 tgz 安装的隔离 profile 中先移除旧条目，再按名称安装 `$V`，确认没有重复依赖且工具可用
+- [ ] T027 [US3] 旧版本与 tgz 备选（命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：确认 `v0.2.5` 的 tag/Release 资产未变；先在隔离 profile 移除按名称安装的条目（`plugin --profile deskclone remove @jiezhengj/subagent_oar_agy`），再用 Release 的 `subagent_oar_agy-$V.tgz` 安装一次，确认依赖保存为 URL、重启隔离实例后工具列表可用、版本区不出现或无更新入口（tarball 来源 updatable=false；不要断言存在「不可更新」文案）
+- [ ] T028 [US3] 迁移验证（命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：在已用 tgz 安装的隔离 profile 中先移除旧条目，再按名称安装 `$V`，确认没有重复依赖、重启实例后工具仍可用
 - [ ] T029 [US3] 不可覆盖演练：再次执行 `npm publish --access public` 尝试同版本发布，确认注册表拒绝（409）；若当次无法提供 OTP，则记录「注册表不可同版本覆盖」的代码/文档证据与例外
 - [ ] T030 [US3] 发布后文档核对：grep 11 份安装文档确认名称、`$V`、tgz 备选一致；检查 Release 说明与 README 版本一致
 
@@ -120,7 +120,7 @@ description: "Task list for npm 短名称安装（注册表分发）"
 - [ ] T031 [P] 全量回归：`pnpm test`、`node packages/subagent-oar-agy-bundle/scripts/verify-package.mjs`、`pnpm --dir packages/subagent-oar-agy-bundle run build` 全部通过；按 `quickstart.md` 第 1–10 步抽查；T027–T029 的 tgz/迁移/409 步骤不在 1–10 步内，另行执行
 - [ ] T032 [P] 凭据扫描：扫描仓库文件、提交历史、文档与脚本中的 npm token、`npmrc` 内容与 OTP，命中数必须为 0；用 `find . -name '*.tgz' -not -path '*/node_modules/*'` 断言 0 个 tarball，并只对临时/发布文件检查 `git status --ignored --porcelain`（不要要求整个 ignored 输出为空，仓库已有既有忽略项）
 - [ ] T033 [P] 汇总并完善 `specs/002-npm-distribution/validation.md`（T022 已创建）：记录发布前置、包清单、注册表版本、隔离安装 3 次、版本面板证据、parity 摘要、失败语义与例外
-- [ ] T034 更新 `specs/002-npm-distribution/spec.md` 状态为 Completed（`v0.2.6`），勾选 T001–T033，在**当前分支 `main`** 提交并推送（本项目既有 feature 亦在 main 推进，不新建分支）；确认工作区只剩无关缓存文件
+- [ ] T034 更新 `specs/002-npm-distribution/spec.md` 状态为 Completed（`v0.2.6`），勾选 T001–T033 与 `checklists/requirements.md`，在**当前分支 `main`** 提交并推送（本项目既有 feature 亦在 main 推进，不新建分支）；确认工作区只剩无关缓存文件
 
 
 ## 验证备注
@@ -156,7 +156,7 @@ description: "Task list for npm 短名称安装（注册表分发）"
 - T007 与 T008 可并行；T009 依赖二者
 - T010 依赖 T003；T011 依赖 T006、T009、T010
 - T012 依赖 T011；T013–T016 依赖 T012，彼此可顺序执行
-- US2 的 T018 依赖 T013；T019 依赖 T015 与 T018；T020 依赖 T019（必须先看到「已是最新」）；T021 依赖 T018
+- US2 的 T018 依赖 T013；T019 依赖 T015、T016 与 T018；T020 依赖 T019（必须先看到「已是最新」）；T021 依赖 T018
 - US3 的 T023 依赖 T012；T024–T026 依次执行；T027–T030 在 T025 之后。T023–T025 可在 T012 后立即执行，不必等待 US1/US2 验证
 - Polish 的 T031–T033 可并行；T034 依赖全部
 

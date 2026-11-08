@@ -6,6 +6,7 @@
 cd /Users/jiezhengj/Documents/Project/subagent_oar_agy
 V=$(node -p "require('./packages/subagent-oar-agy-bundle/package.json').version")   # 首发应为 0.2.6
 echo "$V"
+[ "$V" = "0.2.6" ] || { echo "版本不是 0.2.6：先执行 T010 升版本"; exit 1; }
 ```
 
 ## 0. 前置核对
@@ -57,6 +58,8 @@ npm view @jiezhengj/subagent_oar_agy@$V version dist.tarball dist.integrity engi
 ## 4. 按名称安装（隔离环境）
 
 ```sh
+if [ -f /tmp/vhome.pid ]; then kill "$(cat /tmp/vhome.pid)" 2>/dev/null || true; fi
+rm -f /tmp/vhome.pid
 rm -rf /tmp/vhome && mkdir -p /tmp/vhome/profiles
 cp -a ~/.dsh/profiles/desktop /tmp/vhome/profiles/deskclone
 BIN="/Applications/DeepSeek Harness.app/Contents/Resources/app.asar/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js"
@@ -111,7 +114,7 @@ if [ "$SC006_RC" -ne 0 ]; then echo "SC-006 FAIL (exit $SC006_RC)"; fi
 ## 6. 更新面板与依赖形态
 
 - 读取 `/tmp/vhome/profiles/deskclone/package.json`，确认依赖是注册表规格（名称 + 版本/范围），而不是 URL。
-- 先回插件列表页点「刷新」或整页重载（触发 `checkAllVersions`），再打开「版本」区，确认显示当前版本与「已是最新版本」；记录上次检查时间。T016 留下 refused 缓存，不刷新会读到「无法连接安装源」。
+- 先回插件列表页点「刷新」或整页重载（触发 `checkAllVersions`），再打开「版本」区，确认显示当前版本与「已是最新版本」；记录上次检查时间。按 tasks.md 顺序先跑 T016 时这里会留下 refused 缓存，不刷新会读到「无法连接安装源」；线性执行到本步通常尚无缓存，刷新仍建议保留。
 - 模拟「有更新」：npm 首发只有 0.2.6，不存在更旧的已发布版本，因此**不要改依赖值**；改为编辑隔离副本已装包的版本号：
 
 ```sh
