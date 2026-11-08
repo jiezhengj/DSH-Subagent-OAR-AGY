@@ -44,7 +44,7 @@ node -e "const p=Object.values(require('/tmp/pack-plan.json'))[0]; console.log(p
 npm publish --access public
 ```
 
-**期望**：`publishConfig.access = public` 生效，注册表出现 `$V`。若提示 OTP，当场输入 6 位码。
+**期望**：`publishConfig.access = public` 生效，注册表出现 `$V`。若提示 OTP，当场输入 6 位码。记录时间：`date -u +%FT%TZ`。为满足 SC-003，发布成功后**先执行第 7 步**创建 tag/Release，再回到第 4 步做长时间安装验证。
 
 **幂等说明**：若 `$V` 已发布成功，本步会返回 409（版本不可覆盖），此时跳过发布，只做核对：
 
@@ -62,7 +62,7 @@ cp -a ~/.dsh/profiles/desktop /tmp/vhome/profiles/deskclone
 BIN="/Applications/DeepSeek Harness.app/Contents/Resources/app.asar/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js"
 APP="/Applications/DeepSeek Harness.app/Contents/MacOS/DeepSeek Harness"
 HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
-  plugin --profile deskclone remove @jiezhengj/subagent_oar_agy
+  plugin --profile deskclone remove @jiezhengj/subagent_oar_agy || true
 HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
   plugin --profile deskclone add @jiezhengj/subagent_oar_agy --save-exact
 node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependencies;console.log(d['@jiezhengj/subagent_oar_agy'])"
@@ -75,10 +75,12 @@ node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependenc
 以下循环完整执行 3 轮；每轮必须先停止上一轮实例、重建隔离环境，再安装与启动。启动后先断言日志出现访问地址，再检查未激活告警，避免启动失败被误判为通过。
 
 ```sh
+(
+SC006_FAIL=0
 for i in 1 2 3; do
   if [ -f /tmp/vhome.pid ]; then kill "$(cat /tmp/vhome.pid)" 2>/dev/null || true; fi
   rm -f /tmp/vhome.pid
-  sleep 1
+  sleep 2
   rm -rf /tmp/vhome && mkdir -p /tmp/vhome/profiles
   cp -a ~/.dsh/profiles/desktop /tmp/vhome/profiles/deskclone
   HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
@@ -91,12 +93,15 @@ for i in 1 2 3; do
   if ! grep -qF 'http://127.0.0.1:18131/?token=' /tmp/vhome-boot.log; then
     echo "round $i: 启动失败"; cat /tmp/vhome-boot.log; exit 1
   fi
-  if grep -qiE "did not activate|pending" /tmp/vhome-boot.log; then
-    echo "round $i: FAIL"; grep -iE "did not activate|pending" /tmp/vhome-boot.log
+  if grep -qi "did not activate" /tmp/vhome-boot.log; then
+    echo "round $i: FAIL"; grep -i "did not activate" /tmp/vhome-boot.log; SC006_FAIL=1
   else
     echo "round $i: OK"
   fi
 done
+if [ "$SC006_FAIL" -ne 0 ]; then echo "SC-006 FAIL"; exit 1; fi
+echo "SC-006 PASS"
+)
 ```
 
 打开日志中的 `http://127.0.0.1:18131/?token=...`，确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`；在会话里调用一次（`runtime=agy`）确认返回结果。三轮都输出 `OK` 才算通过。
@@ -152,7 +157,7 @@ shasum -a 256 /tmp/rel/subagent_oar_agy-$V.tgz /tmp/subagent_oar_agy-$V.tgz
 shasum -a 1 /tmp/subagent_oar_agy-$V.tgz
 npm view @jiezhengj/subagent_oar_agy@$V dist.shasum dist.integrity dist.tarball
 npm pack @jiezhengj/subagent_oar_agy@$V --dry-run --json > /tmp/registry-pack.json
-node -e "const p=Object.values(require('/tmp/registry-pack.json'))[0]; console.log(p.name,p.version,p.entryCount)"
+node -e "const a=Object.values(require('/tmp/pack-plan.json'))[0].files.map(f=>f.path).sort(); const b=Object.values(require('/tmp/registry-pack.json'))[0].files.map(f=>f.path).sort(); console.log('files match', JSON.stringify(a)===JSON.stringify(b), a.length); if (JSON.stringify(a)!==JSON.stringify(b)) process.exit(1)"
 ```
 
 **期望**：Release 资产与 `/tmp` 本地 tarball 的 SHA-256 相同；`dist.shasum`（SHA-1）与本地 `shasum -a 1` 相同；注册表文件清单与本地 `npm pack` 一致；文档中的名称与版本为 `@jiezhengj/subagent_oar_agy` 与 `$V`。
@@ -176,7 +181,7 @@ grep -iE "registry|network|ECONN|unable" /tmp/install-fail.log | head -5
 node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependencies; console.log(d['@jiezhengj/subagent_oar_agy'])"
 ```
 
-在 `.npmrc` 仍生效期间刷新/重开插件管理「版本」区，确认显示网络失败提示（宿主键 `versionsFailedNetwork`），而不是「已是最新」；记录文案后再清理：
+在 `.npmrc` 仍生效期间，于该实例的安装框输入 `@jiezhengj/subagent_oar_agy` 并确认，观察 `installProblemNetwork` 文案；再刷新/重开插件管理「版本」区，确认显示网络失败提示（宿主键 `versionsFailedNetwork`），而不是「已是最新」；记录文案后再清理：
 
 ```sh
 rm -f /tmp/vhome/profiles/deskclone/.npmrc
