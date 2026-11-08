@@ -5,7 +5,7 @@
 ## 构建与测试
 
 - `pnpm -r build`：通过（TypeScript 严格模式，`module: NodeNext`）。
-- `pnpm test`：**9 个测试文件、50 项全绿**（单元 + 假 agy 集成 + 组合包契约）。
+- `pnpm test`：**10 个测试文件、59 项全绿**（单元 + 假 agy 集成 + i18n + 组合包契约；早期记录为 50 项，随本地化/自包含/元数据测试增加）。
 - 覆盖率（`pnpm test --coverage`，v8）：全仓行 89.35%；核心模块行覆盖：`stream` 92.59%、`protocol` 100%、`errors` 95%、`timer` 100%；`run.ts` 92%。
 
 ## T005 官方工具 spike
@@ -56,6 +56,8 @@
   name: '@deepseek-ai/dsh-experimental-tool-subagent-oar'
   config: {providers: {agy: agy}}
 ```
+
+> 说明：以上是 v0.1.x 的实测形态。v0.2.3 起提供方改为组合包内子路径 `@jiezhengj/subagent_oar_agy/agy-provider`，工具行显式 `toolName: subagent_oar_agy`，见 `contracts/bundle-patch.md`。
 
 ### T020 入口选择（SC-007）
 
@@ -186,3 +188,12 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 - **根因**：自包含改造给 `package.json` 增加 `exports` 后，Node 资源解析拒绝 `@jiezhengj/subagent_oar_agy/locale/en.json`、`/package.json`、`/icon`；DSH 的 `readPluginMeta` 读不到 locale 元数据，标题回退为包名。
 - **修复**：`exports` 增加 `./locale/*`、`./agy-provider/locale/*`、`./icon`、`./package.json`；构建时一并复制提供方 `locale`；新增资源可解析性测试（59 项全绿）。
 - **验证**：`readPluginMeta` 对组合包返回 8 语言标题（zh 为「AGY 子智能体」），对 `@jiezhengj/subagent_oar_agy/agy-provider` 返回「AGY 子智能体运行时」；按 Release URL 重装后真实委派冒烟通过。
+
+## 最终发布验证（v0.2.3，2026-11-08）
+
+- **发布物**：`v0.2.3` Release 资产 `subagent_oar_agy-0.2.3.tgz`，自包含（含 `provider/`、`locale/`、`docs/DETAIL.<lang>.md`）。
+- **安装路径**：临时 `DSH_HOME` 与本机桌面 profile 均用安装框地址安装成功；桌面卸载 0.2.2 后安装 0.2.3（`application: applied`）。
+- **显示名/元数据**：`readPluginMeta` 对组合包返回 8 语言标题（zh「AGY 子智能体」）、描述与图标；对 `@jiezhengj/subagent_oar_agy/agy-provider` 返回 8 语言「AGY 子智能体运行时」。
+- **功能冒烟**：安装 0.2.3 后 `subagent_oar_agy(runtime=agy)` 返回 `TITLE_FIX_OK`。
+- **README**：根 `README.md` 为语言索引页，链接 `README.de/en/es/fr/ja/pt/ru/zh.md`；组合包 README 也互链；安装框地址与 Release 一致。
+- **仓库**：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY`，public，topics 含 `dsh-plugin`；`main` 已推送。

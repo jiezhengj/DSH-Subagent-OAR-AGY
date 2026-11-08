@@ -23,3 +23,8 @@
 - **PASS**：官方工具包可安装、可导入、`providers` 接受别名 `agy`；`toolName` 覆盖可用，README 的冲突处理方案成立。
 - `providers` 只在配置解析层校验存在性，不检查运行时名是否已注册（`providers:{agy:'nope'}` 仍通过 schema），因此提供方行必须与工具行同时生效——组合包契约已说明。
 - 宿主内的实际加载（cordis patch 挂载）无法在纯 Node 中复现；已在独立 pnpm 消费者中验证依赖树安装与模块导入（见 `validation.md`），宿主 GUI 加载留给用户验收。
+
+## 后续修订
+
+- spike 阶段实验用的 `toolName: 'subagent_agy'` 仅证明可覆盖；发布版默认改为 `subagent_oar_agy`（v0.1.2 起），避免与官方 OAR 的 `subagent_oar` 冲突。
+- v0.2.2 起提供方改为构建时内置进组合包（`provider/`），patch 用包内子路径；spike 的依赖树结论仍成立，但安装方式与元数据资源要求见 contracts/bundle-patch.md。

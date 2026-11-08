@@ -34,7 +34,7 @@
 - [x] T017 [US1] 接线组合包 `packages/subagent-oar-agy-bundle/cordis.patch.yml` 两行（提供方 + 官方工具 `providers: {agy: agy}`）并验证 patch 被接受（依赖 T004、T005、T015）
 - [x] T018 [US1] 真实 AGY 端到端验证 quickstart 场景 1（需用户授权）；记录耗时/模型/结果到 `specs/001-subagent-oar-agy/validation.md`，含 SC-002 启动确认计时
 - [x] T019 [US1] 并发集成测试 `packages/subagent-oar-agy-provider/test/integration.test.ts`：假 `agy` 并行发起 ≥2 次委派（含相同 `cwd`），断言 run id 与结果一一对应、无串扰（FR-006、FR-020；quickstart 场景 4）
-- [x] T020 [US1] SC-007 入口选择验证：在启用内置子代理工具的环境中，10 次任务描述明确指向 AGY 的委派，统计 `subagent_oar` 被选中的比例 ≥9/10；记录到 `validation.md`
+- [x] T020 [US1] SC-007 入口选择验证：在启用内置子代理工具的环境中，10 次任务描述明确指向 AGY 的委派，统计 `subagent_oar_agy` 被选中的比例 ≥9/10；记录到 `validation.md`
 - [x] T021 [US1] 工具名冲突实验：同时启用官方 OAR 组合包，验证 DSH 对重复 `subagent_oar` 的处理（覆盖/报错），并验证 `toolName` 配置项是否真实存在且生效；结论写入 `research.md` 与 README（FR-016、research D9）
 
 ## Phase 4：用户故事 2 - 失败可读、可恢复（P2）
@@ -56,23 +56,26 @@
 
 ## Phase 6：用户故事 4 - 可安装、可升级（P4）
 
-- [x] T030 [US4] 完成组合包 `package.json`：`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`、`files`、精确锁定官方工具版本与提供方版本（FR-014）
-- [x] T031 [US4] 编写安装文档 `packages/subagent-oar-agy-bundle/docs/INSTALL.md`：`dsh plugin add` 本地路径与 npm 两种方式、Discover 说明、升级与禁用/启用步骤、工具名冲突处理（FR-013、FR-016）
+- [x] T030 [US4] 完成组合包 `package.json`：`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`、`files`（含 `locale`、`provider`）、`exports`（`./agy-provider`、`./agy-provider/locale/*`、`./locale/*`、`./icon`、`./package.json`）、精确锁定官方工具与宿主包版本，提供方仅 devDependency（FR-014、FR-023）
+- [x] T031 [US4] 编写安装文档 `packages/subagent-oar-agy-bundle/docs/INSTALL.md` 与根 README 索引：安装框粘贴 GitHub Release tarball 地址、本地 tarball 备选、升级与禁用/启用步骤、工具名冲突处理、8 语言 README 链接（FR-013、FR-016、FR-023）
 - [x] T032 [P] [US4] 临时 profile 安装冒烟并记录到 `specs/001-subagent-oar-agy/validation.md`：安装 → 重载 → 首次委派 → 禁用 → 重装，确认配置保留且 DSH 正常启动；记录 SC-004 的步骤数与耗时，以及 SC-005 的 3 次禁用后无残留进程抽样（FR-013、FR-011）
 
 ## Phase 7：收尾
 
-- [x] T033 编写 `packages/subagent-oar-agy-bundle/docs/DETAIL.md`：架构、安全边界、失败语义、与官方 OAR 的关系
+- [x] T033 编写 `packages/subagent-oar-agy-bundle/docs/DETAIL.<lang>.md`（8 语言）：架构、安全边界、失败语义、与官方 OAR 的关系
 - [x] T034 跑通 `packages/subagent-oar-agy-provider/test/` 全部单元/集成测试，核心模块（`stream`/`protocol`/`errors`/`timer`）行覆盖 ≥ 90%
 - [x] T035 真实 AGY 10 次委派冒烟并记录 SC-001/SC-002 数据到 `specs/001-subagent-oar-agy/validation.md`（需用户授权、消耗配额）
-- [x] T037 [P] 显示名/介绍正文/详情与运行时文案的 8 语言本地化：`locale/<lang>.json`、`docs/DETAIL.<lang>.md`、`src/i18n.ts` 与本地化测试（FR-017、SC-008）
+- [x] T038 [US4] 自包含组合包：`scripts/vendor-provider.mjs` 构建时复制提供方 `dist` 与 `locale` 至 `provider/`，patch 改为包内子路径 `@jiezhengj/subagent_oar_agy/agy-provider`，移除提供方运行时依赖；测试断言 tarball 自包含（FR-014、FR-023）
+- [x] T039 [US4] 公开发布：GitHub 仓库 public + topics（含 `dsh-plugin`）、Release `v0.2.3` 附 tarball、根 README 索引页与 8 语言正文互链；在临时 `DSH_HOME` 与桌面 profile 用安装框地址安装并真实冒烟（FR-023、SC-009）
+- [x] T040 [US4] 显示名回归修复：`exports` 补齐 `./locale/*` 等元数据子路径（否则 DSH 回退包名），用 `readPluginMeta` 复核组合包与提供方标题为 8 语言，并补充资源可解析性测试（FR-022、SC-008）
 - [x] T036 凭据与配置边界检查并记录到 `specs/001-subagent-oar-agy/validation.md`：代码走查确认无凭据读取路径、无 AGY 认证文件与 `~/.gemini/.../settings.json` 的写入（含读取检查）、日志无环境变量值（FR-015）；提交前检查 Conventional Commits 与无用户路径/令牌泄漏
+- [x] T037 [P] 显示名/介绍正文/详情与运行时文案的 8 语言本地化：`locale/<lang>.json`、`docs/DETAIL.<lang>.md`、`src/i18n.ts` 与本地化测试（FR-022、SC-008）
 
 ## 依赖关系
 
 ```text
 T001 ─► T002, T003, T004
-T005（硬门禁）─► T006 … T036（未通过不开始任何实现任务）
+T005（硬门禁）─► T006 … T040（未通过不开始任何实现任务）
 T002 ─► T006–T013
 T003 ─► T006–T015
 T006, T007, T008, T009, T010 ─► T012
@@ -86,12 +89,14 @@ T013 ─► T023
 T025 ─► T026
 T015 ─► T027 ─► T029
 T021 ─► T028
-T017 ─► T030 ─► T032
+T017 ─► T030 ─► T038 ─► T039
+T038 ─► T040
+T030, T038 ─► T032
 T017 ─► T033
 T016, T019, T025, T032 ─► T034
 T018 ─► T035
 T018, T026, T032, T034, T035 ─► T036
-T036 ─► 完成
+T036, T037, T039, T040 ─► 完成
 ```
 
 ## 并行执行示例
@@ -107,3 +112,4 @@ T036 ─► 完成
 - 按 US2 → US3 → US4 增量补齐失败语义、权限透明与分发。
 - **T005 是硬门禁**：spike 未通过前不开始 T006 起的任何实现任务；失败时先在 plan/research 记录 Option B 决策再继续。
 - T018/T020/T026/T032/T035 需要真实 AGY 或真实模型会话；本次实现已在临时 DSH home 的 headless profile 中完成（见 validation.md）。
+- T039/T040 在发布后进行：先推送并创建 Release，再用 README 的安装框地址在干净环境与桌面 profile 复验，最后补 `readPluginMeta` 断言。

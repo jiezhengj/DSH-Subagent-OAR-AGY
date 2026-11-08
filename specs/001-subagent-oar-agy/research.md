@@ -56,10 +56,11 @@
 
 ## D8. 组合包结构与版本门禁
 
-- **Decision**：组合包 `@jiezhengj/subagent_oar_agy` 的 `package.json` 声明 `dsh.bundle.patch: ./cordis.patch.yml`、`listedByDefault: false`、`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`；依赖 `@jiezhengj/subagent_oar_agy-provider`（同版本）与官方工具包（精确版本）；patch 为单条 `insert` 组，含两行。
-- **Rationale**：与官方 `ralph-bundle` 的打包方式一致；`listedByDefault: false` 表示不随默认模板自动启用，需用户安装后选择。
+- **Decision**（v0.2.2 修订）：组合包 `@jiezhengj/subagent_oar_agy` 的 `package.json` 声明 `dsh.bundle.patch: ./cordis.patch.yml`、`listedByDefault: false`、`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`；提供方只作 devDependency，构建时复制其 `dist` 与 `locale` 到 `provider/`，patch 用包内子路径引用；运行依赖为宿主包与官方工具（精确版本），发布物为自包含 tarball。
+- **Rationale**：与官方 `ralph-bundle` 的打包方式一致；自包含使未上架 npm 的插件可由 DSH 安装框直接安装远端 tarball（FR-023）。
 - **Alternatives considered**：
-  - 单包（提供方即组合包）：DSH 组合包 patch 行需要引用独立包名，单包自引用不是官方模式。
+  - 依赖单独的提供方 npm 包：需要先发布提供方，且用户安装失败面更大。
+  - 单包（提供方源码并入组合包）：开发/测试成本更高，保持 workspace 两包更清晰。
   - 只发提供方包：用户需手工插行，违背"安装 ≤ 2 步"（SC-004）。
 
 ## D9. 工具名与冲突
@@ -76,6 +77,25 @@
 
 ## 未决与后续
 
-- 官方工具包 spike 尚未执行（计划实施第 1 步）。
-- `toolName` 冲突时的 DSH 行为待实现阶段验证。
-- Windows 进程树终止需在 Windows 环境验证一次（CI 或手工）。
+- 官方工具包 spike 已执行：PASS（见 spike.md）。
+- `toolName` 冲突行为已实测：DSH 报错并拒绝第二个注册；发布版默认 `subagent_oar_agy`。
+- Windows 进程树终止仍需在 Windows 环境验证一次（CI 或手工）。
+- 若后续上架 npm，需要恢复发布流程与版本策略；当前分发以 GitHub Release tarball 为准。
+
+## D11. 自包含 tarball 与 GitHub Release 分发
+
+- **Decision**：组合包构建时把提供方 `dist` 与 `locale` 复制进 `provider/`，patch 引用 `@jiezhengj/subagent_oar_agy/agy-provider`；发布物为 GitHub Release 资产，README 给出安装框完整 URL。根 README 作为语言索引页，链接 8 个 `README.<lang>.md`。
+- **Rationale**：插件未上架 npm；DSH 插件管理把安装输入作为 pnpm spec，可直接拉取远端 tarball。自包含避免 workspace/file 依赖在用户机器上不可解析。
+- **Alternatives considered**：发布 npm 包（需要账号与版本管理，且用户明确先走 GitHub）；要求用户 clone 后本地 `dsh plugin add`（步骤多、违背 SC-004）。
+
+## D12. exports 与插件页元数据资源
+
+- **Decision**：组合包 `exports` 显式导出 `./locale/*`、`./agy-provider/locale/*`、`./icon`、`./package.json`。`package.json` 一旦声明 `exports`，DSH 的 `readPluginMeta` 才能通过 Node 解析器读到 locale 元数据；否则标题回退为包名。
+- **Rationale**：v0.2.2 实测回归：自包含改造加 `exports` 后，插件页显示 `@jiezhengj/subagent_oar_agy`；`readPluginMeta` 对缺失资源返回 undefined。v0.2.3 补齐导出后，组合包与提供方子路径均解析出 8 语言标题/描述/图标。
+- **Alternatives considered**：移除 `exports`（会破坏 `agy-provider` 子路径加载）；把 provider 作为独立包（增加分发复杂度）。
+
+## D13. README 风格
+
+- **Decision**：仓库根 `README.md` 只做语言索引与安装入口，正文拆到 `README.<lang>.md`；语言导航在索引与各正文中互链。
+- **Rationale**：用户要求"README 是索引页，链接 8 种语言"；也避免根 README 过长。
+- **Alternatives considered**：单 README 内嵌多语言（过长、语言跳转体验差）。

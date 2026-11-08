@@ -6,11 +6,12 @@
 
 - DSH 桌面 0.2.2-rc.1（或组合包 `engines.dsh` 允许的版本）
 - 本机已安装并登录 AGY（`agy --version` 可执行；交互登录过一次）
+- 能访问 GitHub Release（安装框直接拉取 tarball）
 - pnpm 可用（安装组合包时由 DSH 插件管理器调用）
 
 ## 场景 1：安装与首次委派（FR-001/002/003/005、SC-004）
 
-1. 从插件页/Discover 安装组合包，重载 DSH；确认工具列表出现 `subagent_oar_agy`，`runtime` 只有 `agy`。
+1. 在 DSH 插件管理的安装框粘贴根 README 给出的 Release 地址（当前为 `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.3/subagent_oar_agy-0.2.3.tgz`）并安装，重载 DSH；确认插件页显示名为「AGY 子智能体」，工具列表出现 `subagent_oar_agy`，`runtime` 只有 `agy`。
 2. 在 `~/tmp/agy-demo`（存在且可写）打开会话，发起委派：`runtime=agy`，提示"在当前目录创建 hello.txt，内容为 ok，然后回答 done"。
 3. **期望**：2 秒内收到"已启动"；任务结束后收到含 done 的完成通知；`hello.txt` 出现在该目录。
 4. 不指定 `cwd` 再发起一次，确认 AGY 在父会话目录工作。
@@ -57,6 +58,13 @@
 
 ## 通过标准
 
-- spec.md 的场景 1–4 与新增的场景 7 全部满足；
-- 成功标准 SC-001 至 SC-007 均有对应记录（真实冒烟、日志或测试输出；SC-006 由评审者核对，SC-007 为入口选择统计）；
+- spec.md 的场景 1–4、7、8 全部满足；
+- 成功标准 SC-001 至 SC-009 均有对应记录（真实冒烟、日志或测试输出；SC-006 由评审者核对，SC-007 为入口选择统计，SC-008/SC-009 由 `readPluginMeta` 断言与安装冒烟证明）；
 - 无残留进程、无凭据写入、无 AGY 全局配置修改。
+
+## 场景 8：本地化与显示名（FR-022、SC-008、SC-009）
+
+1. 在 `settings.yaml` 设 `locale: {preference: ja}`（或切换系统语言），重载插件页：显示名应为「AGY サブエージェント」，介绍正文为日文。
+2. 逐个抽查 de/en/es/fr/pt/ru/zh：`locale/<lang>.json` 的标题/描述非空，`docs/DETAIL.<lang>.md` 可打开。
+3. 用 `strict` 档触发一次权限拒绝，确认运行时说明跟随界面语言（中文环境为「权限档 strict…」）。
+4. 检查仓库根 `README.md`：8 个语言链接均可到达对应 `README.<lang>.md`，安装框地址一致。

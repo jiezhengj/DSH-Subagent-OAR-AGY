@@ -14,6 +14,7 @@
 | `timeoutMs` | number? | 无（仅随父取消） | 正整数，≤ `MAX_TIMER_DELAY_MS` | 单次委派期限；从 `init` 事件起算 |
 | `killGraceMs` | number | `10000` | 正整数，≤ `MAX_TIMER_DELAY_MS` | SIGTERM 到 SIGKILL 的宽限（Windows 不适用） |
 | `env` | Record<string, string \| null> | `{}` | 键值合法 | 叠加在父进程环境之上；`null` 表示删除该键 |
+| `locale` | `auto` 或 8 语言之一 | `auto` | 枚举/语言标识 | 运行时文案语言；`auto` 依次取 DSH `locale.preference`、`DSH_LOCALE`/`LC_ALL`/`LANG`，最后 `en` |
 
 **校验规则**：`timeoutMs`/`killGraceMs` 必须是正有限数；`permissionMode` 必须是枚举值；`providerName`/`command` 不得为空白；非法配置在插件激活时抛错（与 OAR 的 `assertPositiveFinite` 风格一致）。
 
@@ -75,3 +76,16 @@ starting --spawn ok--> running --result SUCCESS--> settling(completed)
 | `cancelled` | 父信号取消 | 不产生面向模型的错误，结算为 aborted |
 
 **关系**：ProviderConfig 1—N DelegationRun；DelegationRun 1—N AgyEvent（仅内存）；DelegationRun 产生 0..1 FailureCategory。
+
+## 5. 分发包（安装单元）
+
+| 组成 | 说明 |
+|---|---|
+| `package.json` | `dsh.bundle.patch`、`engines.dsh`、`exports`（`./agy-provider`、`./locale/*`、`./agy-provider/locale/*`、`./icon`、`./package.json`） |
+| `cordis.patch.yml` | 提供方行（包内子路径）+ 官方工具行（`toolName: subagent_oar_agy`） |
+| `provider/` | 构建时复制的提供方 `dist` 与 `locale`（自包含运行时代码） |
+| `locale/<lang>.json` | 8 语言插件页标题/描述/详情指向 |
+| `docs/DETAIL.<lang>.md` | 8 语言实现说明 |
+| `icon.svg`、`README.md`、`docs/INSTALL.md` | 展示与安装说明 |
+
+分发单元以 GitHub Release tarball 发布；安装后由 pnpm 展开到 profile，patch 行经 Cordis loader 解析。

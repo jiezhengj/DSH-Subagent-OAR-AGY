@@ -1,21 +1,21 @@
 # 实现计划：subagent_oar_agy（官方 OAR 工具 + 非 ACP 的 AGY 提供方）
 
-**Branch**: `001-subagent-oar-agy` | **Date**: 2026-11-07 | **Spec**: [spec.md](./spec.md)
+**Branch**: `001-subagent-oar-agy` | **Date**: 2026-11-07（修订 2026-11-08：自包含分发、i18n、元数据导出） | **Spec**: [spec.md](./spec.md)
 
 **Input**: 功能规格 `specs/001-subagent-oar-agy/spec.md`；评估决策 `.specify/assessments/subagent-oar-agy/decision.md`（Option D：官方 `subagent_oar` 工具 + 自写非 ACP 提供方）。
 
 ## 摘要
 
-发布一个可分发的 DSH 组合包：组合包挂载**官方** `@deepseek-ai/dsh-experimental-tool-subagent-oar`（模型侧工具名默认 `subagent_oar_agy`，`providers: {agy: agy}`），并挂载我们自写的**只做 AGY 运行时**的提供方包。提供方收到委派后启动本机 `agy --input-format stream-json --output-format stream-json`，通过 stdin 送入一条 `user` 事件，解析 NDJSON 事件流，把终态 `result.response` 作为最终答复交回 DSH；进程生命周期、取消、超时与进程树清理由提供方负责。全程不实现 ACP，不接触 AGY 凭据或后端 API。
+发布一个可分发的 DSH 组合包：组合包挂载**官方** `@deepseek-ai/dsh-experimental-tool-subagent-oar`（模型侧工具名默认 `subagent_oar_agy`，`providers: {agy: agy}`），并挂载我们自写的**只做 AGY 运行时**的提供方包。自 v0.2.2 起提供方在构建时被复制进组合包（`provider/`），组合包成为自包含 tarball，可从公开 GitHub Release 直接安装，不依赖 npm 上架或仓库克隆。提供方收到委派后启动本机 `agy --input-format stream-json --output-format stream-json`，通过 stdin 送入一条 `user` 事件，解析 NDJSON 事件流，把终态 `result.response` 作为最终答复交回 DSH；进程生命周期、取消、超时与进程树清理由提供方负责。全程不实现 ACP，不接触 AGY 凭据或后端 API。
 
 ## 技术上下文
 
 **Language/Version**: TypeScript 5.x（ESM，`module: nodenext`），Node.js ≥ 22（DSH 桌面运行时）
 
 **Primary Dependencies**:
-- 运行时（由宿主提供，只声明 peer/dev 依赖，不重复打包）：`@deepseek-ai/cordis`、`@deepseek-ai/dsh-subagent`（`SubagentProvider`、`NO_START_CAPABILITIES`、`subprocessRunHandle`、`settleRunResult`、`assertUsableCwd`）、`@deepseek-ai/schemastery`、`@deepseek-ai/dsh-timeout`（`MAX_TIMER_DELAY_MS`）
-- 组合包依赖（随包安装）：`@deepseek-ai/dsh-experimental-tool-subagent-oar`（精确锁定已验证版本 `0.2.2-rc.1`）
-- 本仓库内依赖：`@jiezhengj/subagent_oar_agy-provider`（workspace）
+- 组合包运行依赖（随 tarball 安装）：`@deepseek-ai/cordis`、`@deepseek-ai/dsh-brand`、`@deepseek-ai/dsh-llm`、`@deepseek-ai/dsh-subagent`（`SubagentProvider`、`NO_START_CAPABILITIES`、`subprocessRunHandle`、`settleRunResult`、`assertUsableCwd`）、`@deepseek-ai/dsh-timeout`（`MAX_TIMER_DELAY_MS`）、`@deepseek-ai/schemastery`，以及官方工具 `@deepseek-ai/dsh-experimental-tool-subagent-oar`（精确锁定 `0.2.2-rc.1`）
+- 仓库内提供方：`@jiezhengj/subagent_oar_agy-provider`（workspace，仅 devDependency；构建时 `scripts/vendor-provider.mjs` 把 `dist` 与 `locale` 复制为组合包 `provider/`）
+- 组合包 `exports` 必须导出 `./agy-provider`、`./agy-provider/locale/*`、`./locale/*`、`./icon`、`./package.json`，供 patch 加载与 DSH 插件页元数据解析
 
 **Storage**: 无持久化存储；不写 AGY 凭据、不写会话数据
 
@@ -73,40 +73,33 @@ specs/001-subagent-oar-agy/
 package.json                     # pnpm workspace 根
 pnpm-workspace.yaml
 tsconfig.base.json
+README.md                        # 语言索引页（安装地址 + 8 语言链接）
+README.<lang>.md                 # de/en/es/fr/ja/pt/ru/zh 正文
 packages/
-├── @jiezhengj/subagent_oar_agy-provider/            # 自写提供方（发布名 @jiezhengj/subagent_oar_agy-provider）
-│   ├── package.json             # type: module, exports dist
+├── subagent-oar-agy-provider/   # 提供方（发布名 @jiezhengj/subagent_oar_agy-provider，仅开发依赖）
+│   ├── package.json             # type: module, exports dist, files: dist + locale
 │   ├── tsconfig.json
+│   ├── locale/<lang>.json       # 8 语言 meta.title/description
 │   ├── src/
-│   │   ├── index.ts             # 插件入口：Config + apply → registerProvider
-│   │   ├── run.ts               # start()：构造 run handle、发布、结算
-│   │   ├── agy/
-│   │   │   ├── resolve.ts       # 可执行文件解析（PATH/PATHEXT）与版本诊断
-│   │   │   ├── spawn.ts         # 子进程、stdio、进程组/进程树
-│   │   │   ├── stream.ts        # NDJSON 行缓冲、事件解析、未知事件容错
-│   │   │   ├── protocol.ts      # stream-json 事件类型（宽松判别联合）
-│   │   │   ├── errors.ts        # 失败分类与诊断文案
-│   │   │   └── timer.ts         # timeoutMs 计时器（T013，测试 timeout.test.ts）
-│   │   └── teardown.ts          # SIGTERM→宽限→SIGKILL 阶梯（含 Windows）
-│   └── test/
-│       ├── stream.test.ts
-│       ├── protocol.test.ts
-│       ├── errors.test.ts
-│       ├── resolve.test.ts
-│       ├── teardown.test.ts
-│       ├── timeout.test.ts
-│       ├── integration.test.ts  # 假 agy fixture 驱动
-│       └── fixtures/fake-agy.mjs
-└── @jiezhengj/subagent_oar_agy/     # 组合包（发布名 @jiezhengj/subagent_oar_agy）
-    ├── package.json             # dsh.bundle.patch + engines.dsh + icon
-    ├── cordis.patch.yml         # 两行：提供方 + 官方工具
-    ├── README.md                # 安装、三种权限档、免责声明
-    ├── docs/INSTALL.md          # 安装/升级/禁用步骤（T031）
-    ├── docs/DETAIL.md
+│   │   ├── index.ts             # Config + apply → registerProvider
+│   │   ├── i18n.ts              # 8 语言运行时文案与语言检测
+│   │   ├── run.ts               # start()：run handle、发布、结算
+│   │   ├── agy/                 # resolve/spawn/stream/protocol/errors/timer
+│   │   └── teardown.ts          # SIGTERM→宽限→SIGKILL（含 Windows）
+│   └── test/                    # 单元 + 假 agy 集成 + i18n
+└── subagent-oar-agy-bundle/     # 组合包（发布名 @jiezhengj/subagent_oar_agy）
+    ├── package.json             # dsh.bundle.patch、engines.dsh、exports、files
+    ├── cordis.patch.yml         # 提供方（包内子路径）+ 官方工具，toolName: subagent_oar_agy
+    ├── scripts/vendor-provider.mjs  # 构建时复制提供方 dist + locale → provider/
+    ├── provider/                # 构建产物（.gitignore；随 tarball 发布）
+    ├── locale/<lang>.json       # 插件页 8 语言标题/描述/详情指向
+    ├── docs/DETAIL.<lang>.md    # 8 语言实现说明
+    ├── docs/INSTALL.md
+    ├── README.md
     └── icon.svg
 ```
 
-**结构决策**：采用 pnpm workspace 两包结构，与官方"提供方包 + 工具/组合包"的切分一致；组合包是唯一用户安装入口，提供方包不单独分发（避免用户手工插行）。测试与实现同包；组合包不含运行时代码，只有 patch、文档与图标。
+**结构决策**：采用 pnpm workspace 两包结构，与官方"提供方包 + 工具/组合包"的切分一致；组合包是唯一用户安装入口，提供方仅作为开发依赖，构建时被复制进组合包（`provider/`）从而自包含。`exports` 同时暴露 patch 所需的 `agy-provider` 与 DSH 元数据所需的 locale/icon/package.json；否则插件页显示名会回退为包名（v0.2.2 回归，v0.2.3 修复）。测试与实现同包；组合包不含源码，只含编译后的 `provider/`、patch、文档、locale 与图标。
 
 ## Phase 0：研究与决策（详见 research.md）
 
@@ -121,11 +114,13 @@ packages/
 7. **组合包与版本门禁**：官方 ralph-bundle 的 `dsh.bundle.patch` / `listedByDefault: false` / `engines` 写法已确认；官方工具包精确锁定 `0.2.2-rc.1`，升级前必须重跑 spike。
 8. **本地化**：包内 `locale/<lang>.json` 提供 8 种界面语言的 `meta.title`/`meta.description`（详情指向 `docs/DETAIL.<lang>.md`）；提供方运行时文案用同一语言表输出，语言由 `locale` 配置（默认 `auto`）解析。
 9. **工具名与共存**：默认工具名取 `subagent_oar_agy`，与官方 OAR 组合包的 `subagent_oar` 区分，二者可同时启用；README 提供 `toolName` 覆盖（改为 `subagent_oar`）作为可选兼容路径。实测 DSH 对重复工具名会明确报错并拒绝第二个注册，不会静默覆盖。
+10. **自包含分发**：npm 未上架时，DSH 插件管理安装框可直接安装远端 tarball；因此组合包构建时内置提供方运行代码，依赖只保留 npm 上可解析的宿主包与官方工具，发布物为 GitHub Release 资产。
+11. **插件页元数据资源**：DSH `readPluginMeta` 用 Node 解析器读取 `<pkg>/locale/en.json`、`<pkg>/package.json`、`<pkg>/icon`；`exports` 一旦声明就必须同时导出这些子路径，否则静默回退包名。组合包对提供方子路径的 locale 也需导出（`./agy-provider/locale/*`）。
 
 ## Phase 1：设计与契约（详见 data-model.md、contracts/、quickstart.md）
 
 - **delegation run 状态机**：`starting → running → settling → disposed`，终态 reason 为 `completed | error | aborted | timeout`（timeout 以 error + 诊断呈现）。
-- **提供方配置**：`providerName`（默认 `agy`）、`command`（默认 `agy`）、`model`、`effort`、`permissionMode`（`yolo | plan | strict`，默认 `yolo`）、`timeoutMs`（默认不设）、`killGraceMs`（默认 10000）、`env`（默认 `{}`）。
+- **提供方配置**：`providerName`（默认 `agy`）、`command`（默认 `agy`）、`model`、`effort`、`permissionMode`（`yolo | plan | strict`，默认 `yolo`）、`timeoutMs`（默认不设）、`killGraceMs`（默认 10000）、`env`（默认 `{}`）、`locale`（默认 `auto`，或 8 语言之一）。
 - **契约文档**：`contracts/subagent-provider.md`（DSH 接缝契约与本提供方的保证）、`contracts/bundle-patch.md`（组合包两行与配置）、`contracts/agy-cli.md`（命令行、stdin 消息、事件与退出码映射）。
 - **快速验证**：`quickstart.md` 覆盖安装、首次委派、三种权限档、超时、取消、禁用恢复、官方工具安装 spike。
 
@@ -138,6 +133,7 @@ packages/
 5. 实现 `run.ts` 与 `index.ts`（注册、config 校验、run handle、结算）。
 6. 组合包：`package.json`、`cordis.patch.yml`、README、`engines.dsh`、图标。
 7. 端到端：真实 AGY 冒烟（需用户授权，消耗配额）、三种权限档、超时/取消、禁用恢复、并发委派与入口选择（SC-007）。
+8. **分发（FR-023）**：构建自包含 tarball → 公开 GitHub 仓库并打 topic `dsh-plugin` → Release 附 tarball → 在临时 `DSH_HOME` 与本机桌面用安装框地址安装 → 验证显示名、语言与冒烟 → README 索引页与 8 语言正文。
 
 ## 风险与缓解
 
@@ -146,6 +142,8 @@ packages/
 - Windows 进程树终止：`taskkill /T /F` 兜底 + 超时；集成测试覆盖 Windows 分支（CI 或手工）。
 - 默认无人值守的安全风险：README 显式警告；`plan`/`strict` 档提供可验证的保守行为。
 - 与官方 OAR 组合包工具名冲突：README 说明；`toolName` 可配置。
+- `exports` 阻断 DSH 元数据资源：locale/icon/package.json 缺失时显示名静默回退包名；契约测试 + 发布后用 `readPluginMeta` 复核。
+- GitHub Release 资产不可用或 pnpm 拒绝远端 tarball：保持本地 tarball 与仓库构建路径可用，并在 README 给出备选安装方式。
 
 ## 复杂度追踪
 

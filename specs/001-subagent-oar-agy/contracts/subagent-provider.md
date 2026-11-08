@@ -12,7 +12,7 @@ export const Config: z<Config> = z.object({ /* … */ })
 export function apply(ctx: Context, config: Config): void
 ```
 
-说明：`export const name = 'subagent-agy'` 是 Cordis 插件名（供组合包/加载器识别）；组合包 patch 行的 `name: @jiezhengj/subagent_oar_agy-provider` 是 npm 包名（供模块解析）。两者用途不同，不可互相替代。
+说明：`export const name = 'subagent-agy'` 是 Cordis 插件名（供组合包/加载器识别）；组合包 patch 行的 `name: @jiezhengj/subagent_oar_agy/agy-provider` 是组合包内子路径（v0.2.2 起由构建脚本把提供方 `dist` 内置到 `provider/`）。发布版不单独安装提供方包；独立包名 `@jiezhengj/subagent_oar_agy-provider` 仅存在于开发仓库。
 
 `apply` 内：
 
@@ -36,6 +36,8 @@ ctx.subagents.registerProvider(provider)
 6. **cwd**：`request.cwd` 为相对路径时先相对父代理当前目录解析为绝对路径，并用 `assertUsableCwd('subagent-agy', 'cwd', abs)` 校验；不传则继承父目录。
 7. **prompt**：`request.prompt` 只允许 text 内容块；多个块按原顺序拼接（不插入分隔符），非 text 块直接拒绝启动。
 8. **id**：`SubagentRun.id` 由提供方生成（`SubagentRunId(randomUUID())`），唯一且不复用。
+9. **本地化**：`Config.locale`（默认 `auto`）决定 `start()` 抛出的诊断与结果里的权限拒绝说明；`auto` 依次读取 DSH `locale.preference`、`DSH_LOCALE`/`LC_ALL`/`LANG`，最后 `en`。8 语言文案不得缺失或为空。
+10. **自包含**：提供方被复制进组合包后，运行时依赖（`@deepseek-ai/*`）由组合包 `dependencies` 提供；不得在提供方内新增未声明的运行时依赖。
 
 ## 错误语义
 
