@@ -10,14 +10,14 @@ DSH 插件：把独立任务委派给本机 Antigravity CLI（`agy`）。复用�
 在 DeepSeek Harness 的插件管理（设置 → 插件）安装框粘贴：
 
 ```
-https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz
+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.3/subagent_oar_agy-0.2.3.tgz
 ```
 
 然后启用「AGY 子智能体」。前置条件：DSH 0.2.2-rc.1 及以上（低于 0.3.0）、本机已安装并登录 Antigravity CLI（`agy`）。
 
 # 链接
 
-- [GitHub Release v0.2.2](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/tag/v0.2.2)
+- [GitHub Release v0.2.3](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/tag/v0.2.3)
 - [组合包说明（中文）](packages/subagent-oar-agy-bundle/README.md)
 - [安装与升级](packages/subagent-oar-agy-bundle/docs/INSTALL.md)
 - [实现说明](packages/subagent-oar-agy-bundle/docs/DETAIL.zh.md)

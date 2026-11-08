@@ -4,7 +4,7 @@
 2. Cole isto no campo de instalação e instale:
 
 ```
-https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz
+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.3/subagent_oar_agy-0.2.3.tgz
 ```
 
 3. Ative «Subagente AGY»; o modelo poderá chamar `subagent_oar_agy` em uma nova sessão.
@@ -37,7 +37,7 @@ Via patch do perfil (sem tela de configurações própria):
 # Instalação alternativa
 
 ```bash
-dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz
+dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.3/subagent_oar_agy-0.2.3.tgz
 ```
 
 Ou compile a partir deste repositório:

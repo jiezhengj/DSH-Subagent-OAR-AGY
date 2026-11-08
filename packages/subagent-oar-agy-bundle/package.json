@@ -1,6 +1,6 @@
 {
   "name": "@jiezhengj/subagent_oar_agy",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Delegate independent tasks to the local Antigravity CLI (agy) from DSH; self-contained non-official plugin with a non-ACP AGY runtime and eight-language UI.",
   "type": "module",
   "icon": "./icon.svg",
@@ -31,7 +31,11 @@
     "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1"
   },
   "exports": {
-    "./agy-provider": "./provider/index.js"
+    "./agy-provider": "./provider/index.js",
+    "./agy-provider/locale/*": "./provider/locale/*",
+    "./locale/*": "./locale/*",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "node scripts/vendor-provider.mjs"

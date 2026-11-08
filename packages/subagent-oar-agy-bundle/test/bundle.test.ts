@@ -57,6 +57,16 @@ describe('bundle manifest', () => {
     expect(readFileSync(new URL('../README.md', import.meta.url), 'utf8')).toContain('toolName: subagent_oar')
   })
 
+  it('exports the locale, icon and manifest resources DSH reads for the plugin page', () => {
+    const zhUrl = import.meta.resolve('@jiezhengj/subagent_oar_agy/locale/zh.json')
+    const meta = JSON.parse(readFileSync(new URL(zhUrl), 'utf8')).meta as { title: string }
+    expect(meta.title).toBe('AGY 子智能体')
+    expect(import.meta.resolve('@jiezhengj/subagent_oar_agy/package.json')).toMatch(/package\.json$/u)
+    expect(import.meta.resolve('@jiezhengj/subagent_oar_agy/icon')).toMatch(/icon\.svg$/u)
+    const providerLocale = JSON.parse(readFileSync(new URL(import.meta.resolve('@jiezhengj/subagent_oar_agy/agy-provider/locale/en.json')), 'utf8'))
+    expect(providerLocale.meta.title).toBe('AGY subagent runtime')
+  })
+
   it('localizes its display name and description into the eight DSH languages', () => {
     const languages = ['de', 'en', 'es', 'fr', 'ja', 'pt', 'ru', 'zh']
     const titles = new Set<string>()

@@ -4,7 +4,7 @@
 2. Fügen Sie dies in das Installationsfeld ein und installieren Sie:
 
 ```
-https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz
+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.3/subagent_oar_agy-0.2.3.tgz
 ```
 
 3. Aktivieren Sie „AGY-Subagent“; danach kann das Modell in einer neuen Sitzung `subagent_oar_agy` aufrufen.
@@ -37,7 +37,7 @@ Es delegiert unabhängige Aufgaben an die lokale Antigravity CLI (`agy`): Das Mo
 # Alternative Installation
 
 ```bash
-dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz
+dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.3/subagent_oar_agy-0.2.3.tgz
 ```
 
 Oder aus diesem Repository bauen:
