@@ -114,3 +114,31 @@ T036, T037, T039, T040, T041 ─► 完成
 - **T005 是硬门禁**：spike 未通过前不开始 T006 起的任何实现任务；失败时先在 plan/research 记录 Option B 决策再继续。
 - T018/T020/T026/T032/T035 需要真实 AGY 或真实模型会话；本次实现已在临时 DSH home 的 headless profile 中完成（见 validation.md）。
 - T039/T040 在发布后进行：先推送并创建 Release，再用 README 的安装框地址在干净环境与桌面 profile 复验，最后补 `readPluginMeta` 断言。
+
+## Phase 8：Convergence
+
+本阶段由收敛评估追加（实现后对照 spec/plan/tasks 的差异），完成前 feature 不视为收敛。既有任务不重写、不重排；新任务只做追加。
+
+### 发现汇总
+
+| # | 严重度 | 差距类型 | 来源 | 发现 |
+|---|---|---|---|---|
+| F1 | HIGH | missing | FR-014 | 未实现官方 OAR 工具包的加载时可用性校验，也没有"自写同形工具"回退形态；`cordis.patch.yml` 直接挂载 `@deepseek-ai/dsh-experimental-tool-subagent-oar`，包缺失时只能由 pnpm 安装失败兜底，不满足 FR-014 的"明确报错并回退"要求。 |
+| F2 | MEDIUM | contradicts | FR-023、FR-022、SC-004 | `packages/subagent-oar-agy-bundle/README.md` 仍写"最短路径：`dsh plugin add @jiezhengj/subagent_oar_agy`"，但本包未上架 npm，该命令不可用；同一 README 的配置表缺少 `locale` 行，与运行时支持的 8 语言配置不一致。 |
+| F3 | MEDIUM | partial | SC-001、SC-002、SC-005、SC-007 | 真机会话验收证据早于改名与自包含打包：`validation.md` 的 SC-007/T020 仍记录 `subagent_oar(runtime=agy)`，10 次委派、启动确认、禁用恢复等证据也未在 v0.2.4 的 `subagent_oar_agy` 上重新基线。 |
+| F4 | MEDIUM | partial | US4/AC4、FR-016 | "与官方 OAR 组合包共存"从未真正验证：T021 实际测试的是同一包的第二行实例（重复 `subagent_oar`），未安装官方 OAR 组合包并确认两个工具名同时可用。 |
+| F5 | MEDIUM | missing | Constitution 附加约束（许可证） | 公开仓库没有 `LICENSE` 文件，两个 `package.json` 均无 `license` 字段，plan 也未确定许可证；与"npm 包名、scope、许可证与免责声明在 plan 阶段确定"不符。 |
+| F6 | LOW | partial | FR-009 | 文档只写 `timeoutMs` 默认"不设"，未说明"未配置时限时委派只能由父会话取消/关闭终止"，不满足 FR-009 的文档要求。 |
+| F7 | LOW | partial | FR-014（版本拒绝部分） | 未记录 `engines.dsh` 不满足时宿主拒绝安装/加载并提示版本范围的证据；机制依赖 DSH，但当前验证文件没有对应结论。 |
+
+### 追加任务
+
+- [ ] T042 [US1] 按 FR-014 补齐官方 OAR 工具包可用性校验与备选形态：加载时检测工具包可解析，缺失时给出可操作诊断；实现"自写同形工具"回退并保持工具名、参数与返回表面不变；补工具包缺失/回退路径测试（per FR-014，missing）
+- [ ] T043 [US4] 修正组合包 README：删除未上架 npm 的 `dsh plugin add @jiezhengj/subagent_oar_agy` 说法，统一为 Release tarball 地址与本地 tarball 两种安装路径；配置表补 `locale` 行（per FR-023、FR-022、SC-004，contradicts）
+- [ ] T044 [US1] 在 v0.2.4 上重跑真机会话验收：10 次委派（SC-001）、启动确认计时（SC-002）、禁用/重装恢复与无残留进程（SC-005）、10 次入口选择（SC-007），全部使用 `subagent_oar_agy` 并更新 `validation.md` 的旧工具名与证据（per SC-001、SC-002、SC-005、SC-007，partial）
+- [ ] T045 [US4] 安装官方 OAR 组合包与本插件并存，验证 `subagent_oar` 与 `subagent_oar_agy` 同时注册、互不覆盖，两套工具均可独立委派；记录到 `validation.md` 与 `research.md` D9（per US4/AC4、FR-016，partial）
+- [ ] T046 [US4] 与用户确认许可证（建议 MIT），新增 `LICENSE`，在两个 `package.json` 补 `license` 字段，并在根 README 声明；如用户在 plan 阶段已另有决定则按该决定执行（per Constitution 附加约束，missing）
+- [ ] T047 [US3] 在组合包 README（及详情文档需要处）补一句：`timeoutMs` 未配置时不设内部时限，委派只能由父会话取消/关闭终止，并说明超时从 `agy init` 起算（per FR-009，partial）
+- [ ] T048 [US1] 验证并记录 DSH 版本不满足时 `engines.dsh` 的安装/加载阻断与版本范围提示；若当前环境无法复现，记录宿主校验代码路径与结论（per FR-014，partial）
+
+- 收敛结论：F1–F7 完成并通过验证后，本 feature 才满足 spec/plan/tasks 的完整意图；在此之前状态保持 In Progress。
