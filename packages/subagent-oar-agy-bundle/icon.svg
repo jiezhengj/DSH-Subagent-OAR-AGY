@@ -1,5 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="AGY">
-  <rect x="4" y="4" width="56" height="56" rx="14" fill="#0f172a"/>
-  <path d="M18 44 32 18l14 26h-8l-6-12-6 12z" fill="#7dd3fc"/>
-  <circle cx="32" cy="45" r="2.5" fill="#f472b6"/>
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AGY">
+  <defs>
+    <linearGradient id="agy-mark" x1="18" y1="5" x2="18" y2="31" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5BA8FF"/>
+      <stop offset="1" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M18 5.5 29.5 30.5H23.6L21.6 25.8H14.4L12.4 30.5H6.5L18 5.5ZM18 14.8 15.2 21.6H20.8L18 14.8Z" fill="url(#agy-mark)"/>
+  <circle cx="27.8" cy="8.2" r="2.6" fill="#F472B6"/>
 </svg>

@@ -61,5 +61,6 @@
 6. **禁用语义**：用户禁用组合包后两行都移除，模型工具列表恢复；重新启用恢复配置，无需重新填写。
 7. **工具名与共存**：默认 `toolName: subagent_oar_agy`，与官方 OAR 组合包（`subagent_oar`）可同时启用；用户可覆盖为 `subagent_oar`（仅无官方 OAR 时）。DSH 对重复工具名报错并拒绝第二个注册，不静默覆盖。
 8. **本地化元数据**：`locale/<lang>.json` 提供 8 种语言的 `meta.title`/`meta.description`，`meta.detail` 指向 `docs/DETAIL.<lang>.md`；缺省回退为 `package.json` 的 name/description 与 README。
-9. **不修改 AGY 环境**：安装/升级/禁用组合包不得写入 `~/.gemini`、`~/.local/bin` 或任何 AGY 配置。
-10. **分发**：仓库公开，Release tarball 地址可直接粘贴进 DSH 插件管理安装框；`README.md` 是语言索引页，链接 8 个 `README.<lang>.md`。
+9. **图标**：`icon.svg` 为 36×36、`fill="none"` 的透明画布（官方插件同款尺寸），不铺不透明底色；DSH 无浅/深双图标，透明区域透出卡片主题背景。
+10. **不修改 AGY 环境**：安装/升级/禁用组合包不得写入 `~/.gemini`、`~/.local/bin` 或任何 AGY 配置。
+11. **分发**：仓库公开，Release tarball 地址可直接粘贴进 DSH 插件管理安装框；`README.md` 是语言索引页，链接 8 个 `README.<lang>.md`。

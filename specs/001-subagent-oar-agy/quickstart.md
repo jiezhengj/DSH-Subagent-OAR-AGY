@@ -11,7 +11,7 @@
 
 ## 场景 1：安装与首次委派（FR-001/002/003/005、SC-004）
 
-1. 在 DSH 插件管理的安装框粘贴根 README 给出的 Release 地址（当前为 `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.3/subagent_oar_agy-0.2.3.tgz`）并安装，重载 DSH；确认插件页显示名为「AGY 子智能体」，工具列表出现 `subagent_oar_agy`，`runtime` 只有 `agy`。
+1. 在 DSH 插件管理的安装框粘贴根 README 给出的 Release 地址（当前为 `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subagent_oar_agy-0.2.4.tgz`）并安装，重载 DSH；确认插件页显示名为「AGY 子智能体」，工具列表出现 `subagent_oar_agy`，`runtime` 只有 `agy`。
 2. 在 `~/tmp/agy-demo`（存在且可写）打开会话，发起委派：`runtime=agy`，提示"在当前目录创建 hello.txt，内容为 ok，然后回答 done"。
 3. **期望**：2 秒内收到"已启动"；任务结束后收到含 done 的完成通知；`hello.txt` 出现在该目录。
 4. 不指定 `cwd` 再发起一次，确认 AGY 在父会话目录工作。

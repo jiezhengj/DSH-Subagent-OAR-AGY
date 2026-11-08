@@ -68,6 +68,7 @@
 - [x] T038 [US4] 自包含组合包：`scripts/vendor-provider.mjs` 构建时复制提供方 `dist` 与 `locale` 至 `provider/`，patch 改为包内子路径 `@jiezhengj/subagent_oar_agy/agy-provider`，移除提供方运行时依赖；测试断言 tarball 自包含（FR-014、FR-023）
 - [x] T039 [US4] 公开发布：GitHub 仓库 public + topics（含 `dsh-plugin`）、Release `v0.2.3` 附 tarball、根 README 索引页与 8 语言正文互链；在临时 `DSH_HOME` 与桌面 profile 用安装框地址安装并真实冒烟（FR-023、SC-009）
 - [x] T040 [US4] 显示名回归修复：`exports` 补齐 `./locale/*` 等元数据子路径（否则 DSH 回退包名），用 `readPluginMeta` 复核组合包与提供方标题为 8 语言，并补充资源可解析性测试（FR-022、SC-008）
+- [x] T041 [US4] 图标改为 36×36 透明画布（官方风格，无固定底色），随卡片浅/深主题背景呈现；发布 v0.2.4 并实装复核（FR-022、SC-008）
 - [x] T036 凭据与配置边界检查并记录到 `specs/001-subagent-oar-agy/validation.md`：代码走查确认无凭据读取路径、无 AGY 认证文件与 `~/.gemini/.../settings.json` 的写入（含读取检查）、日志无环境变量值（FR-015）；提交前检查 Conventional Commits 与无用户路径/令牌泄漏
 - [x] T037 [P] 显示名/介绍正文/详情与运行时文案的 8 语言本地化：`locale/<lang>.json`、`docs/DETAIL.<lang>.md`、`src/i18n.ts` 与本地化测试（FR-022、SC-008）
 
@@ -96,7 +97,7 @@ T017 ─► T033
 T016, T019, T025, T032 ─► T034
 T018 ─► T035
 T018, T026, T032, T034, T035 ─► T036
-T036, T037, T039, T040 ─► 完成
+T036, T037, T039, T040, T041 ─► 完成
 ```
 
 ## 并行执行示例

@@ -197,3 +197,10 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 - **功能冒烟**：安装 0.2.3 后 `subagent_oar_agy(runtime=agy)` 返回 `TITLE_FIX_OK`。
 - **README**：根 `README.md` 为语言索引页，链接 `README.de/en/es/fr/ja/pt/ru/zh.md`；组合包 README 也互链；安装框地址与 Release 一致。
 - **仓库**：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY`，public，topics 含 `dsh-plugin`；`main` 已推送。
+
+## 图标透明化（v0.2.4）
+
+- **症状**：插件图标固定为深色方块，不随 DSH 浅/深主题变化。
+- **查证**：DSH 无浅/深双图标机制与滤镜；`readPluginMeta` 只解析单个 `icon`，客户端以 `<img>` 渲染，不继承主题 CSS 变量。官方 21 个插件图标均为 36×36、`fill="none"` 透明画布；此前我们的图标自带不透明 `#0f172a` 圆角矩形，故固定深色。
+- **修复**：改为 36×36 透明画布（蓝色渐变 A 标记 + 粉色节点），无背景块；`readPluginMeta` 解析出的 data URL 以 `width="36"`、`fill="none"` 开头且不含整块不透明矩形。
+- **发布**：v0.2.4，Release 资产与 README/INSTALL 安装地址同步更新；实装后插件行 active，显示名与图标元数据正常。

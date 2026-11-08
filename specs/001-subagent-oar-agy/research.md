@@ -99,3 +99,10 @@
 - **Decision**：仓库根 `README.md` 只做语言索引与安装入口，正文拆到 `README.<lang>.md`；语言导航在索引与各正文中互链。
 - **Rationale**：用户要求"README 是索引页，链接 8 种语言"；也避免根 README 过长。
 - **Alternatives considered**：单 README 内嵌多语言（过长、语言跳转体验差）。
+
+## D14. 插件图标与主题
+
+- **Decision**：图标使用 36×36、透明画布、官方风格的单色/渐变图形（蓝色 A 标记 + 粉色节点），不使用不透明底色块。
+- **Rationale**：DSH 没有浅/深两套插件图标，也没有对图标做滤镜；`readPluginMeta` 只解析单个 `icon`，客户端以 `<img>` 渲染。官方插件图标均为 36×36 `fill="none"` 透明画布，透明区域会透出卡片背景，因此看起来随主题变化。此前 v0.2.3 图标自带不透明深色圆角矩形，固定呈深色。
+- **Evidence**：`dsh-app-boot/lib/index.js` 的 `iconOf`/`readPluginMeta`；`dsh-client-ui-plugin-manager/lib/client.js` 的 `PackageArtwork` 与 `packageImage`（无 filter/mask）；`dsh-client-ui-layout/lib/client.js` 主题应用（根 `color-scheme`、`body[data-ds-dark-theme]`、CSS token），图标不继承这些变量；抽查 21 个官方 `icon.svg` 均无 `prefers-color-scheme`/`currentColor`。
+- **Alternatives considered**：在 SVG 内用 `prefers-color-scheme` 切换颜色（依赖浏览器对 `<img>` 内 SVG 的实现，且只跟随 `color-scheme`，非 DSH 明示能力）；保留不透明底（视觉固定深色，已否决）。

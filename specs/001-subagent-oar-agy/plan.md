@@ -116,6 +116,7 @@ packages/
 9. **工具名与共存**：默认工具名取 `subagent_oar_agy`，与官方 OAR 组合包的 `subagent_oar` 区分，二者可同时启用；README 提供 `toolName` 覆盖（改为 `subagent_oar`）作为可选兼容路径。实测 DSH 对重复工具名会明确报错并拒绝第二个注册，不会静默覆盖。
 10. **自包含分发**：npm 未上架时，DSH 插件管理安装框可直接安装远端 tarball；因此组合包构建时内置提供方运行代码，依赖只保留 npm 上可解析的宿主包与官方工具，发布物为 GitHub Release 资产。
 11. **插件页元数据资源**：DSH `readPluginMeta` 用 Node 解析器读取 `<pkg>/locale/en.json`、`<pkg>/package.json`、`<pkg>/icon`；`exports` 一旦声明就必须同时导出这些子路径，否则静默回退包名。组合包对提供方子路径的 locale 也需导出（`./agy-provider/locale/*`）。
+12. **图标**：与官方插件一致，使用 36×36 透明画布（`fill="none"`）图形，不铺不透明底色；DSH 无浅/深双图标机制，透明区域透出卡片主题背景，图标才随主题观感变化。
 
 ## Phase 1：设计与契约（详见 data-model.md、contracts/、quickstart.md）
 
@@ -143,6 +144,7 @@ packages/
 - 默认无人值守的安全风险：README 显式警告；`plan`/`strict` 档提供可验证的保守行为。
 - 与官方 OAR 组合包工具名冲突：README 说明；`toolName` 可配置。
 - `exports` 阻断 DSH 元数据资源：locale/icon/package.json 缺失时显示名静默回退包名；契约测试 + 发布后用 `readPluginMeta` 复核。
+- 图标不透明底导致固定深色观感：图标画布必须透明、36×36，随卡片主题背景呈现。
 - GitHub Release 资产不可用或 pnpm 拒绝远端 tarball：保持本地 tarball 与仓库构建路径可用，并在 README 给出备选安装方式。
 
 ## 复杂度追踪
