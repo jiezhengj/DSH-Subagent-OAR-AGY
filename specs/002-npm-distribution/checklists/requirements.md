@@ -32,6 +32,7 @@
 ## 备注
 
 - 勾选状态：待 mimo 评审 PASS 后再逐项勾选；当前保持未勾选。
+- 2026-11-08 第 2 轮 mimo 评审：**FAIL**（无 P1）。P2：US1 场景 3 的版本区网络失败缺少验证；quickstart 第 6 步仍留旧更新模拟方法。已修订 T016、quickstart 第 6/9/10 步、安装入口与发布 parity 契约；P3 一并修（T017 去 [P]、T015 每轮重建、T025 计时、T033 措辞、plan 路径表述、Release 顺序）。
 - 2026-11-08 第 1 轮 mimo 评审：**FAIL**。P1 为 `npm pack --json` 形状/路径断言错误与 quickstart 命令不可执行；P2 为失败语义未真实执行、更新版本模拟方式错误、tarball 检查无效、隔离命令未内联环境变量；已修订 spec/plan/research/data-model/contracts/quickstart/tasks 后送第 2 轮。
 - 「规格未泄漏实现细节」的例外边界：spec 不写宿主 i18n 键名（已移到安装入口契约）；`publishConfig`/`keywords` 等发布元数据属于分发契约，不是框架或代码结构。
 - 「每条功能需求都有对应验收路径」：已在 spec 增加「需求验收映射」，FR-001–FR-012 逐条对应 US 场景/成功标准/契约。

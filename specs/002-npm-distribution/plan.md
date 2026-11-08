@@ -40,7 +40,7 @@
 | IV 可安装、可恢复、可诊断 | 通过 | 名称安装与版本面板是本次目标；保留 tgz 备选与安装失败诊断，禁用/回滚路径不变 |
 | V 透明默认与合规声明 | 通过 | README 继续保留非官方封装、自担风险与 Antigravity 政策声明；npm 包内加入 MIT `LICENSE` 与 `publishConfig` |
 | 附加约束（技术栈/版本策略/范围） | 通过 | 不改变 TypeScript ESM、`engines.dsh` 与仅 AGY 运行时范围 |
-| 开发工作流 | 通过 | 走 Feature SDD 短路径；本阶段为 plan，后续 tasks → implement；发布前跑测试与隔离安装验证 |
+| 开发工作流 | 通过 | 按 Feature SDD 完整路径的产物要求推进（specify → plan → checklist → tasks → implement）；checklist 作为质量门，发布前跑测试与隔离安装验证 |
 
 **GATE 结论**：无违反项，无需 Complexity Tracking。
 

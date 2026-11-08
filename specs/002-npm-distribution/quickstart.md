@@ -74,7 +74,7 @@ node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependenc
 
 ```sh
 (HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
-  --profile deskclone --no-open --port 18131 > /tmp/vhome-boot.log 2>&1 &)
+  --profile deskclone --no-open --port 18131 > /tmp/vhome-boot.log 2>&1 & echo $! > /tmp/vhome.pid)
 sleep 15
 grep -iE "did not activate|pending" /tmp/vhome-boot.log   # 期望：无输出
 ```
@@ -85,7 +85,14 @@ grep -iE "did not activate|pending" /tmp/vhome-boot.log   # 期望：无输出
 
 - 读取 `/tmp/vhome/profiles/deskclone/package.json`，确认依赖是注册表规格（名称 + 版本/范围），而不是 URL。
 - 打开插件管理的「版本」区，确认显示当前版本与「已是最新版本」。
-- 在隔离副本把依赖版本改成一个更旧的已发布版本（若存在），或按宿主 `updateRefusal()` 代码核对 registry 分支；不兼容版本依据 `engines.dsh` 过滤（记录为代码核对，不修改真实桌面）。
+- 模拟「有更新」：npm 首发只有 0.2.6，不存在更旧的已发布版本，因此**不要改依赖值**；改为编辑隔离副本已装包的版本号：
+
+```sh
+node -e "const p='/tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent_oar_agy/package.json';const d=require(p);d.version='0.2.5';require('fs').writeFileSync(p,JSON.stringify(d,null,2)+'\n')"
+grep '"version"' /tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent_oar_agy/package.json
+```
+
+刷新/重开插件管理「版本」区，期望出现「可更新到 0.2.6」；若界面缓存导致未刷新，记录 `updateRefusal()` 的 registry 分支证据与例外，然后还原该文件（`cp -a` 重新复制 profile 或把版本改回 `$V`）。不兼容版本依据 `engines.dsh` 过滤（记录为代码核对，不修改真实桌面）。
 - 对照 tgz 安装的副本：依赖是 URL，版本区标为「不可更新」。
 
 ## 7. Release 同版本（新版本，不动旧版本）
@@ -147,17 +154,23 @@ HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
   plugin --profile deskclone add @jiezhengj/subagent_oar_agy > /tmp/install-fail.log 2>&1; echo "exit=$?（期望非 0）"
 grep -iE "registry|network|ECONN|unable" /tmp/install-fail.log | head -5
 node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependencies; console.log(d['@jiezhengj/subagent_oar_agy'])"
+```
+
+在 `.npmrc` 仍生效期间刷新/重开插件管理「版本」区，确认显示网络失败提示（宿主键 `versionsFailedNetwork`），而不是「已是最新」；记录文案后再清理：
+
+```sh
 rm -f /tmp/vhome/profiles/deskclone/.npmrc
 ```
 
-**期望**：安装失败、错误指向注册表/网络；依赖值保持原样或不存在，无半装状态。
+**期望**：安装失败、错误指向注册表/网络；依赖值保持原样或不存在，无半装状态；版本区显示网络失败而非错误地显示最新。
 
 宿主错误键（用于安装框/版本区）：`installProblemNetwork`、`installProblemNetworkAll`、`installProblemNotFound`、`installProblemInstalled`、`versionsFailedNetwork`、`versionsBlocked`、`versionsBlockedDetail`。
 
 ## 10. 收尾
 
 ```sh
-pkill -f "port 18131" || true
+kill "$(cat /tmp/vhome.pid)" 2>/dev/null || true
+rm -f /tmp/vhome.pid
 rm -rf /tmp/vhome
 git status        # 只应有本次发布/文档相关改动
 ```

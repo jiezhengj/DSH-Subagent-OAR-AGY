@@ -9,10 +9,10 @@
 ## 发布顺序
 
 1. 升版本号并提交实现、文档、校验脚本。
-2. 在包目录执行 `prepublishOnly` 链（构建 → 校验）与 `npm pack`，得到本地 tarball。
-3. `npm publish --access public`（OTP 当场输入），确认注册表出现该版本。
+2. `npm publish --access public`（OTP 当场输入）；`prepublishOnly` 会先构建并校验，确认注册表出现该版本。
+3. 发布成功后在包目录执行 `npm pack`，得到本地 tarball；构建是确定性的，包内文件应与注册表发布物一致。
 4. `git tag v$V` 并推送 tag。
-5. 用同一份 tarball 生成 Release 资产：改名为 `subagent_oar_agy-$V.tgz`，`gh release create v$V <asset>`。
+5. 用该 tarball 生成 Release 资产：改名为 `subagent_oar_agy-$V.tgz`，`gh release create v$V <asset>`。
 6. 发布后核对；任一渠道失败都不改已发布版本，只能补发缺失渠道或升版本重来。
 
 ## 同内容判定
