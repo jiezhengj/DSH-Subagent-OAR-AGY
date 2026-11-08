@@ -65,9 +65,9 @@ description: "Task list for npm 短名称安装（注册表分发）"
 - [ ] T011 [US1] 运行 `pnpm test` 与 `packages/subagent-oar-agy-bundle/scripts/verify-package.mjs`，提交实现、文档与发布配置（Conventional Commit）；用 `find . -name '*.tgz' -not -path '*/node_modules/*'` 检查并删除历史残留（此前有 `packages/subagent-oar-agy-bundle/dsh-subagent-agy-bundle-0.1.0.tgz` 与 `packages/subagent-oar-agy-provider/dsh-subagent-agy-0.1.0.tgz`），断言最终为 0
 - [ ] T012 [US1] 在 `packages/subagent-oar-agy-bundle/` 执行 `npm publish --access public`（npm 要求时当场输入 OTP，记录开始/结束时间并确认 ≤5 分钟）；用 `npm view @jiezhengj/subagent_oar_agy@$V version dist.tarball dist.integrity engines --json` 核对注册表条目
 - [ ] T013 [US1] 隔离安装验证（命令必须带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`，禁止省略）：`/tmp/vhome` 复制桌面 profile，先 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome <APP> <BIN> plugin --profile deskclone remove @jiezhengj/subagent_oar_agy`，再 `... plugin --profile deskclone add @jiezhengj/subagent_oar_agy --save-exact`；确认 profile 依赖为注册表规格、解析版本为 `$V`，且 profile `package.json` 的 `dsh.profile.bundles` 含该 bundle（否则不会激活）
-- [ ] T014 [US1] 隔离启动验证（命令必须带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：按 quickstart 第 5 步的启动命令（`--port 18131`、`echo $! > /tmp/vhome.pid`）在 `/tmp/vhome/profiles/deskclone` 启动一个实例，断言日志含访问地址；确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`、启动日志无未激活告警；调用一次 `subagent_oar_agy(runtime=agy)` 并记录返回（T015 的循环会先停掉该实例）
+- [ ] T014 [US1] 隔离启动验证（命令必须带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：按 quickstart 第 5 步的启动命令（`--port 18131`、`echo $! > /tmp/vhome.pid`）在 `/tmp/vhome/profiles/deskclone` 启动一个实例，断言 `/tmp/vhome-boot.log` 含访问地址；确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`、启动日志无未激活告警；调用一次 `subagent_oar_agy(runtime=agy)` 并记录返回（T015 的循环会先停掉该实例）
 - [ ] T015 [US1] SC-006 连续验证：按 `quickstart.md` 第 5 步的 3 轮循环执行；每轮先 `kill "$(cat /tmp/vhome.pid)"`（无 PID 则跳过）、`rm -f /tmp/vhome.pid`、`rm -rf /tmp/vhome`、`mkdir -p /tmp/vhome/profiles`、重新复制桌面 profile，再 remove/add/start（所有命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）；启动后先断言日志含 `http://127.0.0.1:18131/?token=`，再 grep 未激活告警；记录 3 轮均 OK
-- [ ] T016 [US1] 失败语义与重复安装：在 `/tmp/vhome/profiles/deskclone/.npmrc` 写入 `registry=http://127.0.0.1:9`、`fetch-retries=0`，用带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome` 的 `<APP> <BIN> plugin --profile deskclone add @jiezhengj/subagent_oar_agy`（BIN/APP 定义见 quickstart 第 4 步）触发真实安装失败，记录输出文案与「依赖未写入、无半装状态」；在 `.npmrc` 仍生效期间，于 T015 最后一轮的 18131 实例安装框输入名称观察 `installProblemNetwork` 文案，并打开版本区记录网络失败文案、核对 `versionsFailedNetwork`（不要用真实桌面实例）；删除 `.npmrc` 后恢复；另用 `npm view --registry=http://127.0.0.1:9 --fetch-retries=0 ...` 作为 CLI 侧证据，并核对宿主键 `installProblemNetwork`/`installProblemNetworkAll`/`installProblemNotFound`/`installProblemInstalled`；在已安装 `$V` 的隔离 profile 再次 `add --save-exact`，确认依赖值不变且不产生第二份依赖
+- [ ] T016 [US1] 失败语义与重复安装：在 `/tmp/vhome/profiles/deskclone/.npmrc` 写入 `registry=http://127.0.0.1:9`、`fetch-retries=0`，用带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome` 的 `<APP> <BIN> plugin --profile deskclone add @jiezhengj/subagent_oar_agy`（BIN/APP 定义见 quickstart 第 4 步）触发真实安装失败，记录输出文案与「依赖值保持原样、无半装状态」；在 `.npmrc` 仍生效期间，于 T015 最后一轮的 18131 实例先打开版本区记录 `versionsFailedNetwork`（插件仍安装）；再在安装框输入一个**未安装的探测名** `@jiezhengj/dsh-probe-uninstalled`，观察 `installProblemNetwork`（输入已安装的原名会本地短路为 `installProblemInstalled`，作为边界记录）；删除 `.npmrc` 后恢复；另用 `npm view --registry=http://127.0.0.1:9 --fetch-retries=0 ...` 作为 CLI 侧证据；在注册表可达时用安装框输入一个不存在的名称，覆盖 `installProblemNotFound`；核对 `installProblemNetworkAll`/`installProblemInstalled` 键名；在已安装 `$V` 的隔离 profile 再次 `add --save-exact`，确认依赖值保持不变、无半装状态且不产生第二份依赖
 
 **Checkpoint**: 新用户只填名称即可装好、启动并调用工具；连续 3 次与失败路径均有结论
 
@@ -125,7 +125,7 @@ description: "Task list for npm 短名称安装（注册表分发）"
 
 ## 验证备注
 
-后续任务在此记录证据，T033 汇总进 `validation.md`：
+后续任务优先把证据写入 `validation.md`（T022 已创建）；本节仅作临时速记，T033 以 `validation.md` 为准：
 
 ### US2 版本面板
 
@@ -156,7 +156,7 @@ description: "Task list for npm 短名称安装（注册表分发）"
 - T007 与 T008 可并行；T009 依赖二者
 - T010 依赖 T003；T011 依赖 T006、T009、T010
 - T012 依赖 T011；T013–T016 依赖 T012，彼此可顺序执行
-- US2 的 T018 依赖 T013；T019 依赖 T015 与 T018；T020–T021 依赖 T018
+- US2 的 T018 依赖 T013；T019 依赖 T015 与 T018；T020 依赖 T019（必须先看到「已是最新」）；T021 依赖 T018
 - US3 的 T023 依赖 T012；T024–T026 依次执行；T027–T030 在 T025 之后。T023–T025 可在 T012 后立即执行，不必等待 US1/US2 验证
 - Polish 的 T031–T033 可并行；T034 依赖全部
 

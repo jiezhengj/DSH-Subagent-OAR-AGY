@@ -102,6 +102,8 @@ done
 if [ "$SC006_FAIL" -ne 0 ]; then echo "SC-006 FAIL"; exit 1; fi
 echo "SC-006 PASS"
 )
+SC006_RC=$?
+if [ "$SC006_RC" -ne 0 ]; then echo "SC-006 FAIL (exit $SC006_RC)"; fi
 ```
 
 打开日志中的 `http://127.0.0.1:18131/?token=...`，确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`；在会话里调用一次（`runtime=agy`）确认返回结果。三轮都输出 `OK` 才算通过。
@@ -181,13 +183,13 @@ grep -iE "registry|network|ECONN|unable" /tmp/install-fail.log | head -5
 node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependencies; console.log(d['@jiezhengj/subagent_oar_agy'])"
 ```
 
-在 `.npmrc` 仍生效期间，于该实例的安装框输入 `@jiezhengj/subagent_oar_agy` 并确认，观察 `installProblemNetwork` 文案；再刷新/重开插件管理「版本」区，确认显示网络失败提示（宿主键 `versionsFailedNetwork`），而不是「已是最新」；记录文案后再清理：
+在 `.npmrc` 仍生效期间：先打开插件管理「版本」区，确认显示网络失败提示（宿主键 `versionsFailedNetwork`）而不是「已是最新」；再在安装框输入**未安装的探测名** `@jiezhengj/dsh-probe-uninstalled` 并确认，观察 `installProblemNetwork`。输入已安装的原名会在本地短路为 `installProblemInstalled`（作为边界记录，不能用来证明网络失败）。清理 `.npmrc` 后，在注册表可达时输入一个不存在的名称，观察 `installProblemNotFound`。
 
 ```sh
 rm -f /tmp/vhome/profiles/deskclone/.npmrc
 ```
 
-**期望**：安装失败、错误指向注册表/网络；依赖值保持原样或不存在，无半装状态；版本区显示网络失败而非错误地显示最新。
+**期望**：安装失败、错误指向注册表/网络；依赖值保持原样（不是「不存在」，因为插件仍安装）、无半装状态；版本区显示网络失败而非错误地显示最新；探测名显示网络失败，原名显示已安装。
 
 宿主错误键（用于安装框/版本区）：`installProblemNetwork`、`installProblemNetworkAll`、`installProblemNotFound`、`installProblemInstalled`、`versionsFailedNetwork`、`versionsBlocked`、`versionsBlockedDetail`。
 
@@ -201,3 +203,23 @@ git status        # 只应有本次发布/文档相关改动
 ```
 
 凭据扫描：检查仓库、文档与提交历史中没有 npm token、`npmrc` 内容或 OTP；OTP 只存在于发布终端会话。
+
+## 附录：tgz 安装、迁移与 409 演练（T027–T029）
+
+```sh
+# 先移除按名称安装的条目，再安装 Release tgz
+HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+  plugin --profile deskclone remove @jiezhengj/subagent_oar_agy || true
+HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+  plugin --profile deskclone add "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v$V/subagent_oar_agy-$V.tgz" --save-exact
+node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependencies; console.log(d['@jiezhengj/subagent_oar_agy'])"   # 期望 URL
+
+# 迁移：移除 tgz 条目，再按名称安装
+HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+  plugin --profile deskclone remove @jiezhengj/subagent_oar_agy
+HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+  plugin --profile deskclone add @jiezhengj/subagent_oar_agy --save-exact
+
+# 409 演练（需要可用的 OTP；不可用则记录例外与注册表不可覆盖证据）
+cd packages/subagent-oar-agy-bundle && npm publish --access public
+```
