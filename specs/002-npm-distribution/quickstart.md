@@ -33,10 +33,10 @@ pnpm --dir packages/subagent-oar-agy-bundle run build
 cd packages/subagent-oar-agy-bundle
 node scripts/verify-package.mjs
 npm pack --dry-run --json > /tmp/pack-plan.json
-node -e "const p=Object.values(require('/tmp/pack-plan.json'))[0]; console.log(p.name,p.version,p.entryCount,p.unpackedSize); console.log(p.files.some(f=>f.path==='LICENSE'))"
+node -e "const p=Object.values(require('/tmp/pack-plan.json'))[0]; console.log(p.name,p.version,p.entryCount,p.unpackedSize,p.size); console.log(p.files.some(f=>f.path==='LICENSE'))"
 ```
 
-**期望**：校验脚本逐项通过并退出 0；包名 `@jiezhengj/subagent_oar_agy`、版本 `$V`；`npm pack --json` 的对象以包名为键（不是数组），文件路径**不带** `package/` 前缀；清单含 `LICENSE`、`tool.js`、`provider/index.js`、`cordis.patch.yml`、8 语言 `locale/*.json` 与 `docs/DETAIL.*.md`；`entryCount === 71`、`unpackedSize ≤ 150000`。若要看 `package/` 前缀，用真实 `npm pack` 后 `tar -tzf`，并把 tarball 移到 `/tmp`。
+**期望**：校验脚本逐项通过并退出 0；包名 `@jiezhengj/subagent_oar_agy`、版本 `$V`；`npm pack --json` 的对象以包名为键（不是数组），文件路径**不带** `package/` 前缀；清单含 `LICENSE`、`tool.js`、`provider/index.js`、`cordis.patch.yml`、8 语言 `locale/*.json` 与 `docs/DETAIL.*.md`；`entryCount === 71`、`unpackedSize ≤ 150000`、`size ≤ 51200`。若要看 `package/` 前缀，用真实 `npm pack` 后 `tar -tzf`，并把 tarball 移到 `/tmp`。
 
 ## 3. 发布到 npm（需要 OTP）
 
@@ -111,7 +111,7 @@ if [ "$SC006_RC" -ne 0 ]; then echo "SC-006 FAIL (exit $SC006_RC)"; fi
 ## 6. 更新面板与依赖形态
 
 - 读取 `/tmp/vhome/profiles/deskclone/package.json`，确认依赖是注册表规格（名称 + 版本/范围），而不是 URL。
-- 打开插件管理的「版本」区，确认显示当前版本与「已是最新版本」。
+- 先回插件列表页点「刷新」或整页重载（触发 `checkAllVersions`），再打开「版本」区，确认显示当前版本与「已是最新版本」；记录上次检查时间。T016 留下 refused 缓存，不刷新会读到「无法连接安装源」。
 - 模拟「有更新」：npm 首发只有 0.2.6，不存在更旧的已发布版本，因此**不要改依赖值**；改为编辑隔离副本已装包的版本号：
 
 ```sh
@@ -119,7 +119,7 @@ node -e "const p='/tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent
 grep '"version"' /tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent_oar_agy/package.json
 ```
 
-刷新/重开插件管理「版本」区，期望出现「可更新到 0.2.6」；若界面缓存导致未刷新，记录 `updateRefusal()` 的 registry 分支证据与例外，然后还原该文件（`cp -a` 重新复制 profile 或把版本改回 `$V`）。不兼容版本依据 `engines.dsh` 过滤（记录为代码核对，不修改真实桌面）。
+回列表页刷新后重开「版本」区，期望出现「可更新到 0.2.6」；如有更新入口可点一次，确认版本回到 `$V`、依赖仍是注册表规格。若界面缓存导致未刷新，记录 `updateRefusal()` 的 registry 分支证据与例外。还原只把已装包的 `version` 改回 `$V`，不要 `cp -a` 复制 profile（deskclone 已存在会嵌套 `deskclone/desktop`；先删再拷会把依赖退回桌面 profile 的 tgz URL）。不兼容版本依据 `engines.dsh` 过滤（记录为代码核对，不修改真实桌面）。
 - tgz 来源的不可更新性在第 7 步生成资产、T027 安装后验证；本步不要求存在 tgz 副本。
 
 ## 7. Release 同版本（新版本，不动旧版本）
@@ -140,7 +140,7 @@ mv jiezhengj-subagent_oar_agy-$V.tgz /tmp/subagent_oar_agy-$V.tgz
 cd ../..
 git rev-parse -q --verify "refs/tags/v$V" >/dev/null || git tag v$V
 git push origin "v$V" 2>/dev/null || true
-git ls-remote --tags origin "refs/tags/v$V"
+test -n "$(git ls-remote --tags origin "refs/tags/v$V")" || { echo "tag push failed"; exit 1; }
 gh release view v$V >/dev/null 2>&1 || gh release create v$V /tmp/subagent_oar_agy-$V.tgz --notes-file /tmp/release-notes.md
 gh release view v$V --json assets --jq '[.assets[].name]'
 gh release view v0.2.5 --json assets --jq '[.assets[].name]'   # 旧版本保持原样
@@ -183,13 +183,16 @@ grep -iE "registry|network|ECONN|unable" /tmp/install-fail.log | head -5
 node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependencies; console.log(d['@jiezhengj/subagent_oar_agy'])"
 ```
 
-在 `.npmrc` 仍生效期间：先打开插件管理「版本」区，确认显示网络失败提示（宿主键 `versionsFailedNetwork`）而不是「已是最新」；再在安装框输入**未安装的探测名** `@jiezhengj/dsh-probe-uninstalled` 并确认，观察 `installProblemNetwork`。输入已安装的原名会在本地短路为 `installProblemInstalled`（作为边界记录，不能用来证明网络失败）。清理 `.npmrc` 后，在注册表可达时输入一个不存在的名称，观察 `installProblemNotFound`。
+在 `.npmrc` 仍生效期间：先打开插件管理「版本」区；若先显示缓存的「已是最新」，点「重新检查」（若按钮不渲染，回列表页刷新）后再断言网络失败提示（宿主键 `versionsFailedNetwork`）。安装框探测保持默认安装源（OFFICIAL_REGISTRY），若安装源被记忆为镜像/自定义源，记录例外。再在安装框输入**未安装的探测名** `@jiezhengj/dsh-probe-uninstalled` 并确认，观察 `installProblemNetwork`。输入已安装的原名会在本地短路为 `installProblemInstalled`（作为边界记录，不能用来证明网络失败）。清理 `.npmrc` 后，在注册表可达时输入一个不存在的名称，观察 `installProblemNotFound`。
 
 ```sh
 rm -f /tmp/vhome/profiles/deskclone/.npmrc
+HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+  plugin --profile deskclone add @jiezhengj/subagent_oar_agy --save-exact
+node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependencies; console.log(d['@jiezhengj/subagent_oar_agy'])"
 ```
 
-**期望**：安装失败、错误指向注册表/网络；依赖值保持原样（不是「不存在」，因为插件仍安装）、无半装状态；版本区显示网络失败而非错误地显示最新；探测名显示网络失败，原名显示已安装。
+**期望**：安装失败、错误指向注册表/网络；依赖值保持原样（不是「不存在」，因为插件仍安装）、无半装状态；版本区显示网络失败而非错误地显示最新；探测名显示网络失败，原名显示已安装；删掉坏 `.npmrc` 后再次 add 不产生第二份依赖。
 
 宿主错误键（用于安装框/版本区）：`installProblemNetwork`、`installProblemNetworkAll`、`installProblemNotFound`、`installProblemInstalled`、`versionsFailedNetwork`、`versionsBlocked`、`versionsBlockedDetail`。
 

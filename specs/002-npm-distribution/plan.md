@@ -16,7 +16,7 @@
 
 **Storage**: N/A（不新增运行时数据；分发包本身是唯一产物）
 
-**Testing**: Vitest（现有 11 文件 63 项）+ 新增 `test/distribution.test.ts` 静态契约测试 + `scripts/verify-package.mjs` 发布前校验 + `npm pack` 消费者安装冒烟 + 隔离 DSH HOME 的按名称安装/启动
+**Testing**: Vitest（现有 11 文件 63 项）+ 新增 `test/distribution.test.ts` 静态契约测试 + `scripts/verify-package.mjs` 发布前校验 + Release tgz 消费者安装（T027）+ 隔离 DSH HOME 的按名称安装/启动
 
 **Target Platform**: 发布者 macOS（arm64，本机手动发布）；使用者为 DSH `>=0.2.2-rc.1 <0.3.0` 的桌面应用
 
