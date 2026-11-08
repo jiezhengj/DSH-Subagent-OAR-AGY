@@ -8,12 +8,14 @@
 2. 在安装输入框粘贴这一行并安装：
 
 ```
-https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
+@jiezhengj/subagent_oar_agy
 ```
+
+tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.6/subagent_oar_agy-0.2.6.tgz`
 
 3. 启用「AGY 子智能体」，新会话即可让模型调用 `subagent_oar_agy`。
 
-前置条件：DSH 0.2.2-rc.1 及以上（低于 0.3.0）、本机已安装并登录 Antigravity CLI（`agy`）。这个 tarball 自带本插件的运行时代码，官方 OAR 工具会从 npm 安装，无需等待本插件上架 npm。也可以手动执行 `dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz`。
+前置条件：DSH 0.2.2-rc.1 及以上（低于 0.3.0）、本机已安装并登录 Antigravity CLI（`agy`）。本包自带运行时代码，官方 OAR 工具会从 npm 安装。也可以手动执行 `dsh plugin add @jiezhengj/subagent_oar_agy`。
 
 ## 显示名与界面语言
 
@@ -59,7 +61,7 @@ permissionMode: plan
 
 ## 安装
 
-见 [docs/INSTALL.md](./docs/INSTALL.md)。最短路径是在 DSH 插件管理页的安装框粘贴发布资产地址（见上），或执行 `dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz`；也可安装本地 tarball。本包未上架 npm，不要直接写包名。
+见 [docs/INSTALL.md](./docs/INSTALL.md)。最短路径是在 DSH 插件管理页的安装框填 `@jiezhengj/subagent_oar_agy`，或执行 `dsh plugin add @jiezhengj/subagent_oar_agy`；tgz 仅作备选。
 
 ## 配置项
 

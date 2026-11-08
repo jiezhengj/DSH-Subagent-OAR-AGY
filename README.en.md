@@ -4,8 +4,10 @@
 2. Paste this into the install box and install:
 
 ```
-https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
+@jiezhengj/subagent_oar_agy
 ```
+
+Fallback (tgz):`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.6/subagent_oar_agy-0.2.6.tgz`
 
 3. Enable “AGY subagent”, then the model can call `subagent_oar_agy` in a new session.
 
@@ -37,7 +39,7 @@ Set via profile patch (no dedicated settings UI):
 # Alternative install
 
 ```bash
-dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
+dsh plugin add @jiezhengj/subagent_oar_agy
 ```
 
 Or build from this repository:

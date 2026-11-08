@@ -1,10 +1,11 @@
 {
   "name": "@jiezhengj/subagent_oar_agy",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Delegate independent tasks to the local Antigravity CLI (agy) from DSH; self-contained non-official plugin with a non-ACP AGY runtime and eight-language UI.",
   "type": "module",
   "icon": "./icon.svg",
   "files": [
+    "LICENSE",
     "cordis.patch.yml",
     "icon.svg",
     "README.md",
@@ -41,7 +42,9 @@
     "./tool": "./tool.js"
   },
   "scripts": {
-    "build": "node scripts/vendor-provider.mjs"
+    "build": "node scripts/vendor-provider.mjs",
+    "verify": "node scripts/verify-package.mjs",
+    "prepublishOnly": "pnpm --dir ../.. run build && node scripts/verify-package.mjs"
   },
   "devDependencies": {
     "@jiezhengj/subagent_oar_agy-provider": "workspace:*"
@@ -54,5 +57,16 @@
   "bugs": {
     "url": "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/issues"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "dsh-bundle",
+    "subagent",
+    "antigravity",
+    "agy"
+  ]
 }
