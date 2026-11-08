@@ -220,3 +220,14 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 
 - 测试：`pnpm test` → 11 文件 / 63 项全绿。
 - 版本：`@jiezhengj/subagent_oar_agy@0.2.5`，Release 资产为最终验证对象。
+
+## v0.2.5 发布后实装
+
+| 项 | 结果 |
+|---|---|
+| Release 资产 | `v0.2.5` / `subagent_oar_agy-0.2.5.tgz` |
+| 桌面 profile 安装 | 从 Release URL 重装成功（pnpm 3.6 s），版本 0.2.5 |
+| 行状态 | `include:subagent-agy`、`include:tool-subagent-oar-agy`（模块 `@jiezhengj/subagent_oar_agy/tool`）均启用 |
+| 元数据 | 显示名「AGY 子智能体」；图标为 36×36 透明画布 |
+| 实机冒烟 | `subagent_oar_agy(runtime=agy)` 返回 `FINAL_V025_OK` |
+| 官方工具解析 | 桌面安装包含官方工具依赖，工具行走官方实现路径（回退未触发） |

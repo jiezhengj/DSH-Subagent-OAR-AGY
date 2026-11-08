@@ -141,4 +141,4 @@ T036, T037, T039, T040, T041 ─► 完成
 - [x] T047 [US3] 在组合包 README（及详情文档需要处）补一句：`timeoutMs` 未配置时不设内部时限，委派只能由父会话取消/关闭终止，并说明超时从 `agy init` 起算（per FR-009，partial）
 - [x] T048 [US1] 验证并记录 DSH 版本不满足时 `engines.dsh` 的安装/加载阻断与版本范围提示；若当前环境无法复现，记录宿主校验代码路径与结论（per FR-014，partial）
 
-- 收敛结论：F1–F7 已全部完成并通过验证（见 `validation.md` 收敛修复章节）；feature 满足 spec/plan/tasks 的完整意图。
+- 收敛结论：F1–F7 已全部完成并通过验证（见 `validation.md` 收敛修复章节与 v0.2.5 发布后实装）；T001–T048 全部完成，feature 收敛。
