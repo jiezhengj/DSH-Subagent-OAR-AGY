@@ -11,7 +11,7 @@
 @jiezhengj/subagent_oar_agy
 ```
 
-tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.6/subagent_oar_agy-0.2.6.tgz`
+tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
 
 3. 启用「AGY 子智能体」，新会话即可让模型调用 `subagent_oar_agy`。
 

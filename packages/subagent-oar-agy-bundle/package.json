@@ -1,6 +1,6 @@
 {
   "name": "@jiezhengj/subagent_oar_agy",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Delegate independent tasks to the local Antigravity CLI (agy) from DSH; self-contained non-official plugin with a non-ACP AGY runtime and eight-language UI.",
   "type": "module",
   "icon": "./icon.svg",

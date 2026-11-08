@@ -12,13 +12,13 @@ Paste this into the DeepSeek Harness plugin manager install box (Settings → Pl
 @jiezhengj/subagent_oar_agy
 ```
 
-Fallback tarball: `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.6/subagent_oar_agy-0.2.6.tgz`
+Fallback tarball: `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
 
 Then enable "AGY Subagent". Requirements: DSH 0.2.2-rc.1 or later (below 0.3.0), and Antigravity CLI (`agy`) installed and signed in on this machine.
 
 # Links
 
-- [GitHub Release v0.2.6](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/tag/v0.2.6)
+- [GitHub Release v0.2.7](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/tag/v0.2.7)
 - [Bundle README (Chinese)](packages/subagent-oar-agy-bundle/README.md)
 - [Install and upgrade](packages/subagent-oar-agy-bundle/docs/INSTALL.md)
 - [Implementation notes (Chinese)](packages/subagent-oar-agy-bundle/docs/DETAIL.zh.md)

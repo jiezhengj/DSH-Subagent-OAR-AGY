@@ -7,7 +7,7 @@
 @jiezhengj/subagent_oar_agy
 ```
 
-Fallback (tgz):`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.6/subagent_oar_agy-0.2.6.tgz`
+Fallback (tgz):`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
 
 3. 「AGY サブエージェント」を有効化すると、新しいセッションでモデルが `subagent_oar_agy` を呼べます。
 

@@ -8,7 +8,7 @@
 ## 安装
 
 1. 在 DSH 插件管理中安装组合包，安装输入框填包名：`@jiezhengj/subagent_oar_agy`（主路径，支持后续检查更新）。
-   - tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.6/subagent_oar_agy-0.2.6.tgz`
+   - tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
    - 或本地 tarball：`dsh plugin add /path/to/subagent_oar_agy-<version>.tgz`
 2. 在插件列表启用「AGY 子智能体」（包名 `@jiezhengj/subagent_oar_agy`），按提示重载；模型工具列表出现 `subagent_oar_agy`。
 
