@@ -70,16 +70,36 @@ node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependenc
 
 **期望**：依赖值为 `@jiezhengj/subagent_oar_agy: $V`（不是 URL、不是 `link:`、不是 `npm:` 别名）；`node_modules/@jiezhengj/subagent_oar_agy/package.json` 的版本同为 `$V`。
 
-## 5. 启动与工具可见性
+## 5. 启动与工具可见性（3 轮连续验证）
+
+以下循环完整执行 3 轮；每轮必须先停止上一轮实例、重建隔离环境，再安装与启动。启动后先断言日志出现访问地址，再检查未激活告警，避免启动失败被误判为通过。
 
 ```sh
-(HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
-  --profile deskclone --no-open --port 18131 > /tmp/vhome-boot.log 2>&1 & echo $! > /tmp/vhome.pid)
-sleep 15
-grep -iE "did not activate|pending" /tmp/vhome-boot.log   # 期望：无输出
+for i in 1 2 3; do
+  if [ -f /tmp/vhome.pid ]; then kill "$(cat /tmp/vhome.pid)" 2>/dev/null || true; fi
+  rm -f /tmp/vhome.pid
+  sleep 1
+  rm -rf /tmp/vhome && mkdir -p /tmp/vhome/profiles
+  cp -a ~/.dsh/profiles/desktop /tmp/vhome/profiles/deskclone
+  HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+    plugin --profile deskclone remove @jiezhengj/subagent_oar_agy >/dev/null 2>&1 || true
+  HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+    plugin --profile deskclone add @jiezhengj/subagent_oar_agy --save-exact
+  (HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+    --profile deskclone --no-open --port 18131 > /tmp/vhome-boot.log 2>&1 & echo $! > /tmp/vhome.pid)
+  sleep 15
+  if ! grep -qF 'http://127.0.0.1:18131/?token=' /tmp/vhome-boot.log; then
+    echo "round $i: 启动失败"; cat /tmp/vhome-boot.log; exit 1
+  fi
+  if grep -qiE "did not activate|pending" /tmp/vhome-boot.log; then
+    echo "round $i: FAIL"; grep -iE "did not activate|pending" /tmp/vhome-boot.log
+  else
+    echo "round $i: OK"
+  fi
+done
 ```
 
-打开日志中的 `http://127.0.0.1:18131/?token=...`，确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`；在会话里调用一次（`runtime=agy`）确认返回结果。重复第 4–5 步的「移除 → 按名称安装 → 启动」共 3 次，记录每次启动日志结论。
+打开日志中的 `http://127.0.0.1:18131/?token=...`，确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`；在会话里调用一次（`runtime=agy`）确认返回结果。三轮都输出 `OK` 才算通过。
 
 ## 6. 更新面板与依赖形态
 
@@ -93,7 +113,7 @@ grep '"version"' /tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent_
 ```
 
 刷新/重开插件管理「版本」区，期望出现「可更新到 0.2.6」；若界面缓存导致未刷新，记录 `updateRefusal()` 的 registry 分支证据与例外，然后还原该文件（`cp -a` 重新复制 profile 或把版本改回 `$V`）。不兼容版本依据 `engines.dsh` 过滤（记录为代码核对，不修改真实桌面）。
-- 对照 tgz 安装的副本：依赖是 URL，版本区标为「不可更新」。
+- tgz 来源的不可更新性在第 7 步生成资产、T027 安装后验证；本步不要求存在 tgz 副本。
 
 ## 7. Release 同版本（新版本，不动旧版本）
 

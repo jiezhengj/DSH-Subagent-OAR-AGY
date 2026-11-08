@@ -66,8 +66,8 @@ description: "Task list for npm 短名称安装（注册表分发）"
 - [ ] T012 [US1] 在 `packages/subagent-oar-agy-bundle/` 执行 `npm publish --access public`（npm 要求时当场输入 OTP，记录开始/结束时间并确认 ≤5 分钟）；用 `npm view @jiezhengj/subagent_oar_agy@$V version dist.tarball dist.integrity engines --json` 核对注册表条目
 - [ ] T013 [US1] 隔离安装验证（命令必须带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`，禁止省略）：`/tmp/vhome` 复制桌面 profile，先 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome <APP> <BIN> plugin --profile deskclone remove @jiezhengj/subagent_oar_agy`，再 `... plugin --profile deskclone add @jiezhengj/subagent_oar_agy --save-exact`；确认 profile 依赖为注册表规格、解析版本为 `$V`，且 profile `package.json` 的 `dsh.profile.bundles` 含该 bundle（否则不会激活）
 - [ ] T014 [US1] 隔离启动验证（命令必须带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：启动 `/tmp/vhome/profiles/deskclone`，确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`、启动日志无未激活告警；调用一次 `subagent_oar_agy(runtime=agy)` 并记录返回
-- [ ] T015 [US1] SC-006 连续验证：每轮先重建隔离环境（`rm -rf /tmp/vhome` 后重新 `cp -a ~/.dsh/profiles/desktop /tmp/vhome/profiles/deskclone`），再重复「移除 → 按名称安装 → 启动」3 次（所有命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`），每次记录启动日志结论；3 次均无未激活告警才算通过
-- [ ] T016 [US1] 失败语义与重复安装：在 `/tmp/vhome/profiles/deskclone/.npmrc` 写入 `registry=http://127.0.0.1:9`、`fetch-retries=0`，用带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome` 的 `<APP> <BIN> plugin --profile deskclone add @jiezhengj/subagent_oar_agy`（BIN/APP 定义见 quickstart 第 4 步）触发真实安装失败，记录输出文案与「依赖未写入、无半装状态」；在 `.npmrc` 仍生效期间打开插件管理「版本」区，记录网络失败文案并核对 `versionsFailedNetwork`；删除 `.npmrc` 后恢复；另用 `npm view --registry=http://127.0.0.1:9 --fetch-retries=0 ...` 作为 CLI 侧证据，并核对宿主键 `installProblemNetwork`/`installProblemNetworkAll`/`installProblemNotFound`/`installProblemInstalled`；在已安装 `$V` 的隔离 profile 再次 `add --save-exact`，确认依赖值不变且不产生第二份依赖
+- [ ] T015 [US1] SC-006 连续验证：按 `quickstart.md` 第 5 步的 3 轮循环执行；每轮先 `kill "$(cat /tmp/vhome.pid)"`（无 PID 则跳过）、`rm -f /tmp/vhome.pid`、`rm -rf /tmp/vhome`、`mkdir -p /tmp/vhome/profiles`、重新复制桌面 profile，再 remove/add/start（所有命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）；启动后先断言日志含 `http://127.0.0.1:18131/?token=`，再 grep 未激活告警；记录 3 轮均 OK
+- [ ] T016 [US1] 失败语义与重复安装：在 `/tmp/vhome/profiles/deskclone/.npmrc` 写入 `registry=http://127.0.0.1:9`、`fetch-retries=0`，用带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome` 的 `<APP> <BIN> plugin --profile deskclone add @jiezhengj/subagent_oar_agy`（BIN/APP 定义见 quickstart 第 4 步）触发真实安装失败，记录输出文案与「依赖未写入、无半装状态」；在 `.npmrc` 仍生效期间，于 T014 的 18131 实例安装框输入名称观察 `installProblemNetwork` 文案，并打开版本区记录网络失败文案、核对 `versionsFailedNetwork`（不要用真实桌面实例）；删除 `.npmrc` 后恢复；另用 `npm view --registry=http://127.0.0.1:9 --fetch-retries=0 ...` 作为 CLI 侧证据，并核对宿主键 `installProblemNetwork`/`installProblemNetworkAll`/`installProblemNotFound`/`installProblemInstalled`；在已安装 `$V` 的隔离 profile 再次 `add --save-exact`，确认依赖值不变且不产生第二份依赖
 
 **Checkpoint**: 新用户只填名称即可装好、启动并调用工具；连续 3 次与失败路径均有结论
 
@@ -102,7 +102,7 @@ description: "Task list for npm 短名称安装（注册表分发）"
 
 - [ ] T023 [US3] 在 `packages/subagent-oar-agy-bundle/` 执行真实 `npm pack`；把产物 `jiezhengj-subagent_oar_agy-$V.tgz` 改名为 `/tmp/subagent_oar_agy-$V.tgz`（只改名），计算 SHA-256；生成 `/tmp/release-notes.md`（安装填名称、tgz 备选地址、版本 `$V`）并确认非空
 - [ ] T024 [US3] 创建并推送 tag：`git tag v$V`、`git push origin v$V`；确认 `git ls-remote --tags origin "refs/tags/v$V"` 命中
-- [ ] T025 [US3] 生成 Release 说明并创建 GitHub Release：`gh release create v$V /tmp/subagent_oar_agy-$V.tgz --notes-file /tmp/release-notes.md`；核对 `gh release view v$V --json assets` 含 `subagent_oar_agy-$V.tgz`；记录 Release 创建完成时间，结合 T012 的 publish 时间确认两渠道在 5 分钟内均可用
+- [ ] T025 [US3] 生成 Release 说明并创建 GitHub Release：`gh release create v$V /tmp/subagent_oar_agy-$V.tgz --notes-file /tmp/release-notes.md`；核对 `gh release view v$V --json assets` 含 `subagent_oar_agy-$V.tgz`；T023–T025 应在 T012 成功后立即执行（不必等待 US1/US2 验证），记录 publish→Release 间隔 ≤5 分钟；若先做验证再发 Release，则在 validation 记录超出 SC-003 的例外
 - [ ] T026 [US3] 双渠道 parity：`gh release download v$V -p subagent_oar_agy-$V.tgz -D /tmp/rel` 下载 Release 资产；比对 `/tmp/rel/subagent_oar_agy-$V.tgz` 与 `/tmp/subagent_oar_agy-$V.tgz` 的 SHA-256；用 `npm view @jiezhengj/subagent_oar_agy@$V dist.shasum dist.integrity dist.tarball` 核对 `dist.shasum` 与本地 SHA-1 一致；`npm pack @jiezhengj/subagent_oar_agy@$V --dry-run --json` 的文件清单与本地一致
 - [ ] T027 [US3] 旧版本与 tgz 备选（命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：确认 `v0.2.5` 的 tag/Release 资产未变；用 Release 的 `subagent_oar_agy-$V.tgz` 在隔离 profile 安装一次，确认依赖保存为 URL、插件可用、版本区标为不可更新
 - [ ] T028 [US3] 迁移验证（命令带 `HOME=/tmp/vhome DSH_HOME=/tmp/vhome`）：在已用 tgz 安装的隔离 profile 中先移除旧条目，再按名称安装 `$V`，确认没有重复依赖且工具可用
@@ -157,14 +157,14 @@ description: "Task list for npm 短名称安装（注册表分发）"
 - T010 依赖 T003；T011 依赖 T006、T009、T010
 - T012 依赖 T011；T013–T016 依赖 T012，彼此可顺序执行
 - US2 的 T018 依赖 T013；T019 依赖 T014 与 T018；T020–T021 依赖 T018
-- US3 的 T023 依赖 T012；T024–T026 依次执行；T027–T030 在 T025 之后
+- US3 的 T023 依赖 T012；T024–T026 依次执行；T027–T030 在 T025 之后。T023–T025 可在 T012 后立即执行，不必等待 US1/US2 验证
 - Polish 的 T031–T033 可并行；T034 依赖全部
 
 ### Parallel Opportunities
 
 - T002、T004、T005 不同文件可并行
 - T007、T008 文档两组不同文件可并行
-- T031、T032、T033 可在发布完成后并行（T033 创建独立文件）
+- T031、T032、T033 可在发布完成后并行（T033 汇总，T022 已创建）
 - 不将同一文件的编辑任务标为 [P]（例如 T017 与 T005 都改 `test/distribution.test.ts`，按顺序执行）
 
 ---
