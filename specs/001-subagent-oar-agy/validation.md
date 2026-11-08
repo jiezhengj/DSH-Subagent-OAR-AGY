@@ -174,8 +174,15 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 - **隐私检查**：全仓库无令牌、密钥、邮箱、个人绝对路径（仅 `/tmp` 临时验证路径）；`node_modules`、`dist`、`coverage`、构建出的 `provider/` 与 tarball 均被忽略。
 - **仓库**：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY`，public，topics：`dsh-plugin`、`dsh`、`deepseek-harness`、`antigravity`、`agy`、`subagent`；`main` 分支已推送。
 - **发布包**：组合包改为自包含（构建时把提供方 `dist` 复制为 `provider/`，patch 引用 `@jiezhengj/subagent_oar_agy/agy-provider`），tarball 依赖只剩 npm 上的宿主包与官方 OAR 工具。
-- **Release**：`v0.2.2` 附带 `subagent_oar_agy-0.2.2.tgz`；安装框输入 `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.3/subagent_oar_agy-0.2.3.tgz`。
+- **Release**：`v0.2.2` 附带 `subagent_oar_agy-0.2.2.tgz`；安装框输入 `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz`。
 - **安装验证**：临时 `DSH_HOME` 用该 URL 安装成功（pnpm 拉取 tarball，官方 OAR 工具从 npm 安装）；本机桌面 profile 已卸载 0.2.1 并按同一 URL 安装 0.2.2（`application: applied`）。
 
 - **README 索引**：仓库根 `README.md` 为索引页（语言导航 + 安装框输入 + 链接），8 种语言正文分别在 `README.<lang>.md`；组合包 README 也链接到这些语言版本。
 - **Release URL 冒烟**：本机按 README 的安装框 URL 重装 0.2.2 后，`subagent_oar_agy(runtime=agy)` 返回 `RELEASE_INSTALL_OK`。
+
+## 显示名回归修复（v0.2.3）
+
+- **症状**：从 GitHub Release 安装后，插件页显示名变成 `@jiezhengj/subagent_oar_agy`，而非「AGY 子智能体」。
+- **根因**：自包含改造给 `package.json` 增加 `exports` 后，Node 资源解析拒绝 `@jiezhengj/subagent_oar_agy/locale/en.json`、`/package.json`、`/icon`；DSH 的 `readPluginMeta` 读不到 locale 元数据，标题回退为包名。
+- **修复**：`exports` 增加 `./locale/*`、`./agy-provider/locale/*`、`./icon`、`./package.json`；构建时一并复制提供方 `locale`；新增资源可解析性测试（59 项全绿）。
+- **验证**：`readPluginMeta` 对组合包返回 8 语言标题（zh 为「AGY 子智能体」），对 `@jiezhengj/subagent_oar_agy/agy-provider` 返回「AGY 子智能体运行时」；按 Release URL 重装后真实委派冒烟通过。
