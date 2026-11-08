@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-07
 
-**Status**: In Progress（v0.2.3 已发布，持续优化）
+**Status**: Completed（v0.2.5 收敛验证通过）
 
 **Input**: User description: "做一个可分发的 DSH 插件，让 DSH 会话能把独立任务交给本机 AGY CLI（agy）执行并取回结果；不走 ACP，尽量复用官方新 OAR 插件的工具表面。"
 

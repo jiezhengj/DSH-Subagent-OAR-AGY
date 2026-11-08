@@ -4,7 +4,7 @@
 2. インストール欄に以下を貼り付けてインストールします：
 
 ```
-https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subagent_oar_agy-0.2.4.tgz
+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
 ```
 
 3. 「AGY サブエージェント」を有効化すると、新しいセッションでモデルが `subagent_oar_agy` を呼べます。
@@ -37,7 +37,7 @@ https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subag
 # 代替のインストール方法
 
 ```bash
-dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subagent_oar_agy-0.2.4.tgz
+dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
 ```
 
 このリポジトリからビルドする場合：

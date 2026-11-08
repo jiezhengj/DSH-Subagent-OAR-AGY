@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { parse as parseYaml } from 'yaml'
-import * as oar from '@deepseek-ai/dsh-experimental-tool-subagent-oar'
+import { Config as ToolConfig } from '@jiezhengj/subagent_oar_agy/tool'
 import { Config as ProviderConfig } from '@jiezhengj/subagent_oar_agy/agy-provider'
 
 const bundleRoot = fileURLToPath(new URL('..', import.meta.url))
@@ -23,15 +23,16 @@ describe('bundle manifest', () => {
     expect(pkg.engines.dsh).toBe('>=0.2.2-rc.1 <0.3.0')
     expect(pkg.devDependencies?.['@jiezhengj/subagent_oar_agy-provider']).toBeDefined()
     expect(pkg.dependencies['@deepseek-ai/dsh-experimental-tool-subagent-oar']).toBe('0.2.2-rc.1')
+    expect(pkg.dependencies['@deepseek-ai/dsh-tools']).toBe('0.2.2-rc.1')
   })
 
   it('ships the patch, icon, README and docs', () => {
-    for (const file of ['cordis.patch.yml', 'icon.svg', 'README.md', 'docs/INSTALL.md', 'docs/DETAIL.zh.md', 'docs/DETAIL.en.md', 'provider/index.js']) {
+    for (const file of ['cordis.patch.yml', 'icon.svg', 'README.md', 'docs/INSTALL.md', 'docs/DETAIL.zh.md', 'docs/DETAIL.en.md', 'provider/index.js', 'tool.js']) {
       expect(existsSync(`${bundleRoot}/${file}`)).toBe(true)
     }
   })
 
-  it('inserts exactly the provider row and the official tool row', () => {
+  it('inserts exactly the provider row and the tool entry row', () => {
     const entries = patch?.flatMap(entry => entry.insert) ?? []
     expect(entries.map(entry => entry.id)).toEqual(['subagent-agy', 'tool-subagent-oar-agy'])
     const provider = entries.find(entry => entry.id === 'subagent-agy')
@@ -42,17 +43,17 @@ describe('bundle manifest', () => {
     expect(parsed.command).toBe('agy')
   })
 
-  it('wires the official tool to the agy provider with a conflict-free default name', () => {
+  it('wires the tool entry to the agy provider with a conflict-free default name', () => {
     const entries = patch?.flatMap(entry => entry.insert) ?? []
     const tool = entries.find(entry => entry.id === 'tool-subagent-oar-agy')
-    expect(tool?.name).toBe('@deepseek-ai/dsh-experimental-tool-subagent-oar')
-    const parsed = oar.Config(tool?.config ?? {}) as { providers: Record<string, string>; toolName: string }
+    expect(tool?.name).toBe('@jiezhengj/subagent_oar_agy/tool')
+    const parsed = ToolConfig(tool?.config ?? {}) as { providers: Record<string, string>; toolName: string }
     expect(parsed.providers).toEqual({ agy: 'agy' })
     expect(parsed.toolName).toBe('subagent_oar_agy')
   })
 
   it('documents the optional subagent_oar override', () => {
-    const override = oar.Config({ providers: { agy: 'agy' }, toolName: 'subagent_oar' }) as { toolName: string }
+    const override = ToolConfig({ providers: { agy: 'agy' }, toolName: 'subagent_oar' }) as { toolName: string }
     expect(override.toolName).toBe('subagent_oar')
     expect(readFileSync(new URL('../README.md', import.meta.url), 'utf8')).toContain('toolName: subagent_oar')
   })
@@ -63,6 +64,7 @@ describe('bundle manifest', () => {
     expect(meta.title).toBe('AGY 子智能体')
     expect(import.meta.resolve('@jiezhengj/subagent_oar_agy/package.json')).toMatch(/package\.json$/u)
     expect(import.meta.resolve('@jiezhengj/subagent_oar_agy/icon')).toMatch(/icon\.svg$/u)
+    expect(import.meta.resolve('@jiezhengj/subagent_oar_agy/tool')).toMatch(/tool\.js$/u)
     const providerLocale = JSON.parse(readFileSync(new URL(import.meta.resolve('@jiezhengj/subagent_oar_agy/agy-provider/locale/en.json')), 'utf8'))
     expect(providerLocale.meta.title).toBe('AGY subagent runtime')
   })

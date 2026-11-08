@@ -89,7 +89,8 @@ packages/
 │   └── test/                    # 单元 + 假 agy 集成 + i18n
 └── subagent-oar-agy-bundle/     # 组合包（发布名 @jiezhengj/subagent_oar_agy）
     ├── package.json             # dsh.bundle.patch、engines.dsh、exports、files
-    ├── cordis.patch.yml         # 提供方（包内子路径）+ 官方工具，toolName: subagent_oar_agy
+    ├── cordis.patch.yml         # 提供方（包内子路径）+ 工具包装行，toolName: subagent_oar_agy
+    ├── tool.js                  # 工具包装：优先官方工具，包缺失时回退同形工具（FR-014）
     ├── scripts/vendor-provider.mjs  # 构建时复制提供方 dist + locale → provider/
     ├── provider/                # 构建产物（.gitignore；随 tarball 发布）
     ├── locale/<lang>.json       # 插件页 8 语言标题/描述/详情指向
@@ -99,7 +100,9 @@ packages/
     └── icon.svg
 ```
 
-**结构决策**：采用 pnpm workspace 两包结构，与官方"提供方包 + 工具/组合包"的切分一致；组合包是唯一用户安装入口，提供方仅作为开发依赖，构建时被复制进组合包（`provider/`）从而自包含。`exports` 同时暴露 patch 所需的 `agy-provider` 与 DSH 元数据所需的 locale/icon/package.json；否则插件页显示名会回退为包名（v0.2.2 回归，v0.2.3 修复）。测试与实现同包；组合包不含源码，只含编译后的 `provider/`、patch、文档、locale 与图标。
+**结构决策**：采用 pnpm workspace 两包结构，与官方"提供方包 + 工具/组合包"的切分一致；组合包是唯一用户安装入口，提供方仅作为开发依赖，构建时被复制进组合包（`provider/`）从而自包含。`exports` 同时暴露 patch 所需的 `agy-provider`、工具包装 `./tool` 与 DSH 元数据所需的 locale/icon/package.json；否则插件页显示名会回退为包名（v0.2.2 回归，v0.2.3 修复）。
+
+工具入口由组合包内 `tool.js` 包装：加载时动态解析官方 OAR 工具包，可解析则挂载官方插件；不可解析则记录警告并注册内置同形工具（名称、参数、返回结构一致），满足 FR-014 的"明确报错并回退"且不改变工具表面。测试与实现同包；组合包不含源码，只含编译后的 `provider/`、`tool.js`、patch、文档、locale、图标与 LICENSE。
 
 ## Phase 0：研究与决策（详见 research.md）
 
@@ -144,6 +147,7 @@ packages/
 - 默认无人值守的安全风险：README 显式警告；`plan`/`strict` 档提供可验证的保守行为。
 - 与官方 OAR 组合包工具名冲突：README 说明；`toolName` 可配置。
 - `exports` 阻断 DSH 元数据资源：locale/icon/package.json 缺失时显示名静默回退包名；契约测试 + 发布后用 `readPluginMeta` 复核。
+- 官方 OAR 工具包不可解析：`tool.js` 回退到内置同形工具并记录警告；单元测试覆盖官方/回退两条挂载路径，实装复核工具名与委派。
 - 图标不透明底导致固定深色观感：图标画布必须透明、36×36，随卡片主题背景呈现。
 - GitHub Release 资产不可用或 pnpm 拒绝远端 tarball：保持本地 tarball 与仓库构建路径可用，并在 README 给出备选安装方式。
 

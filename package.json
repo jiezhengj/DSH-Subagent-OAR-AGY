@@ -22,5 +22,6 @@
     "yaml": "^2.8.0",
     "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1",
     "@vitest/coverage-v8": "^5.1.0"
-  }
+  },
+  "license": "MIT"
 }

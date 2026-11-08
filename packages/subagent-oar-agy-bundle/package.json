@@ -1,6 +1,6 @@
 {
   "name": "@jiezhengj/subagent_oar_agy",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Delegate independent tasks to the local Antigravity CLI (agy) from DSH; self-contained non-official plugin with a non-ACP AGY runtime and eight-language UI.",
   "type": "module",
   "icon": "./icon.svg",
@@ -10,7 +10,8 @@
     "README.md",
     "docs",
     "locale",
-    "provider"
+    "provider",
+    "tool.js"
   ],
   "dsh": {
     "bundle": {
@@ -28,14 +29,16 @@
     "@deepseek-ai/dsh-subagent": "0.2.2-rc.1",
     "@deepseek-ai/dsh-timeout": "0.2.2-rc.1",
     "@deepseek-ai/schemastery": "3.19.0",
-    "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1"
+    "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.1"
   },
   "exports": {
     "./agy-provider": "./provider/index.js",
     "./agy-provider/locale/*": "./provider/locale/*",
     "./locale/*": "./locale/*",
     "./icon": "./icon.svg",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./tool": "./tool.js"
   },
   "scripts": {
     "build": "node scripts/vendor-provider.mjs"
@@ -50,5 +53,6 @@
   "homepage": "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY",
   "bugs": {
     "url": "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/issues"
-  }
+  },
+  "license": "MIT"
 }

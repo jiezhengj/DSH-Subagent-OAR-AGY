@@ -4,7 +4,7 @@
 2. 在安装输入框粘贴这一行并安装：
 
 ```
-https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subagent_oar_agy-0.2.4.tgz
+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
 ```
 
 3. 启用「AGY 子智能体」，新会话即可让模型调用 `subagent_oar_agy`。
@@ -37,7 +37,7 @@ https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subag
 # 安装方式（备选）
 
 ```bash
-dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subagent_oar_agy-0.2.4.tgz
+dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
 ```
 
 或从本仓库构建：

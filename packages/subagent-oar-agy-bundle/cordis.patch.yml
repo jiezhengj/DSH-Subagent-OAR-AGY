@@ -7,7 +7,7 @@
         command: agy
         permissionMode: yolo
     - id: tool-subagent-oar-agy
-      name: "@deepseek-ai/dsh-experimental-tool-subagent-oar"
+      name: "@jiezhengj/subagent_oar_agy/tool"
       config:
         providers:
           agy: agy

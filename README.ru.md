@@ -4,7 +4,7 @@
 2. Вставьте это в поле установки и установите:
 
 ```
-https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subagent_oar_agy-0.2.4.tgz
+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
 ```
 
 3. Включите «Субагент AGY»; в новой сессии модель сможет вызывать `subagent_oar_agy`.
@@ -37,7 +37,7 @@ https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subag
 # Альтернативная установка
 
 ```bash
-dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.4/subagent_oar_agy-0.2.4.tgz
+dsh plugin add https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
 ```
 
 Или соберите из этого репозитория:

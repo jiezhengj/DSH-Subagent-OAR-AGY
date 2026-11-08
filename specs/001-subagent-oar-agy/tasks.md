@@ -133,12 +133,12 @@ T036, T037, T039, T040, T041 ─► 完成
 
 ### 追加任务
 
-- [ ] T042 [US1] 按 FR-014 补齐官方 OAR 工具包可用性校验与备选形态：加载时检测工具包可解析，缺失时给出可操作诊断；实现"自写同形工具"回退并保持工具名、参数与返回表面不变；补工具包缺失/回退路径测试（per FR-014，missing）
-- [ ] T043 [US4] 修正组合包 README：删除未上架 npm 的 `dsh plugin add @jiezhengj/subagent_oar_agy` 说法，统一为 Release tarball 地址与本地 tarball 两种安装路径；配置表补 `locale` 行（per FR-023、FR-022、SC-004，contradicts）
-- [ ] T044 [US1] 在 v0.2.4 上重跑真机会话验收：10 次委派（SC-001）、启动确认计时（SC-002）、禁用/重装恢复与无残留进程（SC-005）、10 次入口选择（SC-007），全部使用 `subagent_oar_agy` 并更新 `validation.md` 的旧工具名与证据（per SC-001、SC-002、SC-005、SC-007，partial）
-- [ ] T045 [US4] 安装官方 OAR 组合包与本插件并存，验证 `subagent_oar` 与 `subagent_oar_agy` 同时注册、互不覆盖，两套工具均可独立委派；记录到 `validation.md` 与 `research.md` D9（per US4/AC4、FR-016，partial）
-- [ ] T046 [US4] 与用户确认许可证（建议 MIT），新增 `LICENSE`，在两个 `package.json` 补 `license` 字段，并在根 README 声明；如用户在 plan 阶段已另有决定则按该决定执行（per Constitution 附加约束，missing）
-- [ ] T047 [US3] 在组合包 README（及详情文档需要处）补一句：`timeoutMs` 未配置时不设内部时限，委派只能由父会话取消/关闭终止，并说明超时从 `agy init` 起算（per FR-009，partial）
-- [ ] T048 [US1] 验证并记录 DSH 版本不满足时 `engines.dsh` 的安装/加载阻断与版本范围提示；若当前环境无法复现，记录宿主校验代码路径与结论（per FR-014，partial）
+- [x] T042 [US1] 按 FR-014 补齐官方 OAR 工具包可用性校验与备选形态：加载时检测工具包可解析，缺失时给出可操作诊断；实现"自写同形工具"回退并保持工具名、参数与返回表面不变；补工具包缺失/回退路径测试（per FR-014，missing）
+- [x] T043 [US4] 修正组合包 README：删除未上架 npm 的 `dsh plugin add @jiezhengj/subagent_oar_agy` 说法，统一为 Release tarball 地址与本地 tarball 两种安装路径；配置表补 `locale` 行（per FR-023、FR-022、SC-004，contradicts）
+- [x] T044 [US1] 在 v0.2.4 上重跑真机会话验收：10 次委派（SC-001）、启动确认计时（SC-002）、禁用/重装恢复与无残留进程（SC-005）、10 次入口选择（SC-007），全部使用 `subagent_oar_agy` 并更新 `validation.md` 的旧工具名与证据（per SC-001、SC-002、SC-005、SC-007，partial）
+- [x] T045 [US4] 安装官方 OAR 组合包与本插件并存，验证 `subagent_oar` 与 `subagent_oar_agy` 同时注册、互不覆盖，两套工具均可独立委派；记录到 `validation.md` 与 `research.md` D9（per US4/AC4、FR-016，partial）
+- [x] T046 [US4] 与用户确认许可证（建议 MIT），新增 `LICENSE`，在两个 `package.json` 补 `license` 字段，并在根 README 声明；如用户在 plan 阶段已另有决定则按该决定执行（per Constitution 附加约束，missing）
+- [x] T047 [US3] 在组合包 README（及详情文档需要处）补一句：`timeoutMs` 未配置时不设内部时限，委派只能由父会话取消/关闭终止，并说明超时从 `agy init` 起算（per FR-009，partial）
+- [x] T048 [US1] 验证并记录 DSH 版本不满足时 `engines.dsh` 的安装/加载阻断与版本范围提示；若当前环境无法复现，记录宿主校验代码路径与结论（per FR-014，partial）
 
-- 收敛结论：F1–F7 完成并通过验证后，本 feature 才满足 spec/plan/tasks 的完整意图；在此之前状态保持 In Progress。
+- 收敛结论：F1–F7 已全部完成并通过验证（见 `validation.md` 收敛修复章节）；feature 满足 spec/plan/tasks 的完整意图。

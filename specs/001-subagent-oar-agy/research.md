@@ -106,3 +106,10 @@
 - **Rationale**：DSH 没有浅/深两套插件图标，也没有对图标做滤镜；`readPluginMeta` 只解析单个 `icon`，客户端以 `<img>` 渲染。官方插件图标均为 36×36 `fill="none"` 透明画布，透明区域会透出卡片背景，因此看起来随主题变化。此前 v0.2.3 图标自带不透明深色圆角矩形，固定呈深色。
 - **Evidence**：`dsh-app-boot/lib/index.js` 的 `iconOf`/`readPluginMeta`；`dsh-client-ui-plugin-manager/lib/client.js` 的 `PackageArtwork` 与 `packageImage`（无 filter/mask）；`dsh-client-ui-layout/lib/client.js` 主题应用（根 `color-scheme`、`body[data-ds-dark-theme]`、CSS token），图标不继承这些变量；抽查 21 个官方 `icon.svg` 均无 `prefers-color-scheme`/`currentColor`。
 - **Alternatives considered**：在 SVG 内用 `prefers-color-scheme` 切换颜色（依赖浏览器对 `<img>` 内 SVG 的实现，且只跟随 `color-scheme`，非 DSH 明示能力）；保留不透明底（视觉固定深色，已否决）。
+
+## D15. 官方工具包缺失时的回退形态
+
+- **Decision**：组合包 patch 的工具行改为包内 `tool.js` 包装模块。它先动态 `import('@deepseek-ai/dsh-experimental-tool-subagent-oar')`；成功则用 `ctx.plugin(official, config)` 挂载官方插件，失败则 `ctx.logger.warn` 后注册内置同形工具（`defineTool`，参数/输出/一次性契约与官方一致）。
+- **Rationale**：FR-014 要求"校验官方 OAR 工具包可用；不可用时明确报错并回退到备选形态，工具表面保持不变"。包装模块把可用性判断放在加载时，官方实现仍优先，回退只在依赖损坏或缺失时生效。
+- **Alternatives considered**：让 patch 直接挂官方行（当前 v0.2.4 行为，缺包时无回退）；把官方包做成可选 peer 并复制整套工具（可行但重复代码更大）。选择包装 + 最小同形实现。
+- **Consequences**：组合包新增 `tool.js`、`@deepseek-ai/dsh-tools` 依赖与 `./tool` 导出；契约测试断言 patch 指向包装行；官方升级时仍需重跑 spike。

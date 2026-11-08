@@ -1,11 +1,11 @@
 # 实现验证记录
 
-**日期**：2026-11-08　**环境**：macOS（arm64）、Node v26.0.0、pnpm 12.18.0、DSH 0.2.2-rc.1、AGY 1.5.3
+**日期**：2026-11-08　**环境**：macOS（arm64）、Node v26.0.0、pnpm 12.18.0、DSH 0.2.2-rc.1、AGY 1.5.3（v0.2.5 收敛验证已更新）
 
 ## 构建与测试
 
 - `pnpm -r build`：通过（TypeScript 严格模式，`module: NodeNext`）。
-- `pnpm test`：**10 个测试文件、59 项全绿**（单元 + 假 agy 集成 + i18n + 组合包契约；早期记录为 50 项，随本地化/自包含/元数据测试增加）。
+- `pnpm test`：**11 个测试文件、63 项全绿**（单元 + 假 agy 集成 + i18n + 组合包契约 + 工具包装/回退；早期记录为 50 项）。
 - 覆盖率（`pnpm test --coverage`，v8）：全仓行 89.35%；核心模块行覆盖：`stream` 92.59%、`protocol` 100%、`errors` 95%、`timer` 100%；`run.ts` 92%。
 
 ## T005 官方工具 spike
@@ -59,20 +59,21 @@
 
 > 说明：以上是 v0.1.x 的实测形态。v0.2.3 起提供方改为组合包内子路径 `@jiezhengj/subagent_oar_agy/agy-provider`，工具行显式 `toolName: subagent_oar_agy`，见 `contracts/bundle-patch.md`。
 
-### T020 入口选择（SC-007）
+### T020 / T044 入口选择（SC-007，v0.2.5 重新基线）
 
-10 次真实 headless 会话，任务描述只指向 AGY（不点名工具），统计模型是否选择 `subagent_oar` 且 `runtime=agy`、并返回预期文本：
+10 次真实 headless 会话（临时 `DSH_HOME`，v0.2.5 安装包），任务描述只指向 AGY（不点名工具）：
 
-- 结果：**10/10 选择 `subagent_oar(runtime=agy)` 并完成委派**（阈值 9/10）。
-- 证据：`/tmp/sc007_1.ndjson` … `/tmp/sc007_10.ndjson`（含 `tool_call` 与 `final` 事件）。
+- 结果：**10/10 选择 `subagent_oar_agy` 并返回预期令牌**（阈值 9/10）；单次 14.8–19.1 s。
+- 证据：`/tmp/sc3_1.ndjson` … `/tmp/sc3_10.ndjson`、`/tmp/sc3_results.json`。
+- 说明：v0.2.4 之前的记录使用旧名 `subagent_oar(runtime=agy)`，已由本节取代。
 
-### T021 重复工具名行为
+### T021 / T045 与官方 OAR 共存（v0.2.5）
 
-在临时 profile 追加第二行同包、同默认工具名的工具实例后启动宿主：
+在临时 profile 中插入官方工具行（`@deepseek-ai/dsh-experimental-tool-subagent-oar`，默认 `subagent_oar`），与本插件的 `subagent_oar_agy` 同时启用：
 
-- 第二实例注册失败，宿主日志：`tool "subagent_oar" is already registered`，并提示 `1 entry did not activate`；
-- 先注册者（本插件行）生效，**不会静默覆盖**，也不影响其他工具；
-- 因此 README/INSTALL 的 `toolName: subagent_agy` 改名方案是正确处置；`toolName` 为真实配置项（已由 `Config` 解析验证）。
+- 一次会话内模型先后调用 `subagent_oar` 与 `subagent_oar_agy`，两者分别返回 `OFFICIAL_OK` / `AGY_OK`；
+- 无覆盖、无重复注册报错；`--dump-config` 同时显示包装行与官方行。
+- 证据：`/tmp/coexist_run.ndjson`。
 
 ### T032 安装 / 禁用 / 重装（宿主级）
 
@@ -102,13 +103,13 @@
 
 | SC | 结论 | 证据 |
 |---|---|---|
-| SC-001 10 次 ≥9 成功 | PASS | 10/10 真机 |
-| SC-002 2 秒内启动确认 | PASS | 2–3 ms |
+| SC-001 10 次 ≥9 成功 | PASS | v0.2.5 10/10 真机（令牌逐次核对） |
+| SC-002 2 秒内启动确认 | PASS | v0.2.5 宿主内 `tool_call`→`tool_result` 24.5 ms |
 | SC-003 四类失败可读且父会话可用 | PASS | 假 agy 集成测试 + 六类诊断单元测试 |
 | SC-004 安装 ≤2 步、10 分钟 | PASS | 1 条 `dsh plugin add`、约 1 s，随即真实委派成功 |
-| SC-005 禁用恢复 + 无残留进程 | PASS | 禁用后工具消失、其他功能正常；重装恢复；10 次后无 agy 残留 |
+| SC-005 禁用恢复 + 无残留进程 | PASS | v0.2.5：禁用两行后模型无工具可用并自行回答、恢复后 `RESTORED_OK`、`pgrep agy` 无残留 |
 | SC-006 文档三问 + 免责 | PASS | MiMo checklist 终审 + 组合包契约测试 |
-| SC-007 入口选择 ≥9/10 | PASS | 10/10 真实会话选择 `subagent_oar(runtime=agy)` |
+| SC-007 入口选择 ≥9/10 | PASS | v0.2.5：10/10 真实会话选择 `subagent_oar_agy` |
 
 ## 复现命令
 
@@ -204,3 +205,18 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 - **查证**：DSH 无浅/深双图标机制与滤镜；`readPluginMeta` 只解析单个 `icon`，客户端以 `<img>` 渲染，不继承主题 CSS 变量。官方 21 个插件图标均为 36×36、`fill="none"` 透明画布；此前我们的图标自带不透明 `#0f172a` 圆角矩形，故固定深色。
 - **修复**：改为 36×36 透明画布（蓝色渐变 A 标记 + 粉色节点），无背景块；`readPluginMeta` 解析出的 data URL 以 `width="36"`、`fill="none"` 开头且不含整块不透明矩形。
 - **发布**：v0.2.4，Release 资产与 README/INSTALL 安装地址同步更新；实装后插件行 active，显示名与图标元数据正常。
+
+## 收敛修复与验证（v0.2.5）
+
+| 任务 | 结果 |
+|---|---|
+| T042 官方工具包可用性校验与同形回退 | 工具行改为包内 `tool.js`：官方包可解析时挂载官方插件；缺失时警告并注册内置同形工具。单元测试覆盖两条路径；另用去掉官方依赖的变体包安装到临时 profile（确认 profile 内无官方包），会话仍通过 `subagent_oar_agy` 返回 `FALLBACK_OK` |
+| T043 安装文档修正 | 组合包 README 删除未上架 npm 的 `dsh plugin add @jiezhengj/subagent_oar_agy`，改为 Release 地址/本地 tarball；配置表补 `locale`；INSTALL 本地 tarball 文件名改为 `<version>` |
+| T044 真机验收重新基线 | 10/10 委派成功（14.8–19.1 s）、启动确认 24.5 ms、禁用/恢复与无残留进程均通过（见上） |
+| T045 与官方 OAR 共存 | 同会话同时调用 `subagent_oar`、`subagent_oar_agy`，分别返回 `OFFICIAL_OK` / `AGY_OK` |
+| T046 许可证 | 新增根 `LICENSE`（MIT）；根与两个包的 `package.json` 均加 `"license": "MIT"`；README 增加许可证声明 |
+| T047 超时语义文档 | README 明确：`timeoutMs` 不配置时不设内部时限，委派只能由父会话取消/关闭终止 |
+| T048 DSH 版本拒绝 | 用 `engines.dsh: ">=99.0.0 <100.0.0"` 的临时 bundle 执行 `dsh plugin add`，宿主拒绝安装并输出 `requirements {"engines.dsh":">=99.0.0 <100.0.0"}` 与所需范围 |
+
+- 测试：`pnpm test` → 11 文件 / 63 项全绿。
+- 版本：`@jiezhengj/subagent_oar_agy@0.2.5`，Release 资产为最终验证对象。

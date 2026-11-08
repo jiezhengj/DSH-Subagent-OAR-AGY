@@ -7,12 +7,13 @@
 ```jsonc
 {
   "name": "@jiezhengj/subagent_oar_agy",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "type": "module",
   "description": "Delegate independent tasks to the local Antigravity CLI (agy) from DSH; ...",
   "exports": {
     "./agy-provider": "./provider/index.js",
     "./agy-provider/locale/*": "./provider/locale/*",
+    "./tool": "./tool.js",
     "./locale/*": "./locale/*",
     "./icon": "./icon.svg",
     "./package.json": "./package.json"
@@ -26,10 +27,11 @@
     "@deepseek-ai/dsh-subagent": "0.2.2-rc.1",
     "@deepseek-ai/dsh-timeout": "0.2.2-rc.1",
     "@deepseek-ai/schemastery": "3.19.0",
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.1",
     "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1"
   },
   "devDependencies": { "@jiezhengj/subagent_oar_agy-provider": "workspace:*" },
-  "files": ["cordis.patch.yml", "icon.svg", "README.md", "docs", "locale", "provider"]
+  "files": ["cordis.patch.yml", "icon.svg", "README.md", "docs", "locale", "provider", "tool.js"]
 }
 ```
 
@@ -44,7 +46,7 @@
         permissionMode: yolo
         locale: auto
     - id: tool-subagent-oar-agy
-      name: '@deepseek-ai/dsh-experimental-tool-subagent-oar'
+      name: '@jiezhengj/subagent_oar_agy/tool'
       config:
         providers:
           agy: agy
@@ -56,7 +58,7 @@
 1. **两行必须同时生效**：缺提供方行则工具启动时 `getProvider('agy')` 未注册、委派报错；缺工具行则模型看不到入口。
 2. **自包含组合包**：构建脚本 `scripts/vendor-provider.mjs` 把提供方 `dist` 与 `locale` 复制到 `provider/`；patch 通过包内子路径 `.../agy-provider` 引用，运行时依赖只来自组合包 `dependencies`，tarball 安装不依赖 workspace。
 3. **exports 必须暴露元数据资源**：DSH 的 `readPluginMeta` 通过 Node 解析器读取 `<pkg>/locale/en.json`、`<pkg>/package.json`、`<pkg>/icon`。组合包一旦声明 `exports`，MUST 同时导出 `./locale/*`、`./agy-provider/locale/*`、`./icon`、`./package.json`；缺失会静默回退为包名（v0.2.2 的真实回归，v0.2.3 修复）。
-4. **官方工具包精确锁版本**：spike 通过后锁定 `0.2.2-rc.1`；升级时必须重跑 spike 并更新 `engines.dsh`。
+4. **工具入口是包内包装模块**：`tool.js` 优先动态挂载官方 `@deepseek-ai/dsh-experimental-tool-subagent-oar`；该包无法解析时记录警告并注册内置同形回退工具，工具名、参数与返回结构保持不变（FR-014）。官方包版本仍精确锁定 `0.2.2-rc.1`，升级时重跑 spike 并更新 `engines.dsh`。
 5. **`engines.dsh` 拒绝加载**：DSH 版本不满足时，插件安装/加载被拒绝并说明所需范围，组合包不得绕过。
 6. **禁用语义**：用户禁用组合包后两行都移除，模型工具列表恢复；重新启用恢复配置，无需重新填写。
 7. **工具名与共存**：默认 `toolName: subagent_oar_agy`，与官方 OAR 组合包（`subagent_oar`）可同时启用；用户可覆盖为 `subagent_oar`（仅无官方 OAR 时）。DSH 对重复工具名报错并拒绝第二个注册，不静默覆盖。
@@ -64,3 +66,4 @@
 9. **图标**：`icon.svg` 为 36×36、`fill="none"` 的透明画布（官方插件同款尺寸），不铺不透明底色；DSH 无浅/深双图标，透明区域透出卡片主题背景。
 10. **不修改 AGY 环境**：安装/升级/禁用组合包不得写入 `~/.gemini`、`~/.local/bin` 或任何 AGY 配置。
 11. **分发**：仓库公开，Release tarball 地址可直接粘贴进 DSH 插件管理安装框；`README.md` 是语言索引页，链接 8 个 `README.<lang>.md`。
+12. **许可证**：仓库根`LICENSE`（MIT）与两个包 `license` 字段必须存在；README 声明非官方封装与许可证。

@@ -44,5 +44,6 @@
     "url": "git+https://github.com/jiezhengj/DSH-Subagent-OAR-AGY.git",
     "directory": "packages/subagent-oar-agy-provider"
   },
-  "homepage": "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY"
+  "homepage": "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY",
+  "license": "MIT"
 }
