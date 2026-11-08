@@ -26,7 +26,7 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 
 1. **Given** 插件管理页的安装框，**When** 输入 `@jiezhengj/subagent_oar_agy` 并确认，**Then** 安装成功，管理器显示已安装版本号
 2. **Given** 已按名称安装，**When** 重启 DSH，**Then** `subagent_oar_agy` 工具可用、插件页显示「AGY 子智能体」，启动日志无未激活告警
-3. **Given** 注册表不可达（企业网络/代理），**When** 安装，**Then** 安装框给出宿主的连接失败提示（`installProblemNetwork`，随界面语言），而不是静默失败或装上空包；版本区同类错误为 `versionsFailedNetwork`
+3. **Given** 注册表不可达（企业网络/代理），**When** 安装，**Then** 安装框给出宿主的网络连接失败提示（文案随界面语言），而不是静默失败或装上空包；版本区给出同类网络失败提示
 
 ---
 
@@ -65,7 +65,7 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 ### 边界情况
 
 - 分发名称已被他人占用：作用域 `@jiezhengj` 由发布者持有，沿用现有包名 `@jiezhengj/subagent_oar_agy`，零重命名；若作用域权限丢失则暂停发布
-- 用户网络无法访问公共注册表：安装必须给明确错误（宿主键 `installProblemNetwork` / `versionsFailedNetwork`），并保留 tgz 地址作为备选
+- 用户网络无法访问公共注册表：安装必须给明确错误提示（具体宿主键见安装入口契约），并保留 tgz 地址作为备选
 - 发布只完成一半（npm 成功、Release 失败，或反之）：文档与读者会看到版本不一致，需要可重复的补齐流程且不覆盖已发布版本
 - 已有同版本 Release（`v0.2.5` 已于 2026-11-08 发布且资产可下载）：本次必须在**新版本**上首次发布 npm 包，`v0.2.5` 的 tag 与 Release 保持原样，不通过覆盖资产来「对齐」
 - 新版本与当前 DSH 不兼容：检查更新必须标出不可安装，而不是让人装完崩溃
@@ -91,6 +91,22 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 - **FR-010**: 安装后，插件管理 MUST 能显示当前版本、是否最新，并对兼容的新版本提供更新入口；安装来源为注册表规格时更新资格成立，tgz 来源标为不可更新
 - **FR-011**: 发布动作 MUST 可重复执行且不泄露凭据；2026-11-08 决定采用**本机手动发布**：发布者在本机完成注册表认证后执行发布命令，OTP 当场输入，发布令牌 MUST NOT 写入仓库、脚本、文档或日志，也不引入发布流水线
 - **FR-012**: 包 MUST 声明 `publishConfig.access = "public"`、`license`（MIT）、`repository`/`homepage`/`bugs` 与 `keywords`（含 `dsh-plugin`），使注册表页面与非匿名安装可用
+
+### 需求验收映射
+
+| 需求 | 验收路径 |
+|---|---|
+| FR-001、FR-002 | US1 场景 1/2；SC-001 |
+| FR-003 | US3 Independent Test；发布包清单契约 |
+| FR-004 | US2 场景 3；`engines.dsh` 过滤 |
+| FR-005 | US3 场景 1/2；Release parity 契约 |
+| FR-006 | US1 Independent Test、SC-001；11 份安装文档一致性检查 |
+| FR-007 | US3 Independent Test；发布包清单契约的打包生命周期 |
+| FR-008 | US3 场景 3；收尾的凭据扫描 |
+| FR-009 | US3 场景 2；不可覆盖规则 |
+| FR-010 | US2 场景 1/2 |
+| FR-011 | US3 场景 3；决策记录中的本机手动发布 |
+| FR-012 | US1 场景 1；发布包清单契约的元数据字段 |
 
 ### 关键实体
 

@@ -33,10 +33,10 @@ pnpm --dir packages/subagent-oar-agy-bundle run build
 cd packages/subagent-oar-agy-bundle
 node scripts/verify-package.mjs
 npm pack --dry-run --json > /tmp/pack-plan.json
-node -e "const p=require('/tmp/pack-plan.json')[0]; console.log(p.name,p.version,p.entryCount)"
+node -e "const p=Object.values(require('/tmp/pack-plan.json'))[0]; console.log(p.name,p.version,p.entryCount,p.unpackedSize); console.log(p.files.some(f=>f.path==='LICENSE'))"
 ```
 
-**期望**：校验脚本逐项通过并退出 0；包名 `@jiezhengj/subagent_oar_agy`、版本 `$V`；清单含 `package/LICENSE`、`package/tool.js`、`package/provider/index.js`、`package/cordis.patch.yml`、8 语言 `locale/*.json` 与 `docs/DETAIL.*.md`；文件数约 71、unpacked ≤150 kB。
+**期望**：校验脚本逐项通过并退出 0；包名 `@jiezhengj/subagent_oar_agy`、版本 `$V`；`npm pack --json` 的对象以包名为键（不是数组），文件路径**不带** `package/` 前缀；清单含 `LICENSE`、`tool.js`、`provider/index.js`、`cordis.patch.yml`、8 语言 `locale/*.json` 与 `docs/DETAIL.*.md`；`entryCount === 71`、`unpackedSize ≤ 150000`。若要看 `package/` 前缀，用真实 `npm pack` 后 `tar -tzf`，并把 tarball 移到 `/tmp`。
 
 ## 3. 发布到 npm（需要 OTP）
 
@@ -79,7 +79,7 @@ sleep 15
 grep -iE "did not activate|pending" /tmp/vhome-boot.log   # 期望：无输出
 ```
 
-打开日志中的 `http://127.0.0.1:18131/?token=...`，确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`；在会话里调用一次（`runtime=agy`）确认返回结果。重复「移除 → 按名称安装 → 启动」共 3 次，记录每次启动日志结论。
+打开日志中的 `http://127.0.0.1:18131/?token=...`，确认插件页显示「AGY 子智能体」、工具列表出现 `subagent_oar_agy`；在会话里调用一次（`runtime=agy`）确认返回结果。重复第 4–5 步的「移除 → 按名称安装 → 启动」共 3 次，记录每次启动日志结论。
 
 ## 6. 更新面板与依赖形态
 
@@ -119,13 +119,16 @@ gh release view v0.2.5 --json assets --jq '[.assets[].name]'   # 旧版本保持
 ```sh
 cd /Users/jiezhengj/Documents/Project/subagent_oar_agy
 V=$(node -p "require('./packages/subagent-oar-agy-bundle/package.json').version")
-shasum -a 256 /tmp/subagent_oar_agy-$V.tgz
+rm -rf /tmp/rel && mkdir -p /tmp/rel
+gh release download "v$V" -p "subagent_oar_agy-$V.tgz" -D /tmp/rel
+shasum -a 256 /tmp/rel/subagent_oar_agy-$V.tgz /tmp/subagent_oar_agy-$V.tgz
+shasum -a 1 /tmp/subagent_oar_agy-$V.tgz
+npm view @jiezhengj/subagent_oar_agy@$V dist.shasum dist.integrity dist.tarball
 npm pack @jiezhengj/subagent_oar_agy@$V --dry-run --json > /tmp/registry-pack.json
-node -e "const p=require('/tmp/registry-pack.json')[0]; console.log(p.name,p.version,p.entryCount)"
-npm view @jiezhengj/subagent_oar_agy@$V dist.integrity dist.tarball
+node -e "const p=Object.values(require('/tmp/registry-pack.json'))[0]; console.log(p.name,p.version,p.entryCount)"
 ```
 
-**期望**：Release 资产摘要与本地 tarball 相同；注册表文件清单与本地 `npm pack` 一致；文档中的名称与版本为 `@jiezhengj/subagent_oar_agy` 与 `$V`。
+**期望**：Release 资产与 `/tmp` 本地 tarball 的 SHA-256 相同；`dist.shasum`（SHA-1）与本地 `shasum -a 1` 相同；注册表文件清单与本地 `npm pack` 一致；文档中的名称与版本为 `@jiezhengj/subagent_oar_agy` 与 `$V`。
 
 ## 9. 失败语义与文档一致性
 
@@ -135,6 +138,19 @@ grep -rl "@jiezhengj/subagent_oar_agy" README.md README.*.md packages/subagent-o
 grep -rl "subagent_oar_agy-$V.tgz" README.md README.*.md packages/subagent-oar-agy-bundle/README.md packages/subagent-oar-agy-bundle/docs/INSTALL.md | wc -l   # 期望 11
 grep -rn "本包未上架 npm" README*.md packages/subagent-oar-agy-bundle/README.md packages/subagent-oar-agy-bundle/docs/INSTALL.md   # 期望无输出
 ```
+
+隔离安装失败语义（真实 CLI 路径，避免只读码）：
+
+```sh
+printf 'registry=http://127.0.0.1:9\nfetch-retries=0\n' > /tmp/vhome/profiles/deskclone/.npmrc
+HOME=/tmp/vhome DSH_HOME=/tmp/vhome ELECTRON_RUN_AS_NODE=1 "$APP" "$BIN" \
+  plugin --profile deskclone add @jiezhengj/subagent_oar_agy > /tmp/install-fail.log 2>&1; echo "exit=$?（期望非 0）"
+grep -iE "registry|network|ECONN|unable" /tmp/install-fail.log | head -5
+node -e "const d=require('/tmp/vhome/profiles/deskclone/package.json').dependencies; console.log(d['@jiezhengj/subagent_oar_agy'])"
+rm -f /tmp/vhome/profiles/deskclone/.npmrc
+```
+
+**期望**：安装失败、错误指向注册表/网络；依赖值保持原样或不存在，无半装状态。
 
 宿主错误键（用于安装框/版本区）：`installProblemNetwork`、`installProblemNetworkAll`、`installProblemNotFound`、`installProblemInstalled`、`versionsFailedNetwork`、`versionsBlocked`、`versionsBlockedDetail`。
 

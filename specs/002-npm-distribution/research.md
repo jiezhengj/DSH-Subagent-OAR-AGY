@@ -34,8 +34,8 @@
 
 ## D6 更新资格与版本面板
 
-- **Decision**: 用「隔离 HOME + 副本 profile + 按名称安装」验证依赖形态为注册表规格，再用宿主代码核对更新资格；真实桌面版本区只读核对，不修改桌面 profile。
-- **Rationale**: `dsh-plugin-manager` 的 `updateRefusal()` 要求 `bundle.source` 解析为 `kind === "registry"`、解析出的包名与 `bundle.name` 相同、且 range 不含协议前缀；tgz 来源会被判为不可更新。按名称安装后 profile 依赖为注册表规格，更新面板才会显示当前版本与「已是最新」。
+- **Decision**: 用「隔离 HOME + 副本 profile + 按名称安装」验证依赖形态为注册表规格，再用宿主代码核对更新资格；真实桌面版本区只读核对，不修改桌面 profile。模拟「有更新」时只改隔离副本 `node_modules/@jiezhengj/subagent_oar_agy/package.json` 的 `version` 为 `0.2.5`，不改依赖规格、不触发安装，避免把依赖指向不存在的版本。
+- **Rationale**: `dsh-plugin-manager` 的 `updateRefusal()` 要求 `bundle.source` 解析为 `kind === "registry"`、解析出的包名与 `bundle.name` 相同、且 range 不含协议前缀；tgz 来源会被判为不可更新。按名称安装后 profile 依赖为注册表规格，更新面板才会显示当前版本与「已是最新」。版本区读取 `node_modules` 里的已装版本，因此模拟旧版本必须改已装包的 `version`，改 profile 依赖不会改变界面。
 - **Alternatives considered**: 在真实桌面 profile 上反复安装（CLI 拒绝修改且污染用户环境，否决）。
 
 ## D7 环境、回滚与不可覆盖
@@ -52,8 +52,8 @@
 
 ## D9 发布后校验命令
 
-- **Decision**: 发布后用 `npm view @jiezhengj/subagent_oar_agy@0.2.6 version dist.tarball dist.integrity`、`npm pack @jiezhengj/subagent_oar_agy@0.2.6 --dry-run --json` 与 Release 资产 SHA-256 核对；文档版本用 `V=$(node -p "require('./packages/subagent-oar-agy-bundle/package.json').version")` 生成，不写死。
-- **Rationale**: 注册表 tarball 与 Release 资产必须字节一致；`npm pack` 的 `integrity` 与 Release 的 `shasum` 能发现漂移。文档版本若写死，下次发版必然过期。
+- **Decision**: 发布后用 `npm view @jiezhengj/subagent_oar_agy@0.2.6 version dist.tarball dist.integrity dist.shasum`、`npm pack @jiezhengj/subagent_oar_agy@0.2.6 --dry-run --json` 与 Release 资产 SHA-256 核对；下载 Release 资产用 `gh release download` 后与本地文件比对。文档版本用 `V=$(node -p "require('./packages/subagent-oar-agy-bundle/package.json').version")` 生成，不写死。
+- **Rationale**: 注册表 tarball 与 Release 资产必须字节一致；`dist.shasum`（SHA-1）与本地 `shasum -a 1`、`dist.integrity` 与本地 tarball 能发现漂移。`npm pack --dry-run --json` 在 npm 12 输出**以包名为键的对象**，文件路径不带 `package/` 前缀；`tar -tzf` 才显示 `package/`。
 - **Alternatives considered**: 只比对版本号（不能发现内容漂移，否决）。
 
 ## 事实核对记录
@@ -64,7 +64,7 @@
 | `npm view @jiezhengj/subagent_oar_agy` | E404（可用） |
 | 包名合法性 | npm 校验器 `validForNewPackages: true`；长度 27 |
 | 现有 tag/Release | `v0.2.5` 已存在，资产 `subagent_oar_agy-0.2.5.tgz` |
-| 当前 `npm publish --dry-run` | 70 文件、45.9 kB、public access；缺 `LICENSE` |
+| 当前 `npm publish --dry-run` | 70 文件、45.9 kB、public access；缺 `LICENSE`；JSON 以包名为键、路径无 `package/` 前缀 |
 | 当前 tgz 地址长度 | 101 字符 |
-| DSH 更新资格 | `updateRefusal()` 要求 registry 来源、包名一致、range 无协议前缀 |
-| DSH 安装错误键 | `installProblemNetwork` / `installProblemNetworkAll` / `versionsFailedNetwork` / `versionsBlocked` / `installProblemNotFound` / `installProblemInstalled` |
+| DSH 更新资格 | `updateRefusal()` 要求 registry 来源、包名一致、range 无协议前缀；版本区读 `node_modules` 已装版本 |
+| DSH 安装错误键 | `installProblemNetwork` / `installProblemNetworkAll` / `versionsFailedNetwork` / `versionsBlocked` / `installProblemNotFound` / `installProblemInstalled`（仅契约与验证引用，spec 不写具体键名） |

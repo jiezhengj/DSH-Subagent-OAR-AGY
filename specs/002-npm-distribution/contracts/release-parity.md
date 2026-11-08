@@ -36,9 +36,9 @@
 | 项 | 命令/证据 | 通过条件 |
 |---|---|---|
 | 注册表版本 | `npm view @jiezhengj/subagent_oar_agy@$V version` | 输出 `$V` |
-| 注册表 tarball | `npm view @jiezhengj/subagent_oar_agy@$V dist.tarball dist.integrity` | 有 URL 与 integrity |
+| 注册表 tarball | `npm view @jiezhengj/subagent_oar_agy@$V dist.tarball dist.integrity dist.shasum` | 有 URL、integrity 与 SHA-1 |
 | Release 版本 | `gh release view v$V --json tagName,assets` | tag `v$V`，资产 `subagent_oar_agy-$V.tgz` |
-| 字节一致 | `shasum -a 256` 本地 tarball 与下载的 Release 资产 | 两个摘要相同 |
+| 字节一致 | `gh release download v$V -p subagent_oar_agy-$V.tgz -D /tmp/rel`，再 `shasum -a 256` 本地与 Release 资产 | 两个 SHA-256 相同；本地 SHA-1 等于 `dist.shasum` |
 | 文件清单 | `npm pack --dry-run --json` 本地 vs 注册表 tarball | 文件集合一致 |
 | 文档一致 | grep 11 份安装文档 | 名称正确、版本 `$V`、无旧版本主路径 |
 | 凭据扫描 | 扫描仓库与文档中的 token/OTP/`npmrc` 内容 | 命中数 0 |

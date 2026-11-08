@@ -54,6 +54,7 @@ specs/002-npm-distribution/
 ├── research.md          # Phase 0 决策记录
 ├── data-model.md        # Phase 1 实体与不变量
 ├── quickstart.md        # Phase 1 发布与验证手册
+├── validation.md        # 发布与验证证据（implement 阶段生成）
 ├── contracts/
 │   ├── package-manifest.md   # 发布包清单与生命周期契约
 │   ├── install-entry.md      # 名称/ tgz 两种安装入口契约
@@ -89,7 +90,7 @@ README.md                        # 英文索引：安装框改为名称 + tgz �
 README.{zh,en,de,es,fr,ja,pt,ru}.md  # 8 语言全文：安装主路径改为名称
 ```
 
-**Structure Decision**: 发布单元保持为 `packages/subagent-oar-agy-bundle/`，发布工具脚本放在该包 `scripts/` 下且不进入 `files`；仓库继续使用 pnpm workspace，不新增 npm workspaces 配置，避免影响现有 pnpm 锁文件与桌面 profile 安装流程。文档改动只在根 README 与组合包文档，运行时代码零改动。
+**Structure Decision**: 发布单元保持为 `packages/subagent-oar-agy-bundle/`，发布工具脚本放在该包 `scripts/` 下且不进入 `files`；仓库继续使用 pnpm workspace，不新增 npm workspaces 配置，避免影响现有 pnpm 锁文件与桌面 profile 安装流程。文档改动只在根 README 与组合包文档，运行时代码零改动。本项目既有 feature 亦在 `main` 上推进，本 feature 不新建独立分支，发布验证记录写入 `specs/002-npm-distribution/validation.md`。
 
 ## Phases
 
@@ -108,7 +109,7 @@ README.{zh,en,de,es,fr,ja,pt,ru}.md  # 8 语言全文：安装主路径改为名
 
 ### Phase 2：任务拆分（后续 `/speckit-tasks`）
 
-任务将按用户故事分组：US1 名称安装（发布准备 + 文档 + 发布 + 隔离安装），US2 版本面板（依赖形态 + 版本元数据 + 更新资格核对），US3 双渠道一致（版本号、Release、parity、凭据扫描）。US1 是 MVP。
+任务将按用户故事分组：US1 名称安装（发布准备 + 文档 + 发布 + 隔离安装），US2 版本面板（依赖形态 + 版本元数据 + 更新资格核对），US3 双渠道一致（版本号、Release、parity）；凭据扫描与全量回归放在 Polish。US1 是 MVP。
 
 ## Risks and Mitigations
 

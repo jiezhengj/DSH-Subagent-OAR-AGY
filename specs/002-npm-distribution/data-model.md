@@ -32,7 +32,7 @@
 | `fileCount` | 包内文件数 | 当前约 71；只允许白名单内容 |
 | `size` | tarball 字节数 | ≤50 kB（当前 45.9 kB） |
 | `sha256` | 内容摘要 | Release 资产、注册表 tarball 与本地文件一致 |
-| `fileList` | 包内路径列表 | 含 `package/LICENSE`、`package/provider/index.js`、`package/tool.js`、`package/cordis.patch.yml`、8 语言 `locale/*.json` 与 `docs/DETAIL.*.md` |
+| `fileList` | 包内路径列表 | 含 `package/LICENSE`、`package/provider/index.js`、`package/tool.js`、`package/cordis.patch.yml`、8 语言 `locale/*.json` 与 `docs/DETAIL.*.md`；注意 `npm pack --json` 的 `files[].path` 不带 `package/` 前缀，`tar -tzf` 才带 |
 
 ### ReleaseAsset（发布渠道资产）
 
@@ -62,7 +62,7 @@ npm 上的不可变版本记录。
 | 字段 | 含义 | 约束 |
 |---|---|---|
 | `dependencySpec` | profile 依赖值 | 主路径安装后必须是注册表规格（名称 + semver range），不是 URL/link/alias |
-| `resolvedVersion` | 实际解析版本 | 合法 semver，与已发布版本一致 |
+| `resolvedVersion` | 实际解析版本 | 合法 semver，与已发布版本一致；模拟旧版本时只改 `node_modules/<name>/package.json` 的 `version`，不改依赖规格 |
 | `sourceKind` | 安装来源 | 名称安装为 `registry`；tgz 安装为 `tarball` |
 | `updatable` | 更新资格 | 仅 `registry` 且包名一致时为真；tgz 来源为假 |
 

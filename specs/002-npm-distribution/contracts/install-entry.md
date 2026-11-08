@@ -19,11 +19,11 @@
 
 | 情况 | 期望表现（宿主键名） | 验证归属 |
 |---|---|---|
-| 注册表不可达 | 安装框报连接失败（`installProblemNetwork` / `installProblemNetworkAll`），不写依赖、不产生半装状态；版本区用 `versionsFailedNetwork` | US1 场景 3 |
+| 注册表不可达 | 安装框报连接失败（`installProblemNetwork` / `installProblemNetworkAll`），不写依赖、不产生半装状态；版本区用 `versionsFailedNetwork` | US1 场景 3：隔离 profile 写 `.npmrc` 指向不可达 registry 后执行真实 `plugin add` |
 | 名称不存在 | `installProblemNotFound`（「未找到相关插件」） | US1 同批核对 |
 | 已安装同名同版本 | `installProblemInstalled`；不重复添加依赖 | US1 边界 |
 | 新版本与当前 DSH 不兼容 | 版本列表阶段按 `engines.dsh` 过滤，标为不可安装（`versionsBlocked` / `versionsBlockedDetail`） | US2 场景 3 |
-| 存在更新的兼容版本 | 版本区显示「可更新到 x.y.z」 | US2 场景 2 |
+| 存在更新的兼容版本 | 版本区显示「可更新到 x.y.z」 | US2 场景 2：只改隔离副本 `node_modules` 内已装包的 `version`，不触发安装 |
 
 ## 文档一致性
 
