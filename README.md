@@ -1,30 +1,29 @@
-
-DSH 插件：把独立任务委派给本机 Antigravity CLI（`agy`）。复用官方 OAR 工具形态，提供非 ACP 的 AGY 运行时；非官方封装。
+DSH plugin that delegates standalone tasks to the local Antigravity CLI (`agy`). It reuses the official OAR tool shape with a non-ACP AGY runtime; unofficial wrapper.
 
 # Languages
 
 [简体中文](README.zh.md) · [English](README.en.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Français](README.fr.md) · [日本語](README.ja.md) · [Português](README.pt.md) · [Русский](README.ru.md)
 
-# 安装
+# Install
 
-在 DeepSeek Harness 的插件管理（设置 → 插件）安装框粘贴：
+Paste this into the DeepSeek Harness plugin manager install box (Settings → Plugins):
 
 ```
 https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.5/subagent_oar_agy-0.2.5.tgz
 ```
 
-然后启用「AGY 子智能体」。前置条件：DSH 0.2.2-rc.1 及以上（低于 0.3.0）、本机已安装并登录 Antigravity CLI（`agy`）。
+Then enable "AGY Subagent". Requirements: DSH 0.2.2-rc.1 or later (below 0.3.0), and Antigravity CLI (`agy`) installed and signed in on this machine.
 
-# 链接
+# Links
 
 - [GitHub Release v0.2.5](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/tag/v0.2.5)
-- [组合包说明（中文）](packages/subagent-oar-agy-bundle/README.md)
-- [安装与升级](packages/subagent-oar-agy-bundle/docs/INSTALL.md)
-- [实现说明](packages/subagent-oar-agy-bundle/docs/DETAIL.zh.md)
-- [规格与验证记录](specs/001-subagent-oar-agy/)
+- [Bundle README (Chinese)](packages/subagent-oar-agy-bundle/README.md)
+- [Install and upgrade](packages/subagent-oar-agy-bundle/docs/INSTALL.md)
+- [Implementation notes (Chinese)](packages/subagent-oar-agy-bundle/docs/DETAIL.zh.md)
+- [Specification and validation record](specs/001-subagent-oar-agy/)
 
-# 声明
+# Disclaimer
 
-非官方封装，与 DeepSeek、Google 均无隶属关系；使用风险自担，请遵守 Antigravity 的服务条款。
+Unofficial wrapper, not affiliated with DeepSeek or Google; use at your own risk and follow Antigravity's terms of service.
 
-许可证：[MIT](LICENSE)。
+License: [MIT](LICENSE).
