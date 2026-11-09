@@ -14,14 +14,14 @@
 - 新名称 0.2.8 打包结果：`71` 个文件、`46954` B、解包 `137755` B；`npm pack` 文件名为 `jiezhengj-subagent-oar-agy-0.2.8.tgz`；SHA-256 `e9cf70b06028b7bb2886ca97f0cd50ba61086fbafbd07e27f19c6a1681cc45ee`，SHA-1 `4bf786fcd7ff28657c987554b3608e11c1fbc13e`。
 - `node packages/subagent-oar-agy-bundle/scripts/verify-package.mjs` 退出 0。
 - 0.2.6 首发包同为 71 个文件、`46684` B、解包 `136665` B。
-- Convergence 在仓库中补齐安装迁移与重启说明后，当前 pack 为 71 个文件、`46949` B、解包 `137755` B；已发布的 `0.2.7` 产物不变，未为纯文档修订重新发版。
 
 # 注册表与双渠道
 
 - npm：新名称 `@jiezhengj/subagent-oar-agy@0.2.8`，`dist.shasum = 4bf786fcd7ff28657c987554b3608e11c1fbc13e`，`engines.dsh = >=0.2.2-rc.1 <0.3.0`；旧名称 `0.2.7` 记录保留。
-- Release：`v0.2.7` 资产 `subagent_oar_agy-0.2.7.tgz`。
-- 0.2.8 本地 `npm pack` SHA-256 为 `e9cf70b06028b7bb2886ca97f0cd50ba61086fbafbd07e27f19c6a1681cc45ee`，SHA-1 与 `dist.shasum` 均为 `4bf786fcd7ff28657c987554b3608e11c1fbc13e`；Release 资产待创建后比对。历史 0.2.7 的 SHA-256 为 `f40a5fdf82f16b0aa3e91febc36bec7d152d536cb12dc34f951d012b13094420`。
+- Release：`v0.2.8` 资产 `subagent-oar-agy-0.2.8.tgz`；历史 `v0.2.7` 与 `v0.2.5` 的资产保留。
+- 0.2.8 本地 `npm pack`、注册表 tarball、Release 资产三者的 SHA-256 均为 `e9cf70b06028b7bb2886ca97f0cd50ba61086fbafbd07e27f19c6a1681cc45ee`；SHA-1 与 `dist.shasum` 均为 `4bf786fcd7ff28657c987554b3608e11c1fbc13e`；注册表 `dist.integrity = sha512-CtjTsA9PG4BFl5/FD4M2aKyVj62Mrdytl41LWvMUwe1lVGxkFroiKCPCGP68yX/gRI7heQzECyGoc4kMVlilIA==`。历史 0.2.7 的 SHA-256 为 `f40a5fdf82f16b0aa3e91febc36bec7d152d536cb12dc34f951d012b13094420`。
 - `v0.2.5` 仍只有 `subagent_oar_agy-0.2.5.tgz`，未被覆盖。
+- 旧名称 npm 包的 0.0.0-stage、0.2.6、0.2.7 已全部标记 deprecated，提示迁移到 `@jiezhengj/subagent-oar-agy`；未执行 unpublish。
 - 重复发布 `0.2.7` 被拒绝：注册表返回 `403`，文案 `You cannot publish over the previously published versions: 0.2.7.`（语义等同 409，未发生覆盖）。
 
 # US1 名称安装与启动
@@ -30,7 +30,7 @@
 
 - 安装依赖值：`0.2.7`（注册表规格，不是 URL/`link:`/`npm:` 别名）；解析版本同为 `0.2.7`；`dsh.profile.bundles` 含 `@jiezhengj/subagent-oar-agy`。
 - SC-006 连续 3 轮：每轮重建隔离 home、remove/add、`--port 18131` 启动；3 轮均出现 `http://127.0.0.1:18131/?token=`，且无 `did not activate`，结果 `SC-006 PASS`。
-- 真实桌面 profile 也改为注册表规格 `0.2.7`，插件详情显示 v0.2.7、2 个组件均「运行中」。
+- 真实桌面 profile 的依赖已替换为 `@jiezhengj/subagent-oar-agy: 0.2.8`，旧包已从依赖、lockfile 与 `node_modules` 移除；隔离副本启动成功。正在运行的 DSH 桌面进程仍缓存旧插件视图，需重启应用后加载新包。
 
 # US1 失败语义
 
@@ -83,6 +83,7 @@
 # 例外与说明
 
 - 旧名首发版本按 spec 决策为 `0.2.6`；`0.2.7` 是为验证真实应用内更新而追加的等价版本。2026-11-09 包名更正后，新名称首发 `0.2.8`；当前交付版本以 `package.json` 的 `0.2.8` 为准。
+- 真实桌面进程未在本次收尾中重启（重启会结束当前 Agent 会话），因此其插件页仍显示旧包缓存；profile 磁盘状态已是 0.2.8，重启 DSH 即加载新包。
 - 注册表 packument 在首次发布后约 6 分钟才可匿名读取；期间 PUT 已能识别版本已存在。之后 0.2.7 同样有短暂传播延迟，等待后正常。
 - `engines.dsh` 不兼容过滤属于宿主行为：本机 DSH bundle 中存在 `versionsBlocked` / `versionsBlockedDetail` 文案键；本 feature 不发布一个要求更高 DSH 的测试版本，以免污染注册表，故 US2 场景 3 记为宿主边界核对，不构造单版本实测。
 - Convergence 的文档修订已随 0.2.8 新名称首发一起发布；旧名称 0.2.7 产物保持原样。

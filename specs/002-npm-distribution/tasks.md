@@ -217,3 +217,11 @@ Task: "新增 distribution.test.ts"
 - [x] T038 在隔离 DSH UI 用未安装探测名与不存在名称验证安装框的 `installProblemNetwork`、`installProblemNotFound`，把界面文案与依赖未变化证据写入 `validation.md`；若宿主行为不在本仓库范围，明确记录边界例外 per US1/AC3 / T016 (partial)
 - [x] T039 为 US2 场景 3 的 `engines.dsh` 过滤补充可重复的隔离验收证据（`versionsBlocked` / `versionsBlockedDetail`），或明确记录宿主边界例外并更新 `validation.md` per US2/AC3 / T021 (partial)
 - [x] T040 更新根 `README.md` 的「Specification and validation record」链接，使 `specs/002-npm-distribution/`（或 `validation.md`）可被直接发现，同时保留 feature 001 入口 per T030 (partial)
+
+## Phase 8: Package Rename
+
+- [x] T041 将组合包与 provider 的 npm 名称从下划线形式改为 `@jiezhengj/subagent-oar-agy` / `@jiezhengj/subagent-oar-agy-provider`，同步 bundle patch、测试 import、provider 依赖、`pnpm-lock.yaml` 与发布校验中的名称与长度断言 per FR-002
+- [x] T042 将 11 份安装文档、根 README 链接与安装/升级说明全部改为新名称，并将 tgz/Release 链接更新到 `v0.2.8` / `subagent-oar-agy-0.2.8.tgz` per FR-006
+- [x] T043 将 `package.json` 版本提升为 `0.2.8`，构建并校验 71 文件发布包，执行 `npm publish`，创建 `v0.2.8` Release 并核对本地/注册表/Release 三者 SHA-256 一致 per FR-005 / FR-009
+- [x] T044 将真实桌面 profile 的旧包依赖替换为新包 `0.2.8`，更新 `dsh.profile.bundles`，移除旧依赖、lockfile 与 `node_modules` 条目；隔离副本启动成功，运行中的 GUI 待重启加载新包 per US1
+- [x] T045 重跑全量测试与 `verify-package.mjs`，更新 `validation.md` 的包名、版本、哈希、真实 profile 状态与旧名保留说明；确认仓库内无旧 scoped 包名残留 per FR-012

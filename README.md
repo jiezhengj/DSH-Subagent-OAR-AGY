@@ -18,7 +18,7 @@ Then enable "AGY Subagent" and reload DSH when prompted (restart if needed). Req
 
 # Migrating from a tgz install
 
-A profile installed from a tgz cannot check for updates. Remove the old entry in Plugin Management (or run `dsh plugin remove @jiezhengj/subagent-oar-agy`), then install by the name above; the plugin configuration is retained. The version section should then show the current version and “Up to date”, so later upgrades can happen in the app.
+A profile installed from a tgz cannot check for updates. Remove the old entry in Plugin Management (or run `dsh plugin remove @jiezhengj/subagent-oar-agy`), then install by the name above; the plugin configuration is normally retained; if it is removed with the old entry, re-enter your previous settings. The version section should then show the current version and “Up to date”, so later upgrades can happen in the app.
 
 # Links
 
