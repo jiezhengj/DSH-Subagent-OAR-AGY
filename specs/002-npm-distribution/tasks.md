@@ -225,3 +225,5 @@ Task: "新增 distribution.test.ts"
 - [x] T043 将 `package.json` 版本提升为 `0.2.8`，构建并校验 71 文件发布包，执行 `npm publish`，创建 `v0.2.8` Release 并核对本地/注册表/Release 三者 SHA-256 一致 per FR-005 / FR-009
 - [x] T044 将真实桌面 profile 的旧包依赖替换为新包 `0.2.8`，更新 `dsh.profile.bundles`，移除旧依赖、lockfile 与 `node_modules` 条目；隔离副本启动成功；用户重启 DSH 后插件页显示 v0.2.8、2 个组件运行中且为最新 per US1
 - [x] T045 重跑全量测试与 `verify-package.mjs`，更新 `validation.md` 的包名、版本、哈希、真实 profile 状态与旧名保留说明；确认仓库内无旧 scoped 包名残留 per FR-012
+
+- [x] T046 补做 0.2.8 真实 AGY 端到端：直接 provider 冒烟 `SMOKE_OK`；隔离 DSH headless 从注册表安装 0.2.8 后模型实际调用 `subagent_oar_agy` 返回 `AGY_028_OK`；当前桌面会话直接调用返回 `AGY_GUI_OK`；记录到 validation per FR-012

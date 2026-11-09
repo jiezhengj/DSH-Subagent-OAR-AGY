@@ -32,6 +32,29 @@
 - SC-006 连续 3 轮：每轮重建隔离 home、remove/add、`--port 18131` 启动；3 轮均出现 `http://127.0.0.1:18131/?token=`，且无 `did not activate`，结果 `SC-006 PASS`。
 - 真实桌面 profile 的依赖已替换为 `@jiezhengj/subagent-oar-agy: 0.2.8`，旧包已从依赖、lockfile 与 `node_modules` 移除。重启 DSH 后插件详情显示 `v0.2.8`、`@jiezhengj/subagent-oar-agy@0.2.8`、2 个组件均「运行中」、`已是最新版本`（上次检查 11:06）；点击「重新检查」仍为最新。
 
+# 真实 AGY 端到端（0.2.8，2026-11-09 补测）
+
+此前 feature 001 的真实 AGY 记录覆盖 0.1.2–0.2.5；本次改名后的 0.2.8 在发布路径中先只有假 agy 自动化与隔离启动，没有真实调用。以下为补测，使用注册表安装的 `0.2.8` 与本机已登录的 AGY 1.5.3。
+
+### 直接运行提供方（真实 agy）
+
+- 命令：`node scripts/real-smoke.mjs 1`
+- 结果：`stopReason=completed`、`text=SMOKE_OK`、启动确认 3 ms、总耗时 **16.7 s**；本机 `agy` 版本 1.5.3。
+
+### 隔离 DSH headless（注册表安装 + 模型实际选工具）
+
+- 隔离 `DSH_HOME=/tmp/vhome/.dsh`，新建 `headless` profile；保留真实 `HOME` 以便 `agy` 读取已登录凭据。
+- `plugin --profile headless add @jiezhengj/subagent-oar-agy@0.2.8 --save-exact`：安装版本 `0.2.8`。
+- 任务：要求模型只调用一次 `subagent_oar_agy`，参数 `runtime="agy"`、`prompt="Reply with exactly AGY_028_OK"`。
+- 事件证据：`tool_call` 的 `tool` 为 `subagent_oar_agy`，参数为上述值；外部子代理完成消息为 **`AGY_028_OK`**。
+- 说明：首次用 `HOME=/tmp/vhome` 隔离时，`agy` 因读不到真实 HOME 下的登录态返回 `authentication required`；改为只隔离 `DSH_HOME`、保留真实 `HOME` 后通过。这是认证环境问题，不是插件失败。
+
+### 当前桌面会话（0.2.8）
+
+- 用宿主 `Tool.listTools` 查询当前 Agent 可见工具，结果包含 `subagent_oar_agy`（参数 `runtime`、`description`、`prompt`、`cwd`）。
+- 直接调用 `subagent_oar_agy(runtime="agy", description="real plugin smoke", prompt="Reply with exactly AGY_GUI_OK")`，后台完成消息为 **`AGY_GUI_OK`**。
+- 结论：插件页显示的 2 个组件、工具注册与真实 AGY 端到端路径均正常；此前“未发起真实调用/未发现工具”是验证与查找缺口，不是插件未加载。
+
 # US1 失败语义
 
 - 隔离 profile 写入 `registry=http://127.0.0.1:9`、`fetch-retries=0` 后执行真实 CLI 安装，退出码 1：
