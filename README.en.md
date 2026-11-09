@@ -7,7 +7,7 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
 
 3. Enable “AGY subagent”, then the model can call `subagent_oar_agy` in a new session.
 4. Reload DSH when prompted (restart if needed), then call `subagent_oar_agy` in a new session.
@@ -26,6 +26,10 @@ It delegates independent tasks to the local Antigravity CLI (`agy`): the model c
 - Coexists with the official OAR bundle: this plugin's tool name is `subagent_oar_agy`, the official one is `subagent_oar`.
 - Display name, plugin-page description, detail docs and runtime messages cover 8 UI languages (de/en/es/fr/ja/pt/ru/zh).
 
+# Observability and control
+
+Version 0.3.0 adds startup and stall watchdogs (60 s / 15 min by default), a `subagent_oar_agy_control` tool with `status` and `cancel`, and bounded activity summaries (50 runs, 20 activities, 200 characters). Watchdogs have no off switch; increase the windows for long tasks. Status never exposes prompts, tool arguments, full answers, or raw stderr.
+
 # Configuration
 
 Set via profile patch (no dedicated settings UI):
@@ -35,6 +39,9 @@ Set via profile patch (no dedicated settings UI):
   config:
     permissionMode: yolo   # yolo (default) / plan / strict
     timeoutMs: 600000      # optional
+    startupTimeoutMs: 60000
+    stallTimeoutMs: 900000
+    controlToolName: subagent_oar_agy_control
     locale: auto           # auto or de/en/es/fr/ja/pt/ru/zh
     command: agy           # optional: absolute path to agy
 ```
@@ -60,6 +67,7 @@ cd packages/subagent-oar-agy-bundle && pnpm pack
 - `packages/subagent-oar-agy-provider/`: AGY runtime provider (subprocess, event stream, timeout/cancel, i18n messages).
 - `packages/subagent-oar-agy-bundle/`: distributable DSH bundle (plugin manifest, patch, 8-language metadata and detail docs, provider vendored at build time).
 - `specs/001-subagent-oar-agy/`: SDD specification, plan, tasks and validation records.
+- `specs/003-agy-observability-control/`: SDD specification, plan, tasks and validation for watchdogs, status and cancel.
 
 # Development
 

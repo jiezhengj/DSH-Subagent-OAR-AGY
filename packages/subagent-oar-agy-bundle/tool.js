@@ -9,9 +9,12 @@
 
 import Schema from '@deepseek-ai/schemastery'
 import { defineTool } from '@deepseek-ai/dsh-tools'
+import { getDefaultRunRegistry } from './provider/runs.js'
+import { redactSensitive } from './provider/agy/errors.js'
 
 const OFFICIAL_TOOL = '@deepseek-ai/dsh-experimental-tool-subagent-oar'
 const DEFAULT_TOOL_NAME = 'subagent_oar_agy'
+const DEFAULT_CONTROL_TOOL_NAME = 'subagent_oar_agy_control'
 
 /** 插件名（Cordis 识别用）。 */
 export const name = 'subagent-oar-agy-tool'
@@ -23,6 +26,7 @@ export const inject = ['tools', 'subagents']
 export const Config = Schema.object({
   providers: Schema.dict(Schema.string().min(1)).required(),
   toolName: Schema.string().min(1).default(DEFAULT_TOOL_NAME),
+  controlToolName: Schema.string().min(1).default(DEFAULT_CONTROL_TOOL_NAME),
 })
 
 /**
@@ -118,6 +122,95 @@ export function createFallbackTool(providers, toolName, ctx) {
   })
 }
 
+
+/** 构造控制工具：status 只读快照，cancel 通过官方 interrupt 授权取消。 */
+export function createControlTool(ctx, config, registry) {
+  return defineTool({
+    name: config.controlToolName ?? DEFAULT_CONTROL_TOOL_NAME,
+    description:
+      'Inspect or cancel an AGY delegation started by this parent session. status returns a bounded snapshot of direct AGY runs; cancel requests asynchronous cancellation. status never starts, resumes, or changes a run.',
+    parameters: {
+      action: {
+        type: 'string',
+        required: true,
+        enum: ['status', 'cancel'],
+        description: 'status: read-only snapshot; cancel: request cancellation of one childId.',
+      },
+      childId: {
+        type: 'string',
+        description: 'External child id from subagent_oar_agy. Optional for status (list) and required for cancel.',
+      },
+    },
+    output: {
+      schema: { type: 'object', additionalProperties: true },
+      render: (_args, value) => [{ type: 'text', text: JSON.stringify(value) }],
+    },
+    isConcurrencySafe: () => true,
+    async execute(args, exec) {
+      const parent = exec.agent
+      const action = args.action
+      if (parent === undefined) {
+        // 规则 7：取消缺少 exec.agent 时只返回不可用收据；status 仍需调用者身份。
+        if (action === 'cancel') {
+          return {
+            action: 'cancel',
+            childId: typeof args.childId === 'string' ? args.childId : '',
+            accepted: false,
+            reason: 'unavailable',
+          }
+        }
+        throw new Error(`${config.controlToolName ?? DEFAULT_CONTROL_TOOL_NAME} requires a calling agent`)
+      }
+      const parentId = String(parent.id)
+      const activeRegistry = registry ?? getDefaultRunRegistry()
+      if (action === 'status') return activeRegistry.status(parentId, args.childId)
+      if (typeof args.childId !== 'string' || args.childId.length === 0) {
+        throw new Error(`${config.controlToolName ?? DEFAULT_CONTROL_TOOL_NAME}: childId is required for cancel`)
+      }
+      const receipt = activeRegistry.requestCancel(parentId, args.childId)
+      const requestedAt = receipt.requestedAt === undefined
+        ? undefined
+        : new Date(receipt.requestedAt).toISOString()
+      if (receipt.reason === 'not-found' || receipt.reason === 'already-ended') {
+        return {
+          action: 'cancel',
+          childId: args.childId,
+          accepted: false,
+          reason: receipt.reason,
+        }
+      }
+      try {
+        ctx.subagents.interrupt(args.childId, { kind: 'ancestor', agent: parent })
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        if (typeof ctx.logger?.warn === 'function') ctx.logger.warn(`subagent_oar_agy_control cancel failed: ${redactSensitive(message)}`)
+        return {
+          action: 'cancel',
+          childId: args.childId,
+          accepted: false,
+          reason: 'unavailable',
+        }
+      }
+      return {
+        action: 'cancel',
+        childId: args.childId,
+        // 规则 2：重复请求仍是已受理；首次与重复都返回 accepted:true。
+        accepted: receipt.reason === 'accepted' || receipt.reason === 'already-requested',
+        reason: receipt.reason,
+        ...(requestedAt === undefined ? {} : { requestedAt }),
+      }
+    },
+    presentCall: args => ({ card: 'generic', title: args.action === 'cancel' ? 'cancel AGY delegation' : 'AGY run status', rawInput: args }),
+  })
+}
+
+/** 注册控制工具，返回精确 disposer。 */
+export function registerControlTool(ctx, config, registry) {
+  const name = config.controlToolName ?? DEFAULT_CONTROL_TOOL_NAME
+  if (name.trim().length === 0) throw new Error('subagent_oar_agy: controlToolName must be non-empty')
+  return ctx.tools.register(createControlTool(ctx, config, registry))
+}
+
 /**
  * 注册内置回退工具。
  * @param ctx - 插件上下文
@@ -141,16 +234,19 @@ export function registerFallback(ctx, config) {
  * @param resolveTool - 官方模块解析器，测试可注入
  * @returns `'official'` 或 `'fallback'`
  */
-export async function mountTool(ctx, config, resolveTool = loadOfficialTool) {
+export async function mountTool(ctx, config, resolveTool = loadOfficialTool, registry) {
   const official = await resolveTool()
+  const officialConfig = { providers: config.providers, toolName: config.toolName ?? DEFAULT_TOOL_NAME }
   if (official?.apply !== undefined) {
-    ctx.plugin(official, config)
+    ctx.plugin(official, officialConfig)
+    registerControlTool(ctx, config, registry)
     return 'official'
   }
   const warning = `[subagent_oar_agy] ${OFFICIAL_TOOL} is not resolvable; using the bundled one-shot tool fallback. Install the official package to restore the official implementation.`
   if (typeof ctx.logger?.warn === 'function') ctx.logger.warn(warning)
   else console.warn(warning)
   registerFallback(ctx, config)
+  registerControlTool(ctx, config, registry)
   return 'fallback'
 }
 

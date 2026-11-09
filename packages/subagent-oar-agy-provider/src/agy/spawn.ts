@@ -1,6 +1,7 @@
 /** 组装并启动 AGY 子进程（headless + stream-json 双向）。 */
 
 import { spawn, type ChildProcess } from 'node:child_process'
+import { scrubbedParentEnv } from '@deepseek-ai/dsh-subprocess'
 
 /** 权限档：默认无人值守；两档保守模式。 */
 export type PermissionMode = 'yolo' | 'plan' | 'strict'
@@ -26,10 +27,10 @@ export function buildAgyArgs(spec: Pick<AgySpawnSpec, 'model' | 'effort' | 'perm
   return args
 }
 
-/** 在父环境上叠加插件配置的环境变量；`null` 表示删除。 */
+/** 在官方清洗后的父环境上叠加插件配置；`null` 表示删除；显式覆盖可重新提供凭据。 */
 export function agyEnvironment(
   overlay: Readonly<Record<string, string | null>>,
-  base: NodeJS.ProcessEnv = process.env,
+  base: NodeJS.ProcessEnv = scrubbedParentEnv(),
 ): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = { ...base }
   for (const [key, value] of Object.entries(overlay)) {

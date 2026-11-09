@@ -7,7 +7,7 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
 
 3. Aktivieren Sie „AGY-Subagent“; danach kann das Modell in einer neuen Sitzung `subagent_oar_agy` aufrufen.
 4. Laden Sie DSH nach Aufforderung neu (bei Bedarf Neustart) und rufen Sie danach `subagent_oar_agy` in einer neuen Sitzung auf.
@@ -26,6 +26,10 @@ Es delegiert unabhängige Aufgaben an die lokale Antigravity CLI (`agy`): Das Mo
 - Koexistiert mit dem offiziellen OAR-Bundle: Werkzeugname hier `subagent_oar_agy`, dort `subagent_oar`.
 - Anzeigename, Plugin-Beschreibung, Detaildokumente und Laufzeitmeldungen in 8 UI-Sprachen (de/en/es/fr/ja/pt/ru/zh).
 
+# Beobachtbarkeit und Steuerung
+
+Version 0.3.0 ergänzt Start- und Stillstands-Watchdogs (standardmäßig 60 s / 15 min), das Werkzeug `subagent_oar_agy_control` mit `status` und `cancel` sowie begrenzte Aktivitätsübersichten (50 Läufe, 20 Aktivitäten, 200 Zeichen). Watchdogs lassen sich nicht abschalten; für lange Aufgaben die Fenster erhöhen. Status zeigt keine Prompts, Werkzeugargumente, vollständigen Antworten oder rohes stderr.
+
 # Konfiguration
 
 Über den Profil-Patch (keine eigene Einstellungsseite):
@@ -35,6 +39,9 @@ Es delegiert unabhängige Aufgaben an die lokale Antigravity CLI (`agy`): Das Mo
   config:
     permissionMode: yolo   # yolo (Standard) / plan / strict
     timeoutMs: 600000      # optional
+    startupTimeoutMs: 60000
+    stallTimeoutMs: 900000
+    controlToolName: subagent_oar_agy_control
     locale: auto           # auto oder de/en/es/fr/ja/pt/ru/zh
     command: agy           # optional: absoluter Pfad zu agy
 ```
@@ -60,6 +67,7 @@ cd packages/subagent-oar-agy-bundle && pnpm pack
 - `packages/subagent-oar-agy-provider/`: AGY-Laufzeit (Unterprozess, Ereignisstrom, Timeout/Abbruch, i18n-Meldungen).
 - `packages/subagent-oar-agy-bundle/`: verteilbares DSH-Bundle (Manifest, Patch, 8-sprachige Metadaten und Detaildokumente, eingebettete Laufzeit).
 - `specs/001-subagent-oar-agy/`: SDD-Spezifikation, Plan, Aufgaben und Verifikation.
+- `specs/003-agy-observability-control/`: SDD-Spezifikation, Plan, Aufgaben und Verifikation für Watchdogs, Status und Abbruch.
 
 # Entwicklung
 

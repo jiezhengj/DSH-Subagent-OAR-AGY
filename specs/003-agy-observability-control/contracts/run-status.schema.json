@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/specs/003-agy-observability-control/contracts/run-status.schema.json",
+  "title": "AGY status tool output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["action", "generatedAt", "found", "runs"],
+  "properties": {
+    "action": {
+      "type": "string",
+      "const": "status",
+      "description": "Status action discriminator."
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Snapshot creation time."
+    },
+    "found": {
+      "type": "boolean",
+      "description": "True for list queries; for a specific childId, true only when the run exists and belongs to the current parent."
+    },
+    "runs": {
+      "type": "array",
+      "maxItems": 50,
+      "description": "Current parent's AGY runs, newest first. Empty when none or when a specific childId is not accessible.",
+      "items": {
+        "$ref": "#/$defs/run"
+      }
+    }
+  },
+  "$defs": {
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["childId", "state", "startedAt", "elapsedMs", "activity"],
+      "properties": {
+        "childId": {
+          "type": "string",
+          "description": "Stable external child id, also used for cancel."
+        },
+        "state": {
+          "type": "string",
+          "enum": ["starting", "running", "completed", "failed", "cancelled"],
+          "description": "User-visible lifecycle state."
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "readyAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Time the AGY init event was observed; null before readiness."
+        },
+        "endedAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "elapsedMs": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Milliseconds from start to now for a live run, or to endedAt for a terminal one."
+        },
+        "lastActivityAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Time of the last watchdog-resetting protocol event or lifecycle edge; stderr does not update it."
+        },
+        "lastEventKind": {
+          "type": ["string", "null"],
+          "enum": ["init", "step_update", "result", "stderr", "lifecycle", null]
+        },
+        "pid": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "description": "AGY process id when known; null when startup failed before spawn."
+        },
+        "conversationId": {
+          "type": ["string", "null"],
+          "description": "AGY-native conversation identity when reported; never used to resume."
+        },
+        "stepIndex": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "stepState": {
+          "type": ["string", "null"]
+        },
+        "toolName": {
+          "type": ["string", "null"],
+          "description": "Most recent tool name only; tool arguments are never exposed."
+        },
+        "lastText": {
+          "type": ["string", "null"],
+          "maxLength": 200,
+          "description": "Rolling text excerpt for orientation only."
+        },
+        "stopReason": {
+          "type": ["string", "null"],
+          "enum": ["completed", "error", "aborted", null]
+        },
+        "failureCategory": {
+          "type": ["string", "null"],
+          "enum": [
+            "startup-timeout",
+            "stalled",
+            "timeout",
+            "not-installed",
+            "not-authenticated",
+            "spawn-failed",
+            "protocol",
+            "permission",
+            "unknown",
+            null
+          ]
+        },
+        "cancelRequestedAt": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "First cancel request time; a request is not a terminal state."
+        },
+        "activity": {
+          "type": "array",
+          "maxItems": 20,
+          "description": "Bounded recent activity summaries in chronological order.",
+          "items": {
+            "$ref": "#/$defs/activity"
+          }
+        }
+      }
+    },
+    "activity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seq", "at", "kind", "summary"],
+      "properties": {
+        "seq": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["init", "step", "tool", "text", "result", "lifecycle"]
+        },
+        "stepIndex": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "stepState": {
+          "type": ["string", "null"]
+        },
+        "toolName": {
+          "type": ["string", "null"]
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "text": {
+          "type": ["string", "null"],
+          "maxLength": 200
+        }
+      }
+    }
+  }
+}

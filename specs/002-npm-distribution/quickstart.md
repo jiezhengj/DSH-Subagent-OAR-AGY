@@ -1,3 +1,5 @@
+> 本文件记录 Feature 002 的 `0.2.8` 发布流程与版本断言，属于历史记录；`0.3.0` 及之后的发布请使用 Feature 003 的 [validation.md](../003-agy-observability-control/validation.md) 与 Release 流程。
+
 # 验证手册：npm 短名称安装
 
 按顺序执行；所有命令都先在仓库根取版本变量，避免写死版本号。发布命令中的 OTP 由发布者当场输入，不写入任何文件。

@@ -15,6 +15,8 @@ export interface Messages {
   notInstalled: string
   notAuthenticated: string
   timeout: string
+  startupTimeout: string
+  stallTimeout: string
   spawnFailed: string
   protocol: string
   malformedLines: string
@@ -23,6 +25,14 @@ export interface Messages {
   permissionDenied: string
   permissionToolFallback: string
   detailLabel: string
+  permission: string
+  notFound: string
+  notAuthorized: string
+  cancelAccepted: string
+  cancelAlreadyRequested: string
+  cancelAlreadyEnded: string
+  cancelUnavailable: string
+  controlUnavailable: string
 }
 
 /** 八种语言的文案表。 */
@@ -39,6 +49,16 @@ export const MESSAGES: Record<Locale, Messages> = {
     permissionDenied: '[subagent-agy] Berechtigungsmodus {mode}: AGY hat Aktionen, die eine Berechtigung erfordern, automatisch abgelehnt ({tools}); es wurden keine Änderungen vorgenommen. Um sie zu erlauben, setzen Sie permissionMode auf yolo oder ergänzen Sie allow-Regeln in AGY settings.json.',
     permissionToolFallback: 'Werkzeuge mit Berechtigungsbedarf',
     detailLabel: 'Details',
+    permission: 'Permission denied for the requested action.',
+    notFound: 'No matching AGY delegation was found for the current parent session.',
+    notAuthorized: 'The delegation does not belong to the current parent session.',
+    cancelAccepted: 'Cancellation was accepted; the run will settle asynchronously.',
+    cancelAlreadyRequested: 'Cancellation was already requested for this delegation.',
+    cancelAlreadyEnded: 'The delegation has already ended.',
+    cancelUnavailable: 'Cancellation is currently unavailable; retry after the parent session is ready.',
+    controlUnavailable: 'AGY run status is unavailable because the AGY provider is not enabled.',
+    startupTimeout: 'AGY did not become ready within the startup window and was terminated. Check that AGY starts and is signed in, or increase startupTimeoutMs.',
+    stallTimeout: 'AGY stopped producing protocol events within the stall window and was terminated. Check whether the task is stuck or increase stallTimeoutMs.',
   },
   en: {
     notInstalled: 'AGY is not installed or not on PATH. Install the Antigravity CLI, or set command to the absolute path of agy.',
@@ -52,6 +72,16 @@ export const MESSAGES: Record<Locale, Messages> = {
     permissionDenied: '[subagent-agy] Permission mode {mode}: AGY automatically denied actions that need permission ({tools}); no changes were made. To allow them, set permissionMode to yolo or add allow rules in AGY settings.json.',
     permissionToolFallback: 'tools that need permission',
     detailLabel: 'Detail',
+    permission: 'Permission denied for the requested action.',
+    notFound: 'No matching AGY delegation was found for the current parent session.',
+    notAuthorized: 'The delegation does not belong to the current parent session.',
+    cancelAccepted: 'Cancellation was accepted; the run will settle asynchronously.',
+    cancelAlreadyRequested: 'Cancellation was already requested for this delegation.',
+    cancelAlreadyEnded: 'The delegation has already ended.',
+    cancelUnavailable: 'Cancellation is currently unavailable; retry after the parent session is ready.',
+    controlUnavailable: 'AGY run status is unavailable because the AGY provider is not enabled.',
+    startupTimeout: 'AGY did not become ready within the startup window and was terminated. Check that AGY starts and is signed in, or increase startupTimeoutMs.',
+    stallTimeout: 'AGY stopped producing protocol events within the stall window and was terminated. Check whether the task is stuck or increase stallTimeoutMs.',
   },
   es: {
     notInstalled: 'AGY no está instalado o no está en PATH. Instala la CLI de Antigravity o define command con la ruta absoluta de agy.',
@@ -65,6 +95,16 @@ export const MESSAGES: Record<Locale, Messages> = {
     permissionDenied: '[subagent-agy] Modo de permisos {mode}: AGY denegó automáticamente las acciones que requieren permiso ({tools}); no se aplicó ningún cambio. Para permitirlas, cambia permissionMode a yolo o añade reglas allow en settings.json de AGY.',
     permissionToolFallback: 'herramientas que requieren permiso',
     detailLabel: 'Detalle',
+    permission: 'Permission denied for the requested action.',
+    notFound: 'No matching AGY delegation was found for the current parent session.',
+    notAuthorized: 'The delegation does not belong to the current parent session.',
+    cancelAccepted: 'Cancellation was accepted; the run will settle asynchronously.',
+    cancelAlreadyRequested: 'Cancellation was already requested for this delegation.',
+    cancelAlreadyEnded: 'The delegation has already ended.',
+    cancelUnavailable: 'Cancellation is currently unavailable; retry after the parent session is ready.',
+    controlUnavailable: 'AGY run status is unavailable because the AGY provider is not enabled.',
+    startupTimeout: 'AGY did not become ready within the startup window and was terminated. Check that AGY starts and is signed in, or increase startupTimeoutMs.',
+    stallTimeout: 'AGY stopped producing protocol events within the stall window and was terminated. Check whether the task is stuck or increase stallTimeoutMs.',
   },
   fr: {
     notInstalled: "AGY n'est pas installé ou n'est pas dans le PATH. Installez la CLI Antigravity ou définissez command avec le chemin absolu d'agy.",
@@ -78,6 +118,16 @@ export const MESSAGES: Record<Locale, Messages> = {
     permissionDenied: "[subagent-agy] Mode d'autorisation {mode} : AGY a automatiquement refusé les actions nécessitant une autorisation ({tools}) ; aucune modification n'a été appliquée. Pour les autoriser, passez permissionMode à yolo ou ajoutez des règles allow dans settings.json d'AGY.",
     permissionToolFallback: 'outils nécessitant une autorisation',
     detailLabel: 'Détail',
+    permission: 'Permission denied for the requested action.',
+    notFound: 'No matching AGY delegation was found for the current parent session.',
+    notAuthorized: 'The delegation does not belong to the current parent session.',
+    cancelAccepted: 'Cancellation was accepted; the run will settle asynchronously.',
+    cancelAlreadyRequested: 'Cancellation was already requested for this delegation.',
+    cancelAlreadyEnded: 'The delegation has already ended.',
+    cancelUnavailable: 'Cancellation is currently unavailable; retry after the parent session is ready.',
+    controlUnavailable: 'AGY run status is unavailable because the AGY provider is not enabled.',
+    startupTimeout: 'AGY did not become ready within the startup window and was terminated. Check that AGY starts and is signed in, or increase startupTimeoutMs.',
+    stallTimeout: 'AGY stopped producing protocol events within the stall window and was terminated. Check whether the task is stuck or increase stallTimeoutMs.',
   },
   ja: {
     notInstalled: 'AGY が見つかりません（未インストールまたは PATH 外）。Antigravity CLI をインストールするか、command に agy の絶対パスを指定してください。',
@@ -91,6 +141,16 @@ export const MESSAGES: Record<Locale, Messages> = {
     permissionDenied: '[subagent-agy] 権限モード {mode}：AGY は権限が必要な操作（{tools}）を自動的に拒否しました。変更は適用されていません。許可するには permissionMode を yolo にするか、AGY の settings.json に allow ルールを追加してください。',
     permissionToolFallback: '権限が必要なツール',
     detailLabel: '詳細',
+    permission: 'Permission denied for the requested action.',
+    notFound: 'No matching AGY delegation was found for the current parent session.',
+    notAuthorized: 'The delegation does not belong to the current parent session.',
+    cancelAccepted: 'Cancellation was accepted; the run will settle asynchronously.',
+    cancelAlreadyRequested: 'Cancellation was already requested for this delegation.',
+    cancelAlreadyEnded: 'The delegation has already ended.',
+    cancelUnavailable: 'Cancellation is currently unavailable; retry after the parent session is ready.',
+    controlUnavailable: 'AGY run status is unavailable because the AGY provider is not enabled.',
+    startupTimeout: 'AGY did not become ready within the startup window and was terminated. Check that AGY starts and is signed in, or increase startupTimeoutMs.',
+    stallTimeout: 'AGY stopped producing protocol events within the stall window and was terminated. Check whether the task is stuck or increase stallTimeoutMs.',
   },
   pt: {
     notInstalled: 'O AGY não está instalado ou não está no PATH. Instale a CLI do Antigravity ou defina command com o caminho absoluto do agy.',
@@ -104,6 +164,16 @@ export const MESSAGES: Record<Locale, Messages> = {
     permissionDenied: '[subagent-agy] Modo de permissão {mode}: o AGY negou automaticamente ações que exigem permissão ({tools}); nenhuma alteração foi aplicada. Para permitir, altere permissionMode para yolo ou adicione regras allow no settings.json do AGY.',
     permissionToolFallback: 'ferramentas que exigem permissão',
     detailLabel: 'Detalhe',
+    permission: 'Permission denied for the requested action.',
+    notFound: 'No matching AGY delegation was found for the current parent session.',
+    notAuthorized: 'The delegation does not belong to the current parent session.',
+    cancelAccepted: 'Cancellation was accepted; the run will settle asynchronously.',
+    cancelAlreadyRequested: 'Cancellation was already requested for this delegation.',
+    cancelAlreadyEnded: 'The delegation has already ended.',
+    cancelUnavailable: 'Cancellation is currently unavailable; retry after the parent session is ready.',
+    controlUnavailable: 'AGY run status is unavailable because the AGY provider is not enabled.',
+    startupTimeout: 'AGY did not become ready within the startup window and was terminated. Check that AGY starts and is signed in, or increase startupTimeoutMs.',
+    stallTimeout: 'AGY stopped producing protocol events within the stall window and was terminated. Check whether the task is stuck or increase stallTimeoutMs.',
   },
   ru: {
     notInstalled: 'AGY не установлен или отсутствует в PATH. Установите Antigravity CLI или укажите в command абсолютный путь к agy.',
@@ -117,6 +187,16 @@ export const MESSAGES: Record<Locale, Messages> = {
     permissionDenied: '[subagent-agy] Режим разрешений {mode}: AGY автоматически отклонил действия, требующие разрешения ({tools}); изменения не применены. Чтобы разрешить их, установите permissionMode в yolo или добавьте правила allow в settings.json AGY.',
     permissionToolFallback: 'инструменты, требующие разрешения',
     detailLabel: 'Подробности',
+    permission: 'Permission denied for the requested action.',
+    notFound: 'No matching AGY delegation was found for the current parent session.',
+    notAuthorized: 'The delegation does not belong to the current parent session.',
+    cancelAccepted: 'Cancellation was accepted; the run will settle asynchronously.',
+    cancelAlreadyRequested: 'Cancellation was already requested for this delegation.',
+    cancelAlreadyEnded: 'The delegation has already ended.',
+    cancelUnavailable: 'Cancellation is currently unavailable; retry after the parent session is ready.',
+    controlUnavailable: 'AGY run status is unavailable because the AGY provider is not enabled.',
+    startupTimeout: 'AGY did not become ready within the startup window and was terminated. Check that AGY starts and is signed in, or increase startupTimeoutMs.',
+    stallTimeout: 'AGY stopped producing protocol events within the stall window and was terminated. Check whether the task is stuck or increase stallTimeoutMs.',
   },
   zh: {
     notInstalled: 'AGY 未安装或不在 PATH 中。请安装 Antigravity CLI，或通过 command 配置指定 agy 的绝对路径。',
@@ -130,6 +210,16 @@ export const MESSAGES: Record<Locale, Messages> = {
     permissionDenied: '[subagent-agy] 权限档 {mode}：AGY 已自动拒绝需要权限的动作（{tools}），相关修改未执行。若要允许，请把 permissionMode 改为 yolo，或在 AGY 的 settings.json 中配置 allow 规则。',
     permissionToolFallback: '需要权限的工具',
     detailLabel: '详情',
+    permission: '请求的动作没有权限。',
+    notFound: '没有找到属于当前父会话的 AGY 委派。',
+    notAuthorized: '该委派不属于当前父会话。',
+    cancelAccepted: '取消请求已受理；运行将异步结算。',
+    cancelAlreadyRequested: '该委派已经请求过取消。',
+    cancelAlreadyEnded: '该委派已经结束。',
+    cancelUnavailable: '当前无法取消；父会话就绪后重试。',
+    controlUnavailable: 'AGY 运行状态不可用：AGY 提供方未启用。',
+    startupTimeout: 'AGY 在启动窗口内未就绪，进程已被终止。请检查 AGY 能否启动并已登录，或调大 startupTimeoutMs。',
+    stallTimeout: 'AGY 在静默窗口内没有产生协议事件，进程已被终止。请检查任务是否卡住，或调大 stallTimeoutMs。',
   },
 }
 

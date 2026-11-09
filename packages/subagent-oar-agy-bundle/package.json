@@ -1,7 +1,7 @@
 {
   "name": "@jiezhengj/subagent-oar-agy",
-  "version": "0.2.8",
-  "description": "Delegate independent tasks to the local Antigravity CLI (agy) from DSH; self-contained non-official plugin with a non-ACP AGY runtime and eight-language UI.",
+  "version": "0.3.0",
+  "description": "Delegate independent tasks to the local Antigravity CLI (agy) from DSH; self-contained non-official plugin with a non-ACP AGY runtime, startup/stall watchdogs, status and cancel control, and eight-language UI.",
   "type": "module",
   "icon": "./icon.svg",
   "files": [
@@ -26,12 +26,13 @@
   "dependencies": {
     "@deepseek-ai/cordis": "4.1.0",
     "@deepseek-ai/dsh-brand": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1",
     "@deepseek-ai/dsh-llm": "0.2.2-rc.1",
     "@deepseek-ai/dsh-subagent": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-subprocess": "0.2.2-rc.1",
     "@deepseek-ai/dsh-timeout": "0.2.2-rc.1",
-    "@deepseek-ai/schemastery": "3.19.0",
-    "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1",
-    "@deepseek-ai/dsh-tools": "0.2.2-rc.1"
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.1",
+    "@deepseek-ai/schemastery": "3.19.0"
   },
   "exports": {
     "./agy-provider": "./provider/index.js",

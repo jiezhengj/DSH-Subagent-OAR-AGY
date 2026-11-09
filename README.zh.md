@@ -7,7 +7,7 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-备选（tgz）：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+备选（tgz）：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
 
 3. 启用「AGY 子智能体」，新会话即可让模型调用 `subagent_oar_agy`。
 4. 安装或升级后按提示重载（必要时重启）DSH，再在新会话调用 `subagent_oar_agy`。
@@ -26,6 +26,10 @@
 - 与官方 OAR 组合包可同时启用：本插件工具名 `subagent_oar_agy`，官方为 `subagent_oar`。
 - 显示名、插件页介绍正文、详情文档与运行时提示均覆盖 8 种界面语言（de/en/es/fr/ja/pt/ru/zh）。
 
+# 状态查询与取消
+
+0.3.0 增加启动与静默看门狗（默认 60 秒 / 15 分钟）、带 `status` / `cancel` 的 `subagent_oar_agy_control` 工具，以及有界活动摘要（最多 50 个运行、20 条活动、200 字符）。看门狗没有关闭开关；长任务请调大窗口。状态不会暴露 prompt、工具参数、完整答复或原始 stderr。
+
 # 配置
 
 通过 profile patch 设置（无独立设置界面）：
@@ -35,6 +39,9 @@
   config:
     permissionMode: yolo   # yolo(默认) / plan / strict
     timeoutMs: 600000      # 可选
+    startupTimeoutMs: 60000
+    stallTimeoutMs: 900000
+    controlToolName: subagent_oar_agy_control
     locale: auto           # auto 或 de/en/es/fr/ja/pt/ru/zh
     command: agy           # 可选：agy 的绝对路径
 ```
@@ -60,6 +67,7 @@ cd packages/subagent-oar-agy-bundle && pnpm pack
 - `packages/subagent-oar-agy-provider/`：AGY 运行时提供方（子进程、事件流、超时/取消、i18n 文案）。
 - `packages/subagent-oar-agy-bundle/`：可分发的 DSH 组合包（插件清单、patch、8 语言文案与详情文档、构建时内置提供方）。
 - `specs/001-subagent-oar-agy/`：SDD 规格、计划、任务与验证记录。
+- `specs/003-agy-observability-control/`：看门狗、状态查询与取消的 SDD 规格、计划、任务与验证。
 
 # 开发
 

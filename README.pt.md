@@ -7,7 +7,7 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
 
 3. Ative «Subagente AGY»; o modelo poderá chamar `subagent_oar_agy` em uma nova sessão.
 4. Recarregue o DSH quando solicitado (reinicie se necessário) e chame `subagent_oar_agy` em uma nova sessão.
@@ -26,6 +26,10 @@ Delega tarefas independentes à CLI local do Antigravity (`agy`): o modelo chama
 - Coexiste com o bundle OAR oficial: a ferramenta aqui é `subagent_oar_agy`, a oficial é `subagent_oar`.
 - Nome exibido, descrição, documentos de detalhe e mensagens de runtime em 8 idiomas de interface (de/en/es/fr/ja/pt/ru/zh).
 
+# Observabilidade e controle
+
+A versão 0.3.0 adiciona watchdogs de inicialização e inatividade (60 s / 15 min por padrão), a ferramenta `subagent_oar_agy_control` com `status` e `cancel`, e resumos de atividade limitados (50 execuções, 20 atividades, 200 caracteres). Os watchdogs não podem ser desativados; aumente as janelas para tarefas longas. O status nunca expõe prompts, argumentos de ferramentas, respostas completas ou stderr bruto.
+
 # Configuração
 
 Via patch do perfil (sem tela de configurações própria):
@@ -35,6 +39,9 @@ Via patch do perfil (sem tela de configurações própria):
   config:
     permissionMode: yolo   # yolo (padrão) / plan / strict
     timeoutMs: 600000      # opcional
+    startupTimeoutMs: 60000
+    stallTimeoutMs: 900000
+    controlToolName: subagent_oar_agy_control
     locale: auto           # auto ou de/en/es/fr/ja/pt/ru/zh
     command: agy           # opcional: caminho absoluto do agy
 ```
@@ -60,6 +67,7 @@ cd packages/subagent-oar-agy-bundle && pnpm pack
 - `packages/subagent-oar-agy-provider/`: provedor do runtime AGY (subprocesso, fluxo de eventos, timeout/cancelamento, mensagens i18n).
 - `packages/subagent-oar-agy-bundle/`: bundle DSH distribuível (manifesto, patch, metadados e detalhes em 8 idiomas, provedor embutido na compilação).
 - `specs/001-subagent-oar-agy/`: especificação SDD, plano, tarefas e validação.
+- `specs/003-agy-observability-control/`: especificação SDD, plano, tarefas e validação de watchdogs, status e cancelamento.
 
 # Desenvolvimento
 

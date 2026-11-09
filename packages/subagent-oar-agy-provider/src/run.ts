@@ -1,4 +1,4 @@
-/** 一次 AGY 委派的完整生命周期：解析、启动、事件流、时限/取消、结算。 */
+/** 一次 AGY 委派的完整生命周期：解析、启动、事件流、看门狗/取消、结算。 */
 
 import { randomUUID } from 'node:crypto'
 import type { ChildProcess } from 'node:child_process'
@@ -20,16 +20,21 @@ import { armDeadline, type Deadline } from './agy/timer.js'
 import {
   AgyFailure,
   failureDiagnostic,
+  localStderrSummary,
   looksLikeAuthenticationFailure,
+  redactSensitive,
   summarizeStderr,
   truncateUtf8,
   type FailureCategory,
 } from './agy/errors.js'
 import { resolveAgyCommand } from './agy/resolve.js'
-import { terminate } from './teardown.js'
+import { hasExited, terminate } from './teardown.js'
 import { t, type Locale } from './i18n.js'
+import { getDefaultRunRegistry, type RunRecord, type RunRegistry } from './runs.js'
 
 const PROVIDER_PREFIX = 'subagent-agy'
+const DEFAULT_STARTUP_TIMEOUT_MS = 60_000
+const DEFAULT_STALL_TIMEOUT_MS = 900_000
 
 /** 提供方运行配置（由插件 Config 派生）。 */
 export interface AgyRunSpec {
@@ -40,9 +45,16 @@ export interface AgyRunSpec {
   readonly permissionMode: PermissionMode
   /** 面向用户文案的语言。 */
   readonly locale: Locale
+  /** 从 spawn 到 init 的启动等待窗口。 */
+  readonly startupTimeoutMs?: number
+  /** init 后连续无协议事件的静默窗口。 */
+  readonly stallTimeoutMs?: number
   readonly timeoutMs?: number
   readonly killGraceMs: number
   readonly env: Readonly<Record<string, string | null>>
+  readonly registry?: RunRegistry
+  /** 本机脱敏日志出口；默认不写。 */
+  readonly debugLog?: (message: string) => void
   readonly onError?: (error: Error, stopReason: SubagentResult['stopReason']) => void
 }
 
@@ -65,10 +77,18 @@ function cancelledFailure(locale: Locale): AgyFailure {
 }
 
 /** 创建一次运行并在进程发布后返回握手。 */
-function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubagentStartRequest, spec: AgyRunSpec): SubagentRun {
+function publishRun(
+  child: ChildProcess,
+  prompt: string,
+  request: ResolvedSubagentStartRequest,
+  spec: AgyRunSpec,
+  childId: string,
+): SubagentRun {
   let resolveStopped!: (result: SubagentResult) => void
-  const stopped = { promise: new Promise<SubagentResult>(resolve => { resolveStopped = resolve }), resolve: (result: SubagentResult): void => { resolveStopped(result) } }
-  let phase: 'running' | 'settled' | 'cancelled' | 'timeout' = 'running'
+  const stopped = {
+    promise: new Promise<SubagentResult>(resolve => { resolveStopped = resolve }),
+    resolve: (result: SubagentResult): void => { resolveStopped(result) },
+  }
   let resultEvent: AgyResultEvent | undefined
   let streamedText = ''
   let stderr = ''
@@ -77,7 +97,22 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
   let permissionDeniedFromStderr = false
   const permissionDeniedTools = new Set<string>()
   let deadline: Deadline = { clear() {} }
+  let startupTimer: Deadline = { clear() {} }
+  let stallTimer: Deadline = { clear() {} }
+  let absoluteDueAt: number | undefined
   let disposal: Promise<void> | undefined
+  let settled = false
+  let phase: 'running' | 'cancelled' | 'failed' | 'settled' = 'running'
+
+  const registry = spec.registry ?? getDefaultRunRegistry()
+  const parentId = String(request.parent.id)
+  const record: RunRecord = registry.register(parentId, childId, child.pid)
+
+  const clearTimers = (): void => {
+    deadline.clear()
+    startupTimer.clear()
+    stallTimer.clear()
+  }
 
   const collectOutput = (): ContentBlock[] => {
     const response = resultEvent?.result?.response
@@ -87,20 +122,73 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
 
   const dispose = (): Promise<void> => {
     disposal ??= (async () => {
-      deadline.clear()
+      clearTimers()
       await terminate(child, { graceMs: spec.killGraceMs })
+      if (!hasExited(child)) spec.debugLog?.(`subagent-agy ${childId} termination-incomplete`)
     })()
     return disposal
   }
+  record.teardown = dispose
 
-  const interrupt = (reason: 'cancelled' | 'timeout'): void => {
-    if (phase !== 'running') return
-    phase = reason
-    stopped.resolve({
+  const settle = (
+    result: SubagentResult,
+    state: 'completed' | 'failed' | 'cancelled',
+    info: { stopReason: string; failureCategory?: FailureCategory },
+  ): void => {
+    if (settled) return
+    settled = true
+    phase = state === 'cancelled' ? 'cancelled' : state === 'completed' ? 'settled' : 'failed'
+    clearTimers()
+    registry.recordTerminal(record, state, info)
+    stopped.resolve(result)
+  }
+
+  const logFailure = (category: FailureCategory): void => {
+    if (spec.debugLog === undefined) return
+    const detail = localStderrSummary(stderr)
+    const suffix = detail === undefined ? '' : `: ${redactSensitive(detail)}`
+    spec.debugLog(`subagent-agy ${childId} ${category}${suffix}`)
+  }
+
+  const failureResult = (category: FailureCategory, stopReason: 'error' | 'aborted'): SubagentResult => {
+    const result: SubagentResult = {
       output: collectOutput(),
-      stopReason: reason === 'cancelled' ? 'aborted' : 'error',
-      ...(reason === 'timeout' ? { diagnostic: failureDiagnostic('timeout', undefined, spec.locale) } : {}),
+      stopReason,
+      ...(stopReason === 'error' ? { diagnostic: failureDiagnostic(category, undefined, spec.locale) } : {}),
+    }
+    logFailure(category)
+    return result
+  }
+
+  const armAbsolute = (): void => {
+    deadline.clear()
+    absoluteDueAt = undefined
+    if (spec.timeoutMs === undefined) return
+    absoluteDueAt = Date.now() + spec.timeoutMs
+    deadline = armDeadline(spec.timeoutMs, () => {
+      if (settled || resultEvent !== undefined) return
+      interrupt('timeout')
     })
+  }
+
+  const armStall = (): void => {
+    stallTimer.clear()
+    if (settled || resultEvent !== undefined) return
+    stallTimer = armDeadline(spec.stallTimeoutMs ?? DEFAULT_STALL_TIMEOUT_MS, () => {
+      if (settled || resultEvent !== undefined) return
+      // FR-008：绝对 timeoutMs 与静默窗口同 tick 到期时，绝对超时优先。
+      if (absoluteDueAt !== undefined && Date.now() >= absoluteDueAt) interrupt('timeout')
+      else interrupt('stalled')
+    })
+  }
+
+  const interrupt = (reason: 'cancelled' | 'startup-timeout' | 'stalled' | 'timeout'): void => {
+    if (settled) return
+    if (reason === 'cancelled') {
+      settle(failureResult('cancelled', 'aborted'), 'cancelled', { stopReason: 'aborted' })
+    } else {
+      settle(failureResult(reason, 'error'), 'failed', { stopReason: 'error', failureCategory: reason })
+    }
     void dispose()
   }
 
@@ -115,18 +203,52 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
     onLine(line: string): void {
       const event = parseAgyLine(line)
       if (event === undefined) { malformedOutput = true; return }
+      if (settled) return
       if (isInitEvent(event)) {
-        deadline = armDeadline(spec.timeoutMs, () => { interrupt('timeout') })
+        startupTimer.clear()
+        if (event.conversation_id !== undefined) record.conversationId = event.conversation_id
+        registry.markReady(record)
+        armAbsolute()
+        armStall()
       } else if (isStepEvent(event)) {
         const step = event.step_update
+        if (step?.conversation_id !== undefined) record.conversationId = step.conversation_id
         if (step?.state === 'ERROR' && step.tool_name !== undefined) {
           const info = step.tool_info as { error?: { message?: string } } | undefined
           if (/permission/i.test(info?.error?.message ?? '')) permissionDeniedTools.add(step.tool_name)
         }
         const delta = textDelta(event)
-        if (delta !== undefined) streamedText += delta
+        if (delta !== undefined) {
+          streamedText += delta
+          registry.recordActivity(record, 'text', {
+            text: delta,
+            ...(step?.step_index === undefined ? {} : { stepIndex: step.step_index }),
+            ...(step?.state === undefined ? {} : { stepState: step.state }),
+            ...(step?.tool_name === undefined ? {} : { toolName: step.tool_name }),
+          })
+        } else if (step !== undefined) {
+          const summary = step.tool_name !== undefined
+            ? `tool ${step.tool_name}`
+            : `step ${step.step_index ?? '?'} ${step.state ?? ''}`.trim()
+          registry.recordActivity(record, step.tool_name === undefined ? 'step' : 'tool', {
+            summary,
+            ...(step.step_index === undefined ? {} : { stepIndex: step.step_index }),
+            ...(step.state === undefined ? {} : { stepState: step.state }),
+            ...(step.tool_name === undefined ? {} : { toolName: step.tool_name }),
+          })
+        }
+        armStall()
       } else if (isResultEvent(event)) {
         resultEvent = event
+        if (event.result?.conversation_id !== undefined) record.conversationId = event.result.conversation_id
+        registry.recordActivity(record, 'result', { summary: 'result received' })
+        // result 是终态事件：立即裁决，避免 AGY 收到结果后迟迟不退出时无限等待。
+        const outcome = terminalOutcome()
+        settle(outcome.result, outcome.state, {
+          stopReason: outcome.result.stopReason,
+          ...(outcome.category === undefined ? {} : { failureCategory: outcome.category }),
+        })
+        void dispose()
       }
     },
     onError(): void { malformedOutput = true },
@@ -137,6 +259,8 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
   child.stderr?.on('data', (chunk: Buffer) => {
     stderr = truncateUtf8(`${stderr}${chunk.toString('utf8')}`, 16 * 1024)
     if (/headless mode cannot prompt|permission check failed/i.test(stderr)) permissionDeniedFromStderr = true
+    const summary = summarizeStderr(stderr)
+    if (summary !== undefined) registry.recordStderr(record, summary)
   })
 
   const writeInput = (): void => {
@@ -145,18 +269,20 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
     stdin.end(prompt.length === 0 ? '' : `${JSON.stringify({ event: 'user', message: { content: prompt } })}\n`)
   }
 
-  const terminal = (): SubagentResult => {
-    if (phase === 'cancelled') return { output: collectOutput(), stopReason: 'aborted' }
-    if (phase === 'timeout') return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic('timeout', undefined, spec.locale) }
+  const terminalOutcome = (): { result: SubagentResult; state: 'completed' | 'failed' | 'cancelled'; category?: FailureCategory } => {
     if (spawnError !== undefined) {
-      return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic('spawn-failed', spawnError.message, spec.locale) }
+      return {
+        result: failureResult('spawn-failed', 'error'),
+        state: 'failed',
+        category: 'spawn-failed',
+      }
     }
-    const result = resultEvent?.result
-    if (result !== undefined) {
-      const stopReason = statusToStopReason(result.status)
+    const resultPayload = resultEvent?.result
+    if (resultPayload !== undefined) {
+      const stopReason = statusToStopReason(resultPayload.status)
       if (stopReason === 'completed') {
         const denied = permissionDeniedTools.size > 0 || permissionDeniedFromStderr
-        if (!denied) return { output: collectOutput(), stopReason }
+        if (!denied) return { result: { output: collectOutput(), stopReason }, state: 'completed' }
         const tools = [...permissionDeniedTools].join(', ') || t(spec.locale, 'permissionToolFallback')
         const note = t(spec.locale, 'permissionDenied', { mode: spec.permissionMode, tools })
         const answer = collectOutput()
@@ -164,27 +290,43 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
           .map(block => (block.type === 'text' ? block.text : ''))
           .join('')
           .trim()
-        return { output: [{ type: 'text', text: prefix.length > 0 ? `${prefix}\n\n${note}` : note }], stopReason }
+        return {
+          result: { output: [{ type: 'text', text: prefix.length > 0 ? `${prefix}\n\n${note}` : note }], stopReason },
+          state: 'completed',
+        }
       }
-      if (stopReason === 'aborted') return { output: collectOutput(), stopReason }
-      const errorText = result.error ?? result.response
+      if (stopReason === 'aborted') {
+        return { result: { output: collectOutput(), stopReason }, state: 'cancelled' }
+      }
+      const errorText = resultPayload.error ?? resultPayload.response
       const category: FailureCategory = looksLikeAuthenticationFailure(errorText) ? 'not-authenticated' : 'protocol'
-      return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic(category, summarizeStderr(stderr), spec.locale) }
+      return {
+        result: failureResult(category, 'error'),
+        state: 'failed',
+        category,
+      }
     }
-    const detail = summarizeStderr(stderr)
-    const category: FailureCategory = looksLikeAuthenticationFailure(detail) ? 'not-authenticated' : 'protocol'
-    const suffix = malformedOutput ? t(spec.locale, 'malformedLines') : detail
-    return { output: collectOutput(), stopReason: 'error', diagnostic: failureDiagnostic(category, suffix, spec.locale) }
+    const category: FailureCategory = looksLikeAuthenticationFailure(summarizeStderr(stderr)) ? 'not-authenticated' : 'protocol'
+    const failure: SubagentResult = {
+      output: collectOutput(),
+      stopReason: 'error',
+      diagnostic: failureDiagnostic(category, malformedOutput ? t(spec.locale, 'malformedLines') : undefined, spec.locale),
+    }
+    logFailure(category)
+    return { result: failure, state: 'failed', category }
   }
 
   const attempt = async (): Promise<SubagentResult> => {
     writeInput()
     const first = await Promise.race([closed.then(() => 'closed' as const), stopped.promise])
-    // stopped 先结算（取消/超时）：直接返回已结算结果。
     if (first !== 'closed') return first
-    if (phase !== 'running') return stopped.promise
-    phase = 'settled'
-    return terminal()
+    if (settled) return stopped.promise
+    const outcome = terminalOutcome()
+    settle(outcome.result, outcome.state, {
+      stopReason: outcome.result.stopReason,
+      ...(outcome.category === undefined ? {} : { failureCategory: outcome.category }),
+    })
+    return outcome.result
   }
 
   const result = settleRunResult({
@@ -196,14 +338,20 @@ function publishRun(child: ChildProcess, prompt: string, request: ResolvedSubage
     signal: request.signal,
     onAbort,
   }).finally(() => {
-    deadline.clear()
+    clearTimers()
   })
 
   request.signal.addEventListener('abort', onAbort, { once: true })
   if (request.signal.aborted) onAbort()
 
+  // 启动窗口从 spawn 起算；init 到达后切换到静默/绝对窗口。
+  startupTimer = armDeadline(spec.startupTimeoutMs ?? DEFAULT_STARTUP_TIMEOUT_MS, () => {
+    if (settled || resultEvent !== undefined) return
+    interrupt('startup-timeout')
+  })
+
   return subprocessRunHandle({
-    id: brandString(randomUUID()) as SubagentRun['id'],
+    id: brandString(childId) as SubagentRun['id'],
     result,
     signal: request.signal,
     onAbort,
@@ -242,8 +390,8 @@ export async function startAgyRun(request: ResolvedSubagentStartRequest, spec: A
       permissionMode: spec.permissionMode,
       env: spec.env,
     })
-  } catch (error) {
-    throw new AgyFailure('spawn-failed', failureDiagnostic('spawn-failed', error instanceof Error ? error.message : String(error), spec.locale))
+  } catch {
+    throw new AgyFailure('spawn-failed', failureDiagnostic('spawn-failed', undefined, spec.locale))
   }
 
   if (request.signal.aborted) {
@@ -251,7 +399,7 @@ export async function startAgyRun(request: ResolvedSubagentStartRequest, spec: A
     throw cancelledFailure(spec.locale)
   }
 
-  const run = publishRun(child, prompt, request, spec)
+  const run = publishRun(child, prompt, request, spec, randomUUID())
   if (request.signal.aborted) {
     await run.dispose()
     throw cancelledFailure(spec.locale)

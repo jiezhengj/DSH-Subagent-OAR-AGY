@@ -1,6 +1,6 @@
 {
   "name": "@jiezhengj/subagent-oar-agy-provider",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DSH subagent provider: delegate independent tasks to the local Antigravity CLI (agy).",
   "type": "module",
   "main": "dist/index.js",
@@ -45,5 +45,8 @@
     "directory": "packages/subagent-oar-agy-provider"
   },
   "homepage": "https://github.com/jiezhengj/DSH-Subagent-OAR-AGY",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@deepseek-ai/dsh-subprocess": "0.2.2-rc.1"
+  }
 }

@@ -7,7 +7,7 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
 
 3. 「AGY サブエージェント」を有効化すると、新しいセッションでモデルが `subagent_oar_agy` を呼べます。
 4. 促されたら DSH を再読み込み（必要なら再起動）し、新しいセッションで `subagent_oar_agy` を呼び出します。
@@ -26,6 +26,10 @@ tgz からインストールしたプロファイルは更新を確認できま�
 - 公式 OAR バンドルと共存可能：本プラグインは `subagent_oar_agy`、公式は `subagent_oar`。
 - 表示名、プラグイン説明、詳細ドキュメント、実行時メッセージは 8 言語（de/en/es/fr/ja/pt/ru/zh）に対応。
 
+# 状態確認と制御
+
+バージョン 0.3.0 では、起動ウォッチドッグと停止ウォッチドッグ（既定 60 秒 / 15 分）、`status` と `cancel` を備えた `subagent_oar_agy_control` ツール、上限付きのアクティビティ要約（50 実行、20 アクティビティ、200 文字）を追加しました。ウォッチドッグは無効化できません。長いタスクでは待ち時間を延ばしてください。status はプロンプト、ツール引数、完全な回答、生の stderr を公開しません。
+
 # 設定
 
 プロファイル patch で設定します（専用の設定画面はありません）：
@@ -35,6 +39,9 @@ tgz からインストールしたプロファイルは更新を確認できま�
   config:
     permissionMode: yolo   # yolo（既定） / plan / strict
     timeoutMs: 600000      # 任意
+    startupTimeoutMs: 60000
+    stallTimeoutMs: 900000
+    controlToolName: subagent_oar_agy_control
     locale: auto           # auto または de/en/es/fr/ja/pt/ru/zh
     command: agy           # 任意：agy の絶対パス
 ```
@@ -60,6 +67,7 @@ cd packages/subagent-oar-agy-bundle && pnpm pack
 - `packages/subagent-oar-agy-provider/`：AGY ランタイム提供者（サブプロセス、イベントストリーム、タイムアウト/キャンセル、i18n メッセージ）。
 - `packages/subagent-oar-agy-bundle/`：配布用 DSH バンドル（マニフェスト、patch、8 言語のメタデータと詳細、ビルド時に同梱される提供者）。
 - `specs/001-subagent-oar-agy/`：SDD 仕様、計画、タスク、検証記録。
+- `specs/003-agy-observability-control/`：ウォッチドッグ、状態確認、キャンセルの SDD 仕様・計画・タスク・検証。
 
 # 開発
 

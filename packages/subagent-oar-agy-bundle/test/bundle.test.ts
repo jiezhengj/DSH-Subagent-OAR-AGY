@@ -24,10 +24,11 @@ describe('bundle manifest', () => {
     expect(pkg.devDependencies?.['@jiezhengj/subagent-oar-agy-provider']).toBeDefined()
     expect(pkg.dependencies['@deepseek-ai/dsh-experimental-tool-subagent-oar']).toBe('0.2.2-rc.1')
     expect(pkg.dependencies['@deepseek-ai/dsh-tools']).toBe('0.2.2-rc.1')
+    expect(pkg.dependencies['@deepseek-ai/dsh-subprocess']).toBe('0.2.2-rc.1')
   })
 
   it('ships the patch, icon, README and docs', () => {
-    for (const file of ['cordis.patch.yml', 'icon.svg', 'README.md', 'docs/INSTALL.md', 'docs/DETAIL.zh.md', 'docs/DETAIL.en.md', 'provider/index.js', 'tool.js']) {
+    for (const file of ['cordis.patch.yml', 'icon.svg', 'README.md', 'docs/INSTALL.md', 'docs/DETAIL.zh.md', 'docs/DETAIL.en.md', 'provider/index.js', 'provider/runs.js', 'tool.js']) {
       expect(existsSync(`${bundleRoot}/${file}`)).toBe(true)
     }
   })
@@ -47,15 +48,19 @@ describe('bundle manifest', () => {
     const entries = patch?.flatMap(entry => entry.insert) ?? []
     const tool = entries.find(entry => entry.id === 'tool-subagent-oar-agy')
     expect(tool?.name).toBe('@jiezhengj/subagent-oar-agy/tool')
-    const parsed = ToolConfig(tool?.config ?? {}) as { providers: Record<string, string>; toolName: string }
+    const parsed = ToolConfig(tool?.config ?? {}) as { providers: Record<string, string>; toolName: string; controlToolName: string }
     expect(parsed.providers).toEqual({ agy: 'agy' })
     expect(parsed.toolName).toBe('subagent_oar_agy')
+    expect(parsed.controlToolName).toBe('subagent_oar_agy_control')
   })
 
   it('documents the optional subagent_oar override', () => {
     const override = ToolConfig({ providers: { agy: 'agy' }, toolName: 'subagent_oar' }) as { toolName: string }
     expect(override.toolName).toBe('subagent_oar')
-    expect(readFileSync(new URL('../README.md', import.meta.url), 'utf8')).toContain('toolName: subagent_oar')
+    const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8')
+    expect(readme).toContain('toolName: subagent_oar')
+    expect(readme).toContain('startupTimeoutMs')
+    expect(readme).toContain('subagent_oar_agy_control')
   })
 
   it('exports the locale, icon and manifest resources DSH reads for the plugin page', () => {

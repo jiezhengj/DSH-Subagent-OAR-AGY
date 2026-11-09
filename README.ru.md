@@ -7,7 +7,7 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
 
 3. Включите «Субагент AGY»; в новой сессии модель сможет вызывать `subagent_oar_agy`.
 4. Перезагрузите DSH по запросу (при необходимости перезапустите) и вызовите `subagent_oar_agy` в новой сессии.
@@ -26,6 +26,10 @@ Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/down
 - Совместим с официальным OAR-бандлом: здесь инструмент `subagent_oar_agy`, там `subagent_oar`.
 - Отображаемое имя, описание, документы и сообщения среды выполнения на 8 языках интерфейса (de/en/es/fr/ja/pt/ru/zh).
 
+# Наблюдаемость и управление
+
+В версии 0.3.0 добавлены сторожевые таймеры запуска и простоя (по умолчанию 60 с / 15 мин), инструмент `subagent_oar_agy_control` с `status` и `cancel`, а также ограниченные сводки активности (50 запусков, 20 записей, 200 символов). Таймеры нельзя отключить; для длинных задач увеличьте окна. Статус не раскрывает промпты, аргументы инструментов, полные ответы или необработанный stderr.
+
 # Настройка
 
 Через патч профиля (отдельного экрана настроек нет):
@@ -35,6 +39,9 @@ Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/down
   config:
     permissionMode: yolo   # yolo (по умолчанию) / plan / strict
     timeoutMs: 600000      # необязательно
+    startupTimeoutMs: 60000
+    stallTimeoutMs: 900000
+    controlToolName: subagent_oar_agy_control
     locale: auto           # auto или de/en/es/fr/ja/pt/ru/zh
     command: agy           # необязательно: абсолютный путь к agy
 ```
@@ -60,6 +67,7 @@ cd packages/subagent-oar-agy-bundle && pnpm pack
 - `packages/subagent-oar-agy-provider/`: провайдер среды AGY (подпроцесс, поток событий, тайм-аут/отмена, сообщения i18n).
 - `packages/subagent-oar-agy-bundle/`: распространяемый DSH-бандл (манифест, патч, метаданные и документы на 8 языках, встроенный провайдер).
 - `specs/001-subagent-oar-agy/`: спецификация SDD, план, задачи и проверка.
+- `specs/003-agy-observability-control/`: спецификация SDD, план, задачи и проверка сторожевых таймеров, статуса и отмены.
 
 # Разработка
 

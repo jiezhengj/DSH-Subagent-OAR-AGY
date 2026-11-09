@@ -41,20 +41,21 @@ assert.equal(bundleLicense, rootLicense, 'bundle LICENSE must be byte-identical 
 
 const required = [
   'LICENSE', 'README.md', 'cordis.patch.yml', 'icon.svg', 'tool.js',
-  'package.json', 'docs/INSTALL.md', 'provider/index.js', 'provider/locale/en.json',
+  'package.json', 'docs/INSTALL.md', 'provider/index.js', 'provider/runs.js', 'provider/locale/en.json',
   ...['de', 'en', 'es', 'fr', 'ja', 'pt', 'ru', 'zh'].map(language => `locale/${language}.json`),
   ...['de', 'en', 'es', 'fr', 'ja', 'pt', 'ru', 'zh'].map(language => `docs/DETAIL.${language}.md`),
 ]
 for (const file of required) {
   assert.ok(existsSync(`${bundleRoot}/${file}`), `missing required file ${file}`)
 }
+assert.match(readFileSync(`${bundleRoot}/tool.js`, 'utf8'), /subagent_oar_agy_control/u, 'control tool must be registered by the tool entry')
 const raw = execFileSync('npm', ['pack', '--dry-run', '--json'], { cwd: bundleRoot, encoding: 'utf8' })
 const packed = Object.values(JSON.parse(raw))[0]
 assert.equal(packed.name, expectedName)
 assert.equal(packed.version, pkg.version)
-assert.equal(packed.entryCount, 71, `expected 71 packed files, got ${packed.entryCount}`)
-assert.ok(packed.unpackedSize <= 150_000, `unpacked size ${packed.unpackedSize} exceeds 150 kB`)
-assert.ok(packed.size <= 51_200, `packed size ${packed.size} exceeds 50 kB`)
+assert.equal(packed.entryCount, 75, `expected 75 packed files, got ${packed.entryCount}`)
+assert.ok(packed.unpackedSize <= 250_000, `unpacked size ${packed.unpackedSize} exceeds 250 kB`)
+assert.ok(packed.size <= 75_000, `packed size ${packed.size} exceeds 75 kB`)
 const paths = packed.files.map(file => file.path)
 assert.ok(paths.every(path => !path.startsWith('package/')), 'npm pack paths must not carry a package/ prefix')
 for (const file of required) assert.ok(paths.includes(file), `packed tarball missing ${file}`)

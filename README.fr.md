@@ -7,7 +7,7 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
 
 3. Activez « Sous-agent AGY » ; le modèle pourra appeler `subagent_oar_agy` dans une nouvelle session.
 4. Rechargez DSH lorsque cela est demandé (redémarrez si nécessaire), puis appelez `subagent_oar_agy` dans une nouvelle session.
@@ -26,6 +26,10 @@ Il délègue des tâches indépendantes à la CLI Antigravity locale (`agy`) : l
 - Coexiste avec le bundle OAR officiel : l’outil ici est `subagent_oar_agy`, l’officiel `subagent_oar`.
 - Nom affiché, description, documents de détail et messages d’exécution en 8 langues d’interface (de/en/es/fr/ja/pt/ru/zh).
 
+# Observabilité et contrôle
+
+La version 0.3.0 ajoute des chiens de garde de démarrage et d’inactivité (60 s / 15 min par défaut), l’outil `subagent_oar_agy_control` avec `status` et `cancel`, ainsi que des résumés d’activité bornés (50 exécutions, 20 activités, 200 caractères). Les chiens de garde ne peuvent pas être désactivés ; augmentez les fenêtres pour les tâches longues. Le statut n’expose jamais les prompts, les arguments d’outil, les réponses complètes ni le stderr brut.
+
 # Configuration
 
 Via le patch de profil (pas d’écran de réglages dédié) :
@@ -35,6 +39,9 @@ Via le patch de profil (pas d’écran de réglages dédié) :
   config:
     permissionMode: yolo   # yolo (par défaut) / plan / strict
     timeoutMs: 600000      # facultatif
+    startupTimeoutMs: 60000
+    stallTimeoutMs: 900000
+    controlToolName: subagent_oar_agy_control
     locale: auto           # auto ou de/en/es/fr/ja/pt/ru/zh
     command: agy           # facultatif : chemin absolu d’agy
 ```
@@ -60,6 +67,7 @@ cd packages/subagent-oar-agy-bundle && pnpm pack
 - `packages/subagent-oar-agy-provider/` : fournisseur du runtime AGY (sous-processus, flux d’événements, délai/annulation, messages i18n).
 - `packages/subagent-oar-agy-bundle/` : bundle DSH distribuable (manifeste, patch, métadonnées et détails en 8 langues, fournisseur intégré à la compilation).
 - `specs/001-subagent-oar-agy/` : spécification SDD, plan, tâches et validation.
+- `specs/003-agy-observability-control/` : spécification SDD, plan, tâches et validation des chiens de garde, du statut et de l’annulation.
 
 # Développement
 

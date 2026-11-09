@@ -5,13 +5,17 @@ import { t, type Locale } from '../i18n.js'
 /** 诊断文本上限（UTF-8 字节），与 DSH 接缝的 4096 字节限制一致。 */
 export const DIAGNOSTIC_MAX_BYTES = 4096
 
-/** 六类失败。 */
+/** 失败分类。 */
 export type FailureCategory =
   | 'not-installed'
   | 'not-authenticated'
+  | 'startup-timeout'
+  | 'stalled'
   | 'timeout'
   | 'spawn-failed'
   | 'protocol'
+  | 'permission'
+  | 'unknown'
   | 'cancelled'
 
 /** 带分类的失败，供提供方在发布前抛错或在发布后转诊断。 */
@@ -57,9 +61,13 @@ export function looksLikeAuthenticationFailure(text: string | undefined): boolea
 const DIAGNOSTIC_KEYS = {
   'not-installed': 'notInstalled',
   'not-authenticated': 'notAuthenticated',
+  'startup-timeout': 'startupTimeout',
+  'stalled': 'stallTimeout',
   'timeout': 'timeout',
   'spawn-failed': 'spawnFailed',
   'protocol': 'protocol',
+  'permission': 'permission',
+  'unknown': 'protocol',
   'cancelled': 'cancelled',
 } as const
 
@@ -68,6 +76,23 @@ export function failureDiagnostic(category: FailureCategory, detail?: string, lo
   const head = t(locale, DIAGNOSTIC_KEYS[category])
   const tail = detail === undefined || detail.length === 0 ? '' : ` ${t(locale, 'detailLabel')}: ${detail}`
   return truncateUtf8(`${head}${tail}`)
+}
+
+
+/** 本机日志脱敏：移除凭据形状、URL 凭据和常见绝对路径。 */
+export function redactSensitive(text: string): string {
+  return text
+    .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]+/giu, 'Bearer [redacted]')
+    .replace(/\bsk-[A-Za-z0-9_-]{6,}/gu, 'sk-[redacted]')
+    .replace(/\b(api[_-]?key|access[_-]?token|refresh[_-]?token|token|secret|password)\b\s*[:=]\s*["']?[^\s"']+/giu, '$1=[redacted]')
+    .replace(/https?:\/\/[^\s/@:]+:[^\s/@]+@/gu, 'https://[redacted]@')
+    .replace(/(?:\/Users\/|\/home\/|[A-Za-z]:\\)[^\s:'"\]}]+/gu, '[path]')
+}
+
+/** 供本机 logger 使用的受控 stderr 摘要。 */
+export function localStderrSummary(stderr: string): string | undefined {
+  const summary = summarizeStderr(stderr)
+  return summary === undefined ? undefined : truncateUtf8(redactSensitive(summary), 1200)
 }
 
 /** 运行时错误转文本（不泄漏堆栈以外的敏感内容）。 */

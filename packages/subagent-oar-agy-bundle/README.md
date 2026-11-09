@@ -2,6 +2,13 @@
 
 其他语言：[English](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.en.md) · [Deutsch](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.de.md) · [Español](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.es.md) · [Français](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.fr.md) · [日本語](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.ja.md) · [Português](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.pt.md) · [Русский](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/blob/main/README.ru.md)
 
+## 0.3.0 新增
+
+- 启动看门狗（默认 60 秒）与静默看门狗（默认 15 分钟）：AGY 卡住时以 `startup-timeout` / `stalled` 终止进程树并只通知一次。
+- 新控制工具 `subagent_oar_agy_control`：`status` 查询当前父会话的运行摘要，`cancel` 提交停止请求；工具名可用 `controlToolName` 改名。
+- 有界活动历史与状态快照：每个父会话最多 50 个运行、每个运行 20 条活动、`lastText` 最多 200 字符。
+- 安全边界：AGY 使用官方清洗后的环境变量启动；父会话诊断不含原始 stderr；本机日志脱敏。
+
 ## 安装
 
 1. 打开 DeepSeek Harness 的插件管理（设置 → 插件）。
@@ -11,7 +18,9 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
+
+版本说明与完整变更见 [GitHub Release v0.3.0](https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/tag/v0.3.0)。
 
 3. 启用「AGY 子智能体」，新会话即可让模型调用 `subagent_oar_agy`。
 4. 安装或升级后按提示重载（必要时重启）DSH，再在新会话调用 `subagent_oar_agy`。
@@ -78,9 +87,41 @@ permissionMode: plan
 | `effort` | 空 | 传给 `agy --effort` |
 | `permissionMode` | `yolo` | `yolo` / `plan` / `strict` |
 | `locale` | `auto` | 面向用户文案的语言；`auto` 跟随 DSH，或显式 `de` / `en` / `es` / `fr` / `ja` / `pt` / `ru` / `zh` |
-| `timeoutMs` | 不设 | 单次时限，从 agy `init` 起算；不配置时不设内部时限，委派只能由父会话取消或关闭终止 |
+| `startupTimeoutMs` | `60000` | 从 spawn 到收到 agy `init` 的启动等待窗口；到期会终止进程树并以可操作诊断失败 |
+| `stallTimeoutMs` | `900000` | `init` 后连续无协议事件的静默窗口；`stderr`、非法 JSON 和普通日志不会重置它 |
+| `timeoutMs` | 不设 | 单次绝对上限，从 agy `init` 起算；与静默窗口同 tick 到期时绝对上限优先 |
+| `activityLimit` | `20` | 每次委派保留的活动摘要条数，范围 1–20 |
+| `terminalRetentionMs` | `300000` | 终态记录保留时间，默认 5 分钟 |
+| `maxRecordsPerParent` | `50` | 每个父会话最多保留的记录数，范围 1–50 |
 | `killGraceMs` | `10000` | SIGTERM 后等待退出的宽限 |
-| `env` | `{}` | 子进程环境变量覆盖，`null` 表示删除 |
+| `controlToolName` | `subagent_oar_agy_control` | 控制工具名；属于工具行配置，官方委派工具仍用 `toolName` |
+| `env` | `{}` | 子进程环境变量覆盖，`null` 表示删除；显式值可重新提供被官方清洗移除的变量 |
+
+控制工具的调试日志走 DSH 插件日志（`ctx.logger.warn`，以 `subagent-agy <run-id>` 开头），只含脱敏摘要；不会把原始 stderr 写入父会话。
+
+
+## 状态查询与取消
+
+工具行在官方 `subagent_oar_agy` 之外注册一个控制工具 `subagent_oar_agy_control`（可用 `controlToolName` 改名）：
+
+```json
+{ "action": "status", "childId": "可选；省略时列出当前父会话的全部 AGY 运行" }
+{ "action": "cancel", "childId": "必填" }
+```
+
+`status` 只读，返回 `action`、`generatedAt`、`found` 与至多 50 个运行摘要；每个运行最多 20 条活动摘要，`lastText` 最多 200 字符，不返回完整 prompt、完整最终答复、工具参数或原始 stderr。`cancel` 只返回受理结果，实际停止与终态由 DSH 子代理服务和插件异步完成。
+
+## 可观察性与看门狗
+
+- **启动看门狗**：默认 60 秒；agy 未发出 `init` 就终止进程树，并给出 `startup-timeout` 诊断。
+- **静默看门狗**：默认 15 分钟；`init` 后没有新的协议事件（`init`、`step_update`、`result` 或生命周期边沿）就终止；持续 stderr 噪声不会掩盖卡死。
+- **绝对上限**：仍由 `timeoutMs` 控制；未配置时只依赖两个看门狗。
+- 所有路径只结算一次，并只向父会话投递一次终止通知；状态查询不会启动、恢复或继续任何委派。
+- 看门狗**没有关闭开关**。如果任务确实需要更久，调大 `startupTimeoutMs` / `stallTimeoutMs`，不要设为 0。
+
+## 安全边界
+
+AGY 子进程从官方 `scrubbedParentEnv()` 清洗后的环境启动：凭据形状变量（大小写不敏感）和 `DSH_*` 默认移除；`PATH`、`HOME`、语言与代理变量保留。只有用户在 `env` 中显式覆盖的变量才会重新提供给 agy。父会话诊断只含分类与可操作建议，原始 stderr 只写入本机脱敏日志。
 
 ## 官方工具包不可用时
 
@@ -119,4 +160,4 @@ command: /Users/your-name/.local/bin/agy
 
 ## 卸载与禁用
 
-在 DSH 插件管理中禁用或移除本组合包即可；禁用后工具与提供方一并消失，配置保留，重新启用后继续生效。
+在 DSH 插件管理中禁用或移除本组合包即可；禁用或卸载后工具、提供方与看门狗一并消失；插件清理阶段会停止计时器，并终止该提供方尚未结算的 AGY 运行及其进程树，不会留下无监控进程。配置保留，重新启用后继续生效。

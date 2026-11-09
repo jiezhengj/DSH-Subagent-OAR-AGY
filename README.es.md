@@ -7,7 +7,7 @@
 @jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.3.0/subagent-oar-agy-0.3.0.tgz`
 
 3. Activa «Subagente AGY» y el modelo podrá llamar a `subagent_oar_agy` en una sesión nueva.
 4. Recarga DSH cuando se te pida (reinicia si es necesario) y llama a `subagent_oar_agy` en una sesión nueva.
@@ -26,6 +26,10 @@ Delega tareas independientes a la CLI local de Antigravity (`agy`): el modelo ll
 - Convive con el bundle OAR oficial: la herramienta aquí es `subagent_oar_agy`, allí `subagent_oar`.
 - Nombre visible, descripción de la página, documentos de detalle y mensajes del runtime en 8 idiomas de la interfaz (de/en/es/fr/ja/pt/ru/zh).
 
+# Observabilidad y control
+
+La versión 0.3.0 añade vigilantes de inicio y de inactividad (60 s / 15 min por defecto), la herramienta `subagent_oar_agy_control` con `status` y `cancel`, y resúmenes de actividad acotados (50 ejecuciones, 20 actividades, 200 caracteres). Los vigilantes no se pueden desactivar; amplía las ventanas para tareas largas. El estado nunca expone prompts, argumentos de herramientas, respuestas completas ni stderr sin procesar.
+
 # Configuración
 
 Se ajusta en el patch del perfil (sin pantalla de ajustes propia):
@@ -35,6 +39,9 @@ Se ajusta en el patch del perfil (sin pantalla de ajustes propia):
   config:
     permissionMode: yolo   # yolo (predeterminado) / plan / strict
     timeoutMs: 600000      # opcional
+    startupTimeoutMs: 60000
+    stallTimeoutMs: 900000
+    controlToolName: subagent_oar_agy_control
     locale: auto           # auto o de/en/es/fr/ja/pt/ru/zh
     command: agy           # opcional: ruta absoluta de agy
 ```
@@ -60,6 +67,7 @@ cd packages/subagent-oar-agy-bundle && pnpm pack
 - `packages/subagent-oar-agy-provider/`: proveedor del runtime AGY (subproceso, flujo de eventos, timeout/cancelación, mensajes i18n).
 - `packages/subagent-oar-agy-bundle/`: bundle DSH distribuible (manifiesto, patch, metadatos y detalles en 8 idiomas, proveedor integrado al compilar).
 - `specs/001-subagent-oar-agy/`: especificación SDD, plan, tareas y validación.
+- `specs/003-agy-observability-control/`: especificación SDD, plan, tareas y validación de vigilantes, estado y cancelación.
 
 # Desarrollo
 

@@ -34,3 +34,9 @@ Le nom par défaut est `subagent_oar_agy`, sans collision avec `subagent_oar` du
 ## Avertissement
 
 Extension non officielle, sans lien avec DeepSeek ou Google. Utilisation à vos risques ; respectez les conditions d’Antigravity.
+
+## Status, watchdogs and cancellation
+
+The tool entry registers `subagent_oar_agy_control`: `status` returns a bounded snapshot of direct AGY runs (at most 50 runs, 20 activity entries each, `lastText` at most 200 characters); `cancel` only accepts a cancellation request and settles asynchronously. Defaults are a 60 s startup window, a 15 min stall window, `activityLimit=20`, `terminalRetentionMs=300000` and `maxRecordsPerParent=50`; stderr noise does not reset the stall timer. Every path settles once. There is no watchdog off switch; increase the windows instead.
+
+The child environment is the official scrubbed parent environment: credential-shaped names and `DSH_*` are removed unless explicitly supplied through `env`. Parent diagnostics never include raw stderr.

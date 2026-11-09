@@ -3,13 +3,15 @@ import {
   DIAGNOSTIC_MAX_BYTES,
   failureDiagnostic,
   looksLikeAuthenticationFailure,
+  localStderrSummary,
+  redactSensitive,
   summarizeStderr,
   truncateUtf8,
 } from '../src/agy/errors.js'
 
 describe('errors', () => {
-  it('produces distinct actionable messages for the six categories', () => {
-    const categories = ['not-installed', 'not-authenticated', 'timeout', 'spawn-failed', 'protocol', 'cancelled'] as const
+  it('produces distinct actionable messages for the failure categories', () => {
+    const categories = ['not-installed', 'not-authenticated', 'startup-timeout', 'stalled', 'timeout', 'spawn-failed', 'protocol', 'cancelled'] as const
     const messages = categories.map(category => failureDiagnostic(category))
     expect(new Set(messages).size).toBe(categories.length)
     for (const message of messages) expect(message.length).toBeGreaterThan(10)
@@ -34,6 +36,23 @@ describe('errors', () => {
   it('keeps diagnostics within the seam byte limit', () => {
     const diagnostic = failureDiagnostic('protocol', 'x'.repeat(8000))
     expect(Buffer.byteLength(diagnostic, 'utf8')).toBeLessThanOrEqual(DIAGNOSTIC_MAX_BYTES)
+  })
+
+  it('redacts credentials, URL credentials and absolute paths for local logs', () => {
+    const redacted = redactSensitive('Authorization: Bearer abc.def ghp_secret sk-live-123456 https://user:pass@example.com /Users/alice/secret token=abcdef')
+    expect(redacted).toContain('Bearer [redacted]')
+    expect(redacted).toContain('sk-[redacted]')
+    expect(redacted).toContain('https://[redacted]@example.com')
+    expect(redacted).toContain('[path]')
+    expect(redacted).toContain('token=[redacted]')
+    expect(redacted).not.toContain('sk-live-123456')
+  })
+
+  it('summarizes and redacts local stderr while keeping the parent detail empty', () => {
+    const summary = localStderrSummary('Bearer CANARY_DO_NOT_LEAK')
+    expect(summary).toContain('[redacted]')
+    expect(summary).not.toContain('CANARY_DO_NOT_LEAK')
+    expect(failureDiagnostic('protocol')).not.toContain('stderr')
   })
 
   it('summarizes the last stderr lines', () => {
