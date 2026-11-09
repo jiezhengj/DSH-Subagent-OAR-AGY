@@ -7,11 +7,16 @@
 @jiezhengj/subagent_oar_agy
 ```
 
-Fallback (tgz):`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
 
 3. Activa «Subagente AGY» y el modelo podrá llamar a `subagent_oar_agy` en una sesión nueva.
+4. Recarga DSH cuando se te pida (reinicia si es necesario) y llama a `subagent_oar_agy` en una sesión nueva.
 
 Requisitos: DSH 0.2.2-rc.1 o superior (menor que 0.3.0), con la CLI de Antigravity (`agy`) instalada y con sesión iniciada. El tarball incluye el código del runtime de este plugin; la herramienta OAR oficial se instala desde npm.
+
+# Migrar de una instalación tgz al nombre
+
+Un perfil instalado desde un tgz no puede buscar actualizaciones. Elimina la entrada antigua en la gestión de plugins (o ejecuta `dsh plugin remove @jiezhengj/subagent_oar_agy`) e instala con el nombre indicado arriba; la configuración del plugin normalmente se conserva; si se elimina con la entrada antigua, vuelve a introducir tus ajustes anteriores. La sección de versión mostrará la versión actual y «Actualizado», de modo que las próximas actualizaciones se hagan desde la app.
 
 # Qué hace este plugin
 

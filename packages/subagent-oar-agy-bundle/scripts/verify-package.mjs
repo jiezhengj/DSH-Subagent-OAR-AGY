@@ -32,12 +32,11 @@ for (const key of ['./agy-provider', './agy-provider/locale/*', './locale/*', '.
   assert.ok(pkg.exports?.[key], `missing exports entry ${key}`)
 }
 for (const dependency of Object.values(pkg.dependencies ?? {})) {
-  assert.ok(!/^(?:workspace:|file:|link:)/u.test(String(dependency)), `runtime dependency must not be ${dependency}`)
+  assert.ok(!/^(?:workspace:|file:|link:|npm:)/u.test(String(dependency)), `runtime dependency must not be ${dependency}`)
 }
 
-assert.ok(Array.isArray(pkg.files) && pkg.files.includes('LICENSE'), 'files must include LICENSE')
-assert.ok(pkg.files.includes('provider'), 'files must include provider')
-assert.ok(pkg.files.includes('docs'), 'files must include docs')
+const expectedFiles = ['LICENSE', 'cordis.patch.yml', 'icon.svg', 'README.md', 'docs', 'locale', 'provider', 'tool.js']
+assert.deepEqual(pkg.files, expectedFiles, 'files must be the exact publish whitelist')
 assert.equal(bundleLicense, rootLicense, 'bundle LICENSE must be byte-identical to root LICENSE')
 
 const required = [
@@ -59,10 +58,18 @@ assert.ok(packed.size <= 51_200, `packed size ${packed.size} exceeds 50 kB`)
 const paths = packed.files.map(file => file.path)
 assert.ok(paths.every(path => !path.startsWith('package/')), 'npm pack paths must not carry a package/ prefix')
 for (const file of required) assert.ok(paths.includes(file), `packed tarball missing ${file}`)
+
+const allowedDocs = new Set(['INSTALL.md', ...['de', 'en', 'es', 'fr', 'ja', 'pt', 'ru', 'zh'].map(language => `DETAIL.${language}.md`)])
 for (const path of paths) {
   assert.ok(!path.startsWith('scripts/'), 'scripts must not be packed')
   assert.ok(!path.startsWith('test/'), 'tests must not be packed')
+  assert.ok(!path.split('/').includes('src'), 'source directories must not be packed')
+  assert.ok(!/(^|\/)\.env(?:\.|$)/u.test(path), 'environment files must not be packed')
+  assert.ok(!/\.(?:log|tmp|temp)$/iu.test(path), 'logs and temporary files must not be packed')
   assert.ok(!path.endsWith('.tgz'), 'tarballs must not be packed')
+  assert.ok(!/(^|\/)(?:\.DS_Store|\.npmrc)$/u.test(path), 'editor/registry metadata must not be packed')
+  assert.ok(!/\.(?:ts|tsx|mts|cts)$/u.test(path) || /\.d\.(?:ts|mts|cts)$/u.test(path), `TypeScript source must not be packed: ${path}`)
+  if (path.startsWith('docs/')) assert.ok(allowedDocs.has(path.slice(5)), `unexpected docs file: ${path}`)
 }
 
 console.log(`verify-package: ${packed.entryCount} files, ${packed.size} B packed, ${packed.unpackedSize} B unpacked`)

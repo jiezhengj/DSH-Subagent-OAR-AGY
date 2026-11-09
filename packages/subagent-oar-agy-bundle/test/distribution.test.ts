@@ -42,8 +42,12 @@ describe('npm distribution manifest', () => {
       expect(pkg.exports?.[key]).toBeTruthy()
     }
     for (const dependency of Object.values(pkg.dependencies ?? {})) {
-      expect(dependency).not.toMatch(/^(?:workspace:|file:|link:)/u)
+      expect(dependency).not.toMatch(/^(?:workspace:|file:|link:|npm:)/u)
     }
+  })
+
+  it('publishes only the exact whitelist', () => {
+    expect(pkg.files).toEqual(['LICENSE', 'cordis.patch.yml', 'icon.svg', 'README.md', 'docs', 'locale', 'provider', 'tool.js'])
   })
 
   it('ships LICENSE and the complete install/runtime file set', () => {

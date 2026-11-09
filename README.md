@@ -14,7 +14,11 @@ Paste this into the DeepSeek Harness plugin manager install box (Settings → Pl
 
 Fallback tarball: `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
 
-Then enable "AGY Subagent". Requirements: DSH 0.2.2-rc.1 or later (below 0.3.0), and Antigravity CLI (`agy`) installed and signed in on this machine.
+Then enable "AGY Subagent" and reload DSH when prompted (restart if needed). Requirements: DSH 0.2.2-rc.1 or later (below 0.3.0), and Antigravity CLI (`agy`) installed and signed in on this machine.
+
+# Migrating from a tgz install
+
+A profile installed from a tgz cannot check for updates. Remove the old entry in Plugin Management (or run `dsh plugin remove @jiezhengj/subagent_oar_agy`), then install by the name above; the plugin configuration is retained. The version section should then show the current version and “Up to date”, so later upgrades can happen in the app.
 
 # Links
 
@@ -22,7 +26,8 @@ Then enable "AGY Subagent". Requirements: DSH 0.2.2-rc.1 or later (below 0.3.0),
 - [Bundle README (Chinese)](packages/subagent-oar-agy-bundle/README.md)
 - [Install and upgrade](packages/subagent-oar-agy-bundle/docs/INSTALL.md)
 - [Implementation notes (Chinese)](packages/subagent-oar-agy-bundle/docs/DETAIL.zh.md)
-- [Specification and validation record](specs/001-subagent-oar-agy/)
+- [Feature 001 specification](specs/001-subagent-oar-agy/)
+- [Feature 002 specification](specs/002-npm-distribution/spec.md) and [validation record](specs/002-npm-distribution/validation.md)
 
 # Disclaimer
 

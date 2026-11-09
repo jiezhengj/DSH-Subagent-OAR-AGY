@@ -207,3 +207,13 @@ Task: "新增 distribution.test.ts"
 - `provider/` 与 `dist/` 不入库，由 `prepublishOnly` 与构建链生成
 - 包目录与仓库根不保留任何 `*.tgz`；Release 资产使用 `/tmp` 中的 tarball
 - 若 npm 要求 OTP 而当时无法提供，发布任务保持未完成并在 validation 记录，不以 dry-run 代替真实发布
+
+
+## Phase 7: Convergence
+
+- [x] T035 在 11 份安装文档的安装步骤中明确写出「安装/升级后按提示重载或重启 DSH，再在新会话调用 `subagent_oar_agy`」，覆盖根 `README.md`、8 语言 README、组合包 `README.md` 与 `docs/INSTALL.md` per FR-006 / T007 (partial)
+- [x] T036 在 11 份安装文档中补充从 tgz 迁移到名称安装的步骤：先移除旧 tgz 条目，再填 `@jiezhengj/subagent_oar_agy` 安装，确认 profile 依赖变为注册表规格且配置保留 per FR-006 / T008 / data-model migrationNote (partial)
+- [x] T037 扩展 `packages/subagent-oar-agy-bundle/scripts/verify-package.mjs` 与 `test/distribution.test.ts`，拒绝 `.env`、日志、临时文件、TypeScript/source、`src/`、`test/` 及 `npm:` 依赖别名，并断言 `docs/` 中只含允许的安装与详情文档 per FR-007 / data-model 不变量 4 (partial)
+- [x] T038 在隔离 DSH UI 用未安装探测名与不存在名称验证安装框的 `installProblemNetwork`、`installProblemNotFound`，把界面文案与依赖未变化证据写入 `validation.md`；若宿主行为不在本仓库范围，明确记录边界例外 per US1/AC3 / T016 (partial)
+- [x] T039 为 US2 场景 3 的 `engines.dsh` 过滤补充可重复的隔离验收证据（`versionsBlocked` / `versionsBlockedDetail`），或明确记录宿主边界例外并更新 `validation.md` per US2/AC3 / T021 (partial)
+- [x] T040 更新根 `README.md` 的「Specification and validation record」链接，使 `specs/002-npm-distribution/`（或 `validation.md`）可被直接发现，同时保留 feature 001 入口 per T030 (partial)

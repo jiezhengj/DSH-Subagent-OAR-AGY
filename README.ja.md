@@ -7,11 +7,16 @@
 @jiezhengj/subagent_oar_agy
 ```
 
-Fallback (tgz):`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
 
 3. 「AGY サブエージェント」を有効化すると、新しいセッションでモデルが `subagent_oar_agy` を呼べます。
+4. 促されたら DSH を再読み込み（必要なら再起動）し、新しいセッションで `subagent_oar_agy` を呼び出します。
 
 要件：DSH 0.2.2-rc.1 以上（0.3.0 未満）、Antigravity CLI（`agy`）がローカルにインストール済みでログイン済みであること。tarball には本プラグインの実行時コードが含まれ、公式 OAR ツールは npm からインストールされます。
+
+# tgz から名前インストールへの移行
+
+tgz からインストールしたプロファイルは更新を確認できません。プラグイン管理で古いエントリを削除（または `dsh plugin remove @jiezhengj/subagent_oar_agy` を実行）し、上記の名前で再インストールしてください。プラグイン設定は通常保持されます。古いエントリと一緒に削除された場合は、以前の設定を再入力してください。バージョン欄に現在のバージョンと「最新」が表示され、以後はアプリ内で更新できます。
 
 # このプラグインの機能
 
