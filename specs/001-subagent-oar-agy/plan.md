@@ -14,7 +14,7 @@
 
 **Primary Dependencies**:
 - 组合包运行依赖（随 tarball 安装）：`@deepseek-ai/cordis`、`@deepseek-ai/dsh-brand`、`@deepseek-ai/dsh-llm`、`@deepseek-ai/dsh-subagent`（`SubagentProvider`、`NO_START_CAPABILITIES`、`subprocessRunHandle`、`settleRunResult`、`assertUsableCwd`）、`@deepseek-ai/dsh-timeout`（`MAX_TIMER_DELAY_MS`）、`@deepseek-ai/schemastery`，以及官方工具 `@deepseek-ai/dsh-experimental-tool-subagent-oar`（精确锁定 `0.2.2-rc.1`）
-- 仓库内提供方：`@jiezhengj/subagent_oar_agy-provider`（workspace，仅 devDependency；构建时 `scripts/vendor-provider.mjs` 把 `dist` 与 `locale` 复制为组合包 `provider/`）
+- 仓库内提供方：`@jiezhengj/subagent-oar-agy-provider`（workspace，仅 devDependency；构建时 `scripts/vendor-provider.mjs` 把 `dist` 与 `locale` 复制为组合包 `provider/`）
 - 组合包 `exports` 必须导出 `./agy-provider`、`./agy-provider/locale/*`、`./locale/*`、`./icon`、`./package.json`，供 patch 加载与 DSH 插件页元数据解析
 
 **Storage**: 无持久化存储；不写 AGY 凭据、不写会话数据
@@ -76,7 +76,7 @@ tsconfig.base.json
 README.md                        # 语言索引页（安装地址 + 8 语言链接）
 README.<lang>.md                 # de/en/es/fr/ja/pt/ru/zh 正文
 packages/
-├── subagent-oar-agy-provider/   # 提供方（发布名 @jiezhengj/subagent_oar_agy-provider，仅开发依赖）
+├── subagent-oar-agy-provider/   # 提供方（发布名 @jiezhengj/subagent-oar-agy-provider，仅开发依赖）
 │   ├── package.json             # type: module, exports dist, files: dist + locale
 │   ├── tsconfig.json
 │   ├── locale/<lang>.json       # 8 语言 meta.title/description
@@ -87,7 +87,7 @@ packages/
 │   │   ├── agy/                 # resolve/spawn/stream/protocol/errors/timer
 │   │   └── teardown.ts          # SIGTERM→宽限→SIGKILL（含 Windows）
 │   └── test/                    # 单元 + 假 agy 集成 + i18n
-└── subagent-oar-agy-bundle/     # 组合包（发布名 @jiezhengj/subagent_oar_agy）
+└── subagent-oar-agy-bundle/     # 组合包（发布名 @jiezhengj/subagent-oar-agy）
     ├── package.json             # dsh.bundle.patch、engines.dsh、exports、files
     ├── cordis.patch.yml         # 提供方（包内子路径）+ 工具包装行，toolName: subagent_oar_agy
     ├── tool.js                  # 工具包装：优先官方工具，包缺失时回退同形工具（FR-014）

@@ -56,7 +56,7 @@
 
 ## D8. 组合包结构与版本门禁
 
-- **Decision**（v0.2.2 修订）：组合包 `@jiezhengj/subagent_oar_agy` 的 `package.json` 声明 `dsh.bundle.patch: ./cordis.patch.yml`、`listedByDefault: false`、`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`；提供方只作 devDependency，构建时复制其 `dist` 与 `locale` 到 `provider/`，patch 用包内子路径引用；运行依赖为宿主包与官方工具（精确版本），发布物为自包含 tarball。
+- **Decision**（v0.2.2 修订）：组合包 `@jiezhengj/subagent-oar-agy` 的 `package.json` 声明 `dsh.bundle.patch: ./cordis.patch.yml`、`listedByDefault: false`、`engines.dsh: ">=0.2.2-rc.1 <0.3.0"`；提供方只作 devDependency，构建时复制其 `dist` 与 `locale` 到 `provider/`，patch 用包内子路径引用；运行依赖为宿主包与官方工具（精确版本），发布物为自包含 tarball。
 - **Rationale**：与官方 `ralph-bundle` 的打包方式一致；自包含使未上架 npm 的插件可由 DSH 安装框直接安装远端 tarball（FR-023）。
 - **Alternatives considered**：
   - 依赖单独的提供方 npm 包：需要先发布提供方，且用户安装失败面更大。
@@ -84,14 +84,14 @@
 
 ## D11. 自包含 tarball 与 GitHub Release 分发
 
-- **Decision**：组合包构建时把提供方 `dist` 与 `locale` 复制进 `provider/`，patch 引用 `@jiezhengj/subagent_oar_agy/agy-provider`；发布物为 GitHub Release 资产，README 给出安装框完整 URL。根 README 作为语言索引页，链接 8 个 `README.<lang>.md`。
+- **Decision**：组合包构建时把提供方 `dist` 与 `locale` 复制进 `provider/`，patch 引用 `@jiezhengj/subagent-oar-agy/agy-provider`；发布物为 GitHub Release 资产，README 给出安装框完整 URL。根 README 作为语言索引页，链接 8 个 `README.<lang>.md`。
 - **Rationale**：插件未上架 npm；DSH 插件管理把安装输入作为 pnpm spec，可直接拉取远端 tarball。自包含避免 workspace/file 依赖在用户机器上不可解析。
 - **Alternatives considered**：发布 npm 包（需要账号与版本管理，且用户明确先走 GitHub）；要求用户 clone 后本地 `dsh plugin add`（步骤多、违背 SC-004）。
 
 ## D12. exports 与插件页元数据资源
 
 - **Decision**：组合包 `exports` 显式导出 `./locale/*`、`./agy-provider/locale/*`、`./icon`、`./package.json`。`package.json` 一旦声明 `exports`，DSH 的 `readPluginMeta` 才能通过 Node 解析器读到 locale 元数据；否则标题回退为包名。
-- **Rationale**：v0.2.2 实测回归：自包含改造加 `exports` 后，插件页显示 `@jiezhengj/subagent_oar_agy`；`readPluginMeta` 对缺失资源返回 undefined。v0.2.3 补齐导出后，组合包与提供方子路径均解析出 8 语言标题/描述/图标。
+- **Rationale**：v0.2.2 实测回归：自包含改造加 `exports` 后，插件页显示 `@jiezhengj/subagent-oar-agy`；`readPluginMeta` 对缺失资源返回 undefined。v0.2.3 补齐导出后，组合包与提供方子路径均解析出 8 语言标题/描述/图标。
 - **Alternatives considered**：移除 `exports`（会破坏 `agy-provider` 子路径加载）；把 provider 作为独立包（增加分发复杂度）。
 
 ## D13. README 风格

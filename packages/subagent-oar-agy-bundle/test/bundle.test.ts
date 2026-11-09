@@ -3,8 +3,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { parse as parseYaml } from 'yaml'
-import { Config as ToolConfig } from '@jiezhengj/subagent_oar_agy/tool'
-import { Config as ProviderConfig } from '@jiezhengj/subagent_oar_agy/agy-provider'
+import { Config as ToolConfig } from '@jiezhengj/subagent-oar-agy/tool'
+import { Config as ProviderConfig } from '@jiezhengj/subagent-oar-agy/agy-provider'
 
 const bundleRoot = fileURLToPath(new URL('..', import.meta.url))
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
@@ -18,10 +18,10 @@ const patch = parseYaml(readFileSync(patchPath, 'utf8')) as Array<{ insert: Arra
 
 describe('bundle manifest', () => {
   it('declares the patch, engine range, and both dependencies', () => {
-    expect(pkg.name).toBe('@jiezhengj/subagent_oar_agy')
+    expect(pkg.name).toBe('@jiezhengj/subagent-oar-agy')
     expect(pkg.dsh.bundle.listedByDefault).toBe(false)
     expect(pkg.engines.dsh).toBe('>=0.2.2-rc.1 <0.3.0')
-    expect(pkg.devDependencies?.['@jiezhengj/subagent_oar_agy-provider']).toBeDefined()
+    expect(pkg.devDependencies?.['@jiezhengj/subagent-oar-agy-provider']).toBeDefined()
     expect(pkg.dependencies['@deepseek-ai/dsh-experimental-tool-subagent-oar']).toBe('0.2.2-rc.1')
     expect(pkg.dependencies['@deepseek-ai/dsh-tools']).toBe('0.2.2-rc.1')
   })
@@ -36,7 +36,7 @@ describe('bundle manifest', () => {
     const entries = patch?.flatMap(entry => entry.insert) ?? []
     expect(entries.map(entry => entry.id)).toEqual(['subagent-agy', 'tool-subagent-oar-agy'])
     const provider = entries.find(entry => entry.id === 'subagent-agy')
-    expect(provider?.name).toBe('@jiezhengj/subagent_oar_agy/agy-provider')
+    expect(provider?.name).toBe('@jiezhengj/subagent-oar-agy/agy-provider')
     const parsed = ProviderConfig(provider?.config ?? {}) as { providerName: string; command: string; permissionMode: string }
     expect(parsed.providerName).toBe('agy')
     expect(parsed.permissionMode).toBe('yolo')
@@ -46,7 +46,7 @@ describe('bundle manifest', () => {
   it('wires the tool entry to the agy provider with a conflict-free default name', () => {
     const entries = patch?.flatMap(entry => entry.insert) ?? []
     const tool = entries.find(entry => entry.id === 'tool-subagent-oar-agy')
-    expect(tool?.name).toBe('@jiezhengj/subagent_oar_agy/tool')
+    expect(tool?.name).toBe('@jiezhengj/subagent-oar-agy/tool')
     const parsed = ToolConfig(tool?.config ?? {}) as { providers: Record<string, string>; toolName: string }
     expect(parsed.providers).toEqual({ agy: 'agy' })
     expect(parsed.toolName).toBe('subagent_oar_agy')
@@ -59,13 +59,13 @@ describe('bundle manifest', () => {
   })
 
   it('exports the locale, icon and manifest resources DSH reads for the plugin page', () => {
-    const zhUrl = import.meta.resolve('@jiezhengj/subagent_oar_agy/locale/zh.json')
+    const zhUrl = import.meta.resolve('@jiezhengj/subagent-oar-agy/locale/zh.json')
     const meta = JSON.parse(readFileSync(new URL(zhUrl), 'utf8')).meta as { title: string }
     expect(meta.title).toBe('AGY 子智能体')
-    expect(import.meta.resolve('@jiezhengj/subagent_oar_agy/package.json')).toMatch(/package\.json$/u)
-    expect(import.meta.resolve('@jiezhengj/subagent_oar_agy/icon')).toMatch(/icon\.svg$/u)
-    expect(import.meta.resolve('@jiezhengj/subagent_oar_agy/tool')).toMatch(/tool\.js$/u)
-    const providerLocale = JSON.parse(readFileSync(new URL(import.meta.resolve('@jiezhengj/subagent_oar_agy/agy-provider/locale/en.json')), 'utf8'))
+    expect(import.meta.resolve('@jiezhengj/subagent-oar-agy/package.json')).toMatch(/package\.json$/u)
+    expect(import.meta.resolve('@jiezhengj/subagent-oar-agy/icon')).toMatch(/icon\.svg$/u)
+    expect(import.meta.resolve('@jiezhengj/subagent-oar-agy/tool')).toMatch(/tool\.js$/u)
+    const providerLocale = JSON.parse(readFileSync(new URL(import.meta.resolve('@jiezhengj/subagent-oar-agy/agy-provider/locale/en.json')), 'utf8'))
     expect(providerLocale.meta.title).toBe('AGY subagent runtime')
   })
 

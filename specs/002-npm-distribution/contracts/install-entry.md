@@ -2,11 +2,11 @@
 
 ## 主路径：注册表名称
 
-- 输入：`@jiezhengj/subagent_oar_agy`（不是只填 `subagent_oar_agy`：作用域名是既有包名，零重命名）
+- 输入：`@jiezhengj/subagent-oar-agy`（不是只填 `subagent_oar_agy`：作用域名是既有包名，零重命名）
 - 安装器行为：按注册表规格解析 → 通过 profile 的 pnpm 加入依赖 → profile 依赖保存为注册表规格（名称 + semver range），不是 URL/link/alias
 - 安装后：需重启 DSH；启动日志不得出现未激活告警；`subagent_oar_agy` 工具可用，插件页显示「AGY 子智能体」
 - 版本区：显示当前版本与「已是最新版本」；存在兼容新版本时显示「可更新到 x.y.z」，不兼容版本被拒绝并提示需更新 DSH
-- 版本查询：`npm view @jiezhengj/subagent_oar_agy version` 返回已发布版本
+- 版本查询：`npm view @jiezhengj/subagent-oar-agy version` 返回已发布版本
 
 ## 备选路径：tgz 地址
 

@@ -6,7 +6,7 @@
 
 **Status**: Completed
 
-**Input**: User description: "发布到 npm，让 DSH 安装框只填 @jiezhengj/subagent_oar_agy 短名称即可安装，并显示版本与更新；同时保留 GitHub Release tarball 备选，保证 npm 与 Release 同版本同内容。"
+**Input**: User description: "发布到 npm，让 DSH 安装框只填 @jiezhengj/subagent-oar-agy 短名称即可安装，并显示版本与更新；同时保留 GitHub Release tarball 备选，保证 npm 与 Release 同版本同内容。"
 
 ## 背景
 
@@ -16,7 +16,7 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 
 ### User Story 1 - 用一个短名称装好插件 (Priority: P1)
 
-使用者打开 DSH 插件管理页，在安装框输入 `@jiezhengj/subagent_oar_agy`（而不是一长串下载地址），确认后插件被装上；重启 DSH 后，`subagent_oar_agy` 工具与「AGY 子智能体」插件页出现，全程不用开终端。
+使用者打开 DSH 插件管理页，在安装框输入 `@jiezhengj/subagent-oar-agy`（而不是一长串下载地址），确认后插件被装上；重启 DSH 后，`subagent_oar_agy` 工具与「AGY 子智能体」插件页出现，全程不用开终端。
 
 **Why this priority**: 这是本 feature 的核心价值。现有 tgz 地址 101 字符，需要从 README 复制、容易贴错，且安装后没有版本信息；短名称把「找到并复制地址」这一步去掉。
 
@@ -24,7 +24,7 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 
 **Acceptance Scenarios**:
 
-1. **Given** 插件管理页的安装框，**When** 输入 `@jiezhengj/subagent_oar_agy` 并确认，**Then** 安装成功，管理器显示已安装版本号
+1. **Given** 插件管理页的安装框，**When** 输入 `@jiezhengj/subagent-oar-agy` 并确认，**Then** 安装成功，管理器显示已安装版本号
 2. **Given** 已按名称安装，**When** 重启 DSH，**Then** `subagent_oar_agy` 工具可用、插件页显示「AGY 子智能体」，启动日志无未激活告警
 3. **Given** 注册表不可达（企业网络/代理），**When** 安装，**Then** 安装框给出宿主的网络连接失败提示（文案随界面语言），而不是静默失败或装上空包；版本区给出同类网络失败提示
 
@@ -64,7 +64,7 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 
 ### 边界情况
 
-- 分发名称已被他人占用：作用域 `@jiezhengj` 由发布者持有，沿用现有包名 `@jiezhengj/subagent_oar_agy`，零重命名；若作用域权限丢失则暂停发布
+- 分发名称已被他人占用：作用域 `@jiezhengj` 由发布者持有，沿用现有包名 `@jiezhengj/subagent-oar-agy`，零重命名；若作用域权限丢失则暂停发布
 - 用户网络无法访问公共注册表：安装必须给明确错误提示（具体宿主键见安装入口契约），并保留 tgz 地址作为备选
 - 发布只完成一半（npm 成功、Release 失败，或反之）：文档与读者会看到版本不一致，需要可重复的补齐流程且不覆盖已发布版本
 - 已有同版本 Release（`v0.2.5` 已于 2026-11-08 发布且资产可下载）：本次必须在**新版本**上首次发布 npm 包，`v0.2.5` 的 tag 与 Release 保持原样，不通过覆盖资产来「对齐」
@@ -80,7 +80,7 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 ### 功能需求
 
 - **FR-001**: 组合包 MUST 以一个公开的分发名称发布到公共注册表，使 DSH 安装框只填该名称即可完成安装，无需下载地址
-- **FR-002**: 分发名称 MUST 为 `@jiezhengj/subagent_oar_agy`（2026-11-08 决定）：沿用现有包名，零重命名；该名称在 npm 上尚未被占用，作用域由发布者持有。名称长度为 27 个字符，是短名称路径可接受的上限内
+- **FR-002**: 分发名称 MUST 为 `@jiezhengj/subagent-oar-agy`（2026-11-09 决定）：由原下划线形式改为连字符形式；该名称在 npm 上尚未被占用，作用域由发布者持有。名称长度为 27 个字符，是短名称路径可接受的上限内
 - **FR-003**: 发布内容 MUST 包含运行所需的全部产物：构建后的 `provider/`、工具包装 `tool.js`、`cordis.patch.yml`、8 语言 `locale/` 与 `docs/DETAIL.*.md`、`icon.svg`、`README.md`、`LICENSE`；安装后不需要二次构建，也不依赖 workspace 路径
 - **FR-004**: 包 MUST 声明与 DSH 的兼容范围（`engines.dsh`）以及 DSH 组合包元数据（`dsh.bundle.patch`），使检查更新时能按当前 DSH 版本拒绝不兼容版本
 - **FR-005**: 发布产物 MUST 与 GitHub Release 的 tgz 同源同版本；两者内容清单一致，且任一渠道都能单独完成安装。已发布过的版本 MUST NOT 通过覆盖 Release 资产来对齐内容（首发使用新版本号，见决策记录）
@@ -139,9 +139,10 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 
 ## 决策记录
 
-- **2026-11-08 分发名称**：采用 `@jiezhengj/subagent_oar_agy`。沿用 feature 001 已定的包名，零重命名；作用域由发布者持有，短名称长度为 27 个字符。
+- **2026-11-08 分发名称**：最初采用下划线形式；**2026-11-09 更正**为 `@jiezhengj/subagent-oar-agy`（连字符形式），作用域由发布者持有，短名称长度为 27 个字符。
 - **2026-11-08 发布方式**：本机手动发布，不引入发布流水线；发布令牌只留在发布者本机的注册表认证状态里，OTP 当场输入。
 - **2026-11-08 首发版本 0.2.6**：`v0.2.5` 的 Release 与 tag 已存在且不可覆盖，本次 npm 首发取 `0.2.6`，同轮创建 `v0.2.6` Release 并附 `subagent_oar_agy-0.2.6.tgz`；`v0.2.5` 保持原样，作为历史版本继续可装。
 - **2026-11-09 更新验证版本 0.2.7**：为在真实 DSH 中验证「发现更新 → 应用内升级」，发布与 `0.2.6` 内容等价的 `0.2.7`，并创建同版本 Release；首发记录仍为 `0.2.6`，交付与验证记录见 `validation.md`。
+- **2026-11-09 包名更正与 0.2.8**：将分发名称由下划线形式改为 `@jiezhengj/subagent-oar-agy`；新名称首发 `0.2.8`，创建 `v0.2.8` Release，旧名的 0.2.6/0.2.7 产物保留。
 - **2026-11-08 发布位置**：在 `packages/subagent-oar-agy-bundle/` 目录用系统 npm 执行 `npm publish --access public`；仓库保持 pnpm workspace，不新增 npm workspaces 配置，避免污染现有 pnpm 锁文件与 profile 安装流程。
 - **2026-11-08 文档主路径**：根 README（英文索引）、8 语言 README、组合包 README、`docs/INSTALL.md` 的安装框改为填名称；tgz 地址保留为备选；`README.zh.md` 等语言全文不再以 tgz 为主路径。

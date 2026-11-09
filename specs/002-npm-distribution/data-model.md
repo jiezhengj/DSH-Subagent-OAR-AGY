@@ -10,8 +10,8 @@
 
 | 字段 | 含义 | 约束 |
 |---|---|---|
-| `name` | 分发名称 | 固定 `@jiezhengj/subagent_oar_agy`；27 字符；作用域属于发布者 |
-| `version` | 本次发布版本 | 合法 semver；首发 `0.2.6`；不得与已发布版本重复 |
+| `name` | 分发名称 | 固定 `@jiezhengj/subagent-oar-agy`；27 字符；作用域属于发布者 |
+| `version` | 本次发布版本 | 合法 semver；新名称首发 `0.2.8`（旧名 0.2.6/0.2.7 为历史）；不得与已发布版本重复 |
 | `publishConfig.access` | 注册表访问级别 | 必须为 `public` |
 | `license` | 许可证标识 | `MIT` |
 | `keywords` | 注册表检索词 | 必须包含 `dsh-plugin` |
@@ -28,7 +28,7 @@
 
 | 字段 | 含义 | 约束 |
 |---|---|---|
-| `filename` | 本地文件名 | `jiezhengj-subagent_oar_agy-<version>.tgz`（npm 自动命名） |
+| `filename` | 本地文件名 | `jiezhengj-subagent-oar-agy-<version>.tgz`（npm 自动命名） |
 | `fileCount` | 包内文件数 | 当前约 71；只允许白名单内容 |
 | `size` | tarball 字节数 | ≤50 kB（当前 45.9 kB） |
 | `sha256` | 内容摘要 | Release 资产、注册表 tarball 与本地文件一致 |
@@ -40,8 +40,8 @@ GitHub Release 上的 tgz，作为备选安装渠道与 npm 的镜像。
 
 | 字段 | 含义 | 约束 |
 |---|---|---|
-| `tag` | 版本标签 | `v<version>`；本次 `v0.2.6` |
-| `assetName` | 资产名 | `subagent_oar_agy-<version>.tgz` |
+| `tag` | 版本标签 | `v<version>`；当前 `v0.2.8` |
+| `assetName` | 资产名 | `subagent-oar-agy-<version>.tgz` |
 | `sha256` | 资产摘要 | 与 `PublishArtifact.sha256` 相同 |
 | `version` | 资产内版本 | 与 tag、文档、注册表一致 |
 
@@ -73,7 +73,7 @@ npm 上的不可变版本记录。
 | 字段 | 含义 | 约束 |
 |---|---|---|
 | `path` | 文档路径 | 11 份文件全部覆盖 |
-| `mainEntry` | 主路径 | 填 `@jiezhengj/subagent_oar_agy` |
+| `mainEntry` | 主路径 | 填 `@jiezhengj/subagent-oar-agy` |
 | `fallbackUrl` | 备选地址 | 指向当前版本的 Release tgz，版本随 `version` 更新 |
 | `migrationNote` | 迁移说明 | 从 tgz 升级需先移除旧条目，再按名称安装 |
 

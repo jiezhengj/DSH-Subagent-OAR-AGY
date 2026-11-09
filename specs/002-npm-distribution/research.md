@@ -5,7 +5,7 @@
 ## D1 注册表与访问级别
 
 - **Decision**: 发布到公共 npm 注册表（`https://registry.npmjs.org/`），作用域包显式声明 `publishConfig.access = "public"`。
-- **Rationale**: DSH 插件管理的安装框把裸名称当注册表规格（`parseInstallSpec` 返回 `kind: "registry"`），安装计划只问「已配置的注册表」；使用者必须能匿名读取，作用域包默认 restricted，不声明 public 会被注册表拒绝。实际核对：`npm whoami` = `jiezhengj`；`npm view @jiezhengj/subagent_oar_agy` 返回 E404（尚未发布、名称可用）。
+- **Rationale**: DSH 插件管理的安装框把裸名称当注册表规格（`parseInstallSpec` 返回 `kind: "registry"`），安装计划只问「已配置的注册表」；使用者必须能匿名读取，作用域包默认 restricted，不声明 public 会被注册表拒绝。实际核对：`npm whoami` = `jiezhengj`；`npm view @jiezhengj/subagent-oar-agy` 返回 E404（尚未发布、名称可用）。
 - **Alternatives considered**: GitHub Packages（需要读者带令牌，安装框无法匿名安装，否决）；只做 tgz 短链（仍是 URL、拿不到版本面板，否决）。
 
 ## D2 发布方式与 2FA
@@ -28,13 +28,13 @@
 
 ## D5 文档主路径
 
-- **Decision**: 根 `README.md`（英文索引）+ 8 个语言 README + 组合包 `README.md` + `docs/INSTALL.md` 的安装框统一改为填 `@jiezhengj/subagent_oar_agy`；tgz 地址保留为「无法访问注册表时」的备选，并补充从 tgz 迁移到名称安装的步骤。
+- **Decision**: 根 `README.md`（英文索引）+ 8 个语言 README + 组合包 `README.md` + `docs/INSTALL.md` 的安装框统一改为填 `@jiezhengj/subagent-oar-agy`；tgz 地址保留为「无法访问注册表时」的备选，并补充从 tgz 迁移到名称安装的步骤。
 - **Rationale**: 11 份文档是使用者实际会打开的安装入口；只改根索引会让语言版本继续把 tgz 当主路径。当前 8 个语言 README 与组合包 README 都含 v0.2.5 的 tgz 地址，需要同步到 v0.2.6，并删除「本包未上架 npm」的旧表述。
 - **Alternatives considered**: 只改根 README（漏语言版本，否决）；删除 tgz 说明（受限网络用户装不了，否决）。
 
 ## D6 更新资格与版本面板
 
-- **Decision**: 用「隔离 HOME + 副本 profile + 按名称安装」验证依赖形态为注册表规格，再用宿主代码核对更新资格；真实桌面版本区只读核对，不修改桌面 profile。模拟「有更新」时只改隔离副本 `node_modules/@jiezhengj/subagent_oar_agy/package.json` 的 `version` 为 `0.2.5`，不改依赖规格、不触发安装，避免把依赖指向不存在的版本。
+- **Decision**: 用「隔离 HOME + 副本 profile + 按名称安装」验证依赖形态为注册表规格，再用宿主代码核对更新资格；真实桌面版本区只读核对，不修改桌面 profile。模拟「有更新」时只改隔离副本 `node_modules/@jiezhengj/subagent-oar-agy/package.json` 的 `version` 为 `0.2.5`，不改依赖规格、不触发安装，避免把依赖指向不存在的版本。
 - **Rationale**: `dsh-plugin-manager` 的 `updateRefusal()` 要求 `bundle.source` 解析为 `kind === "registry"`、解析出的包名与 `bundle.name` 相同、且 range 不含协议前缀；tgz 来源会被判为不可更新。按名称安装后 profile 依赖为注册表规格，更新面板才会显示当前版本与「已是最新」。版本区读取 `node_modules` 里的已装版本，因此模拟旧版本必须改已装包的 `version`，改 profile 依赖不会改变界面。
 - **Alternatives considered**: 在真实桌面 profile 上反复安装（CLI 拒绝修改且污染用户环境，否决）。
 
@@ -46,13 +46,13 @@
 
 ## D8 包内 LICENSE 与名称合法性
 
-- **Decision**: 新增 `packages/subagent-oar-agy-bundle/LICENSE`（与仓库根同文的 MIT 副本），由校验脚本逐字比对；包名继续用带下划线的 `@jiezhengj/subagent_oar_agy`。
+- **Decision**: 新增 `packages/subagent-oar-agy-bundle/LICENSE`（与仓库根同文的 MIT 副本），由校验脚本逐字比对；包名继续用带下划线的 `@jiezhengj/subagent-oar-agy`。
 - **Rationale**: 实测 `npm publish --dry-run` 的清单没有 `LICENSE`，`pnpm pack` 却因工作区根许可证而包含它，两条打包路径不一致；包内副本能保证 npm 与 Release 都带许可证。名称合法性用 npm 自带 `validate-npm-package-name` 核对为 `validForNewPackages: true`；DSH 的安装规格正则也允许下划线（`[a-z0-9._~-]`）。把 tarball 装进临时 npm 项目实测成功（32 个依赖），说明包内 `devDependencies` 的 `workspace:*` 不会阻碍消费者安装。
 - **Alternatives considered**: 只在 `prepublishOnly` 临时复制根 LICENSE（会在包目录留下生成文件，且手工 `npm pack` 不含，否决）；改名去掉下划线（零收益且破坏既有包名/文档，否决）。
 
 ## D9 发布后校验命令
 
-- **Decision**: 发布后用 `npm view @jiezhengj/subagent_oar_agy@0.2.6 version dist.tarball dist.integrity dist.shasum`、`npm pack @jiezhengj/subagent_oar_agy@0.2.6 --dry-run --json` 与 Release 资产 SHA-256 核对；下载 Release 资产用 `gh release download` 后与本地文件比对。文档版本用 `V=$(node -p "require('./packages/subagent-oar-agy-bundle/package.json').version")` 生成，不写死。
+- **Decision**: 发布后用 `npm view @jiezhengj/subagent-oar-agy@0.2.6 version dist.tarball dist.integrity dist.shasum`、`npm pack @jiezhengj/subagent-oar-agy@0.2.6 --dry-run --json` 与 Release 资产 SHA-256 核对；下载 Release 资产用 `gh release download` 后与本地文件比对。文档版本用 `V=$(node -p "require('./packages/subagent-oar-agy-bundle/package.json').version")` 生成，不写死。
 - **Rationale**: 注册表 tarball 与 Release 资产必须字节一致；`dist.shasum`（SHA-1）与本地 `shasum -a 1`、`dist.integrity` 与本地 tarball 能发现漂移。`npm pack --dry-run --json` 在 npm 12 输出**以包名为键的对象**，文件路径不带 `package/` 前缀；`tar -tzf` 才显示 `package/`。
 - **Alternatives considered**: 只比对版本号（不能发现内容漂移，否决）。
 
@@ -61,7 +61,7 @@
 | 项 | 结果 |
 |---|---|
 | `npm whoami` | `jiezhengj` |
-| `npm view @jiezhengj/subagent_oar_agy` | E404（可用） |
+| `npm view @jiezhengj/subagent-oar-agy` | E404（可用） |
 | 包名合法性 | npm 校验器 `validForNewPackages: true`；长度 27 |
 | 现有 tag/Release | `v0.2.5` 已存在，资产 `subagent_oar_agy-0.2.5.tgz` |
 | 当前 `npm publish --dry-run` | 70 文件、45.9 kB、public access；缺 `LICENSE`；JSON 以包名为键、路径无 `package/` 前缀 |

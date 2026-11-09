@@ -7,17 +7,17 @@
 
 ## 安装
 
-1. 在 DSH 插件管理中安装组合包，安装输入框填包名：`@jiezhengj/subagent_oar_agy`（主路径，支持后续检查更新）。
-   - tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+1. 在 DSH 插件管理中安装组合包，安装输入框填包名：`@jiezhengj/subagent-oar-agy`（主路径，支持后续检查更新）。
+   - tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
    - 或本地 tarball：`dsh plugin add /path/to/subagent_oar_agy-<version>.tgz`
-2. 在插件列表启用「AGY 子智能体」（包名 `@jiezhengj/subagent_oar_agy`），按提示重载（必要时重启 DSH）；模型工具列表出现 `subagent_oar_agy`。
+2. 在插件列表启用「AGY 子智能体」（包名 `@jiezhengj/subagent-oar-agy`），按提示重载（必要时重启 DSH）；模型工具列表出现 `subagent_oar_agy`。
 3. 安装或升级完成后，在新会话调用 `subagent_oar_agy` 验证工具可用。
 
 安装后默认 `permissionMode: yolo`，如不希望自动执行，先改成 `plan` 或 `strict` 再启用（见 README）。
 
 ## 从 tgz 迁移到名称安装
 
-已通过 tgz 安装的 profile 不能直接检查更新。先在插件管理移除旧条目（或执行 `dsh plugin remove @jiezhengj/subagent_oar_agy`），再按上面的名称重新安装；插件配置通常会保留；若配置随旧条目被移除，重新填写原来的设置即可。装好后版本区应显示当前版本与「已是最新版本」，后续可在应用内检查更新。
+已通过 tgz 安装的 profile 不能直接检查更新。先在插件管理移除旧条目（或执行 `dsh plugin remove @jiezhengj/subagent-oar-agy`），再按上面的名称重新安装；插件配置通常会保留；若配置随旧条目被移除，重新填写原来的设置即可。装好后版本区应显示当前版本与「已是最新版本」，后续可在应用内检查更新。
 
 ## 升级
 
@@ -33,4 +33,4 @@
 
 ## 卸载
 
-`dsh plugin remove @jiezhengj/subagent_oar_agy`（或在插件管理中移除）。卸载不会修改 agy 的安装、登录状态或配置。
+`dsh plugin remove @jiezhengj/subagent-oar-agy`（或在插件管理中移除）。卸载不会修改 agy 的安装、登录状态或配置。

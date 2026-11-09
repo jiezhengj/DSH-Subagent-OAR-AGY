@@ -35,8 +35,8 @@
 
 | 项 | 命令/证据 | 通过条件 |
 |---|---|---|
-| 注册表版本 | `npm view @jiezhengj/subagent_oar_agy@$V version` | 输出 `$V` |
-| 注册表 tarball | `npm view @jiezhengj/subagent_oar_agy@$V dist.tarball dist.integrity dist.shasum` | 有 URL、integrity 与 SHA-1 |
+| 注册表版本 | `npm view @jiezhengj/subagent-oar-agy@$V version` | 输出 `$V` |
+| 注册表 tarball | `npm view @jiezhengj/subagent-oar-agy@$V dist.tarball dist.integrity dist.shasum` | 有 URL、integrity 与 SHA-1 |
 | Release 版本 | `gh release view v$V --json tagName,assets` | tag `v$V`，资产 `subagent_oar_agy-$V.tgz` |
 | 字节一致 | `gh release download v$V -p subagent_oar_agy-$V.tgz -D /tmp/rel`，再 `shasum -a 256` 本地与 Release 资产 | 两个 SHA-256 相同；本地 SHA-1 等于 `dist.shasum` |
 | 文件清单 | `npm pack --dry-run --json` 本地 vs 注册表 tarball | 文件集合一致 |

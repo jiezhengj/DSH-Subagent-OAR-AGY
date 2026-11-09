@@ -8,19 +8,19 @@
 2. 在安装输入框粘贴这一行并安装：
 
 ```
-@jiezhengj/subagent_oar_agy
+@jiezhengj/subagent-oar-agy
 ```
 
-tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+tgz 备选：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
 
 3. 启用「AGY 子智能体」，新会话即可让模型调用 `subagent_oar_agy`。
 4. 安装或升级后按提示重载（必要时重启）DSH，再在新会话调用 `subagent_oar_agy`。
 
-前置条件：DSH 0.2.2-rc.1 及以上（低于 0.3.0）、本机已安装并登录 Antigravity CLI（`agy`）。本包自带运行时代码，官方 OAR 工具会从 npm 安装。也可以手动执行 `dsh plugin add @jiezhengj/subagent_oar_agy`。
+前置条件：DSH 0.2.2-rc.1 及以上（低于 0.3.0）、本机已安装并登录 Antigravity CLI（`agy`）。本包自带运行时代码，官方 OAR 工具会从 npm 安装。也可以手动执行 `dsh plugin add @jiezhengj/subagent-oar-agy`。
 
 ## 从 tgz 迁移到名称安装
 
-已通过 tgz 安装的 profile 不能直接检查更新。先在插件管理移除旧条目（或执行 `dsh plugin remove @jiezhengj/subagent_oar_agy`），再按上面的名称重新安装；插件配置通常会保留；若配置随旧条目被移除，重新填写原来的设置即可。装好后版本区应显示当前版本与「已是最新版本」，后续可在应用内检查更新。
+已通过 tgz 安装的 profile 不能直接检查更新。先在插件管理移除旧条目（或执行 `dsh plugin remove @jiezhengj/subagent-oar-agy`），再按上面的名称重新安装；插件配置通常会保留；若配置随旧条目被移除，重新填写原来的设置即可。装好后版本区应显示当前版本与「已是最新版本」，后续可在应用内检查更新。
 
 ## 显示名与界面语言
 
@@ -66,7 +66,7 @@ permissionMode: plan
 
 ## 安装
 
-见 [docs/INSTALL.md](./docs/INSTALL.md)。最短路径是在 DSH 插件管理页的安装框填 `@jiezhengj/subagent_oar_agy`，或执行 `dsh plugin add @jiezhengj/subagent_oar_agy`；tgz 仅作备选。
+见 [docs/INSTALL.md](./docs/INSTALL.md)。最短路径是在 DSH 插件管理页的安装框填 `@jiezhengj/subagent-oar-agy`，或执行 `dsh plugin add @jiezhengj/subagent-oar-agy`；tgz 仅作备选。
 
 ## 配置项
 

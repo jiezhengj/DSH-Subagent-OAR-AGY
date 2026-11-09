@@ -1,12 +1,12 @@
 # 契约：组合包与 patch
 
-组合包 `@jiezhengj/subagent_oar_agy` 是唯一用户安装入口；提供方 `@jiezhengj/subagent_oar_agy-provider` 只作开发依赖，构建时把其 `dist` 复制为组合包内的 `provider/`，使 tarball 自包含、可直接从 GitHub Release 安装。
+组合包 `@jiezhengj/subagent-oar-agy` 是唯一用户安装入口；提供方 `@jiezhengj/subagent-oar-agy-provider` 只作开发依赖，构建时把其 `dist` 复制为组合包内的 `provider/`，使 tarball 自包含、可直接从 GitHub Release 安装。
 
 ## package.json 关键字段
 
 ```jsonc
 {
-  "name": "@jiezhengj/subagent_oar_agy",
+  "name": "@jiezhengj/subagent-oar-agy",
   "version": "0.2.5",
   "type": "module",
   "description": "Delegate independent tasks to the local Antigravity CLI (agy) from DSH; ...",
@@ -30,7 +30,7 @@
     "@deepseek-ai/dsh-tools": "0.2.2-rc.1",
     "@deepseek-ai/dsh-experimental-tool-subagent-oar": "0.2.2-rc.1"
   },
-  "devDependencies": { "@jiezhengj/subagent_oar_agy-provider": "workspace:*" },
+  "devDependencies": { "@jiezhengj/subagent-oar-agy-provider": "workspace:*" },
   "files": ["cordis.patch.yml", "icon.svg", "README.md", "docs", "locale", "provider", "tool.js"]
 }
 ```
@@ -40,13 +40,13 @@
 ```yaml
 - insert:
     - id: subagent-agy
-      name: "@jiezhengj/subagent_oar_agy/agy-provider"
+      name: "@jiezhengj/subagent-oar-agy/agy-provider"
       config:
         providerName: agy
         permissionMode: yolo
         locale: auto
     - id: tool-subagent-oar-agy
-      name: '@jiezhengj/subagent_oar_agy/tool'
+      name: '@jiezhengj/subagent-oar-agy/tool'
       config:
         providers:
           agy: agy

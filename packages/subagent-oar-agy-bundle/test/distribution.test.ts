@@ -23,7 +23,7 @@ const languages = ['de', 'en', 'es', 'fr', 'ja', 'pt', 'ru', 'zh']
 
 describe('npm distribution manifest', () => {
   it('publishes the 27-character short name with public access and MIT license', () => {
-    expect(pkg.name).toBe('@jiezhengj/subagent_oar_agy')
+    expect(pkg.name).toBe('@jiezhengj/subagent-oar-agy')
     expect(pkg.name).toHaveLength(27)
     expect(pkg.version).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u)
     expect(pkg.publishConfig?.access).toBe('public')

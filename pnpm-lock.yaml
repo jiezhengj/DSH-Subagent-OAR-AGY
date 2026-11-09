@@ -233,7 +233,7 @@ importers:
         specifier: 3.19.0
         version: 3.19.0
     devDependencies:
-      '@jiezhengj/subagent_oar_agy-provider':
+      '@jiezhengj/subagent-oar-agy-provider':
         specifier: workspace:*
         version: link:../subagent-oar-agy-provider
 

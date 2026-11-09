@@ -4,10 +4,10 @@
 2. Pega esto en el campo de instalación e instala:
 
 ```
-@jiezhengj/subagent_oar_agy
+@jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
 
 3. Activa «Subagente AGY» y el modelo podrá llamar a `subagent_oar_agy` en una sesión nueva.
 4. Recarga DSH cuando se te pida (reinicia si es necesario) y llama a `subagent_oar_agy` en una sesión nueva.
@@ -16,7 +16,7 @@ Requisitos: DSH 0.2.2-rc.1 o superior (menor que 0.3.0), con la CLI de Antigravi
 
 # Migrar de una instalación tgz al nombre
 
-Un perfil instalado desde un tgz no puede buscar actualizaciones. Elimina la entrada antigua en la gestión de plugins (o ejecuta `dsh plugin remove @jiezhengj/subagent_oar_agy`) e instala con el nombre indicado arriba; la configuración del plugin normalmente se conserva; si se elimina con la entrada antigua, vuelve a introducir tus ajustes anteriores. La sección de versión mostrará la versión actual y «Actualizado», de modo que las próximas actualizaciones se hagan desde la app.
+Un perfil instalado desde un tgz no puede buscar actualizaciones. Elimina la entrada antigua en la gestión de plugins (o ejecuta `dsh plugin remove @jiezhengj/subagent-oar-agy`) e instala con el nombre indicado arriba; la configuración del plugin normalmente se conserva; si se elimina con la entrada antigua, vuelve a introducir tus ajustes anteriores. La sección de versión mostrará la versión actual y «Actualizado», de modo que las próximas actualizaciones se hagan desde la app.
 
 # Qué hace este plugin
 
@@ -44,7 +44,7 @@ Se ajusta en el patch del perfil (sin pantalla de ajustes propia):
 # Instalación alternativa
 
 ```bash
-dsh plugin add @jiezhengj/subagent_oar_agy
+dsh plugin add @jiezhengj/subagent-oar-agy
 ```
 
 O compila desde este repositorio:

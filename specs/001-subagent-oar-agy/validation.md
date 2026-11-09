@@ -50,14 +50,14 @@
 
 ```yaml
 - id: subagent-agy
-  name: @jiezhengj/subagent_oar_agy-provider
+  name: @jiezhengj/subagent-oar-agy-provider
   config: {providerName: agy, command: agy, permissionMode: yolo}
 - id: tool-subagent-oar-agy
   name: '@deepseek-ai/dsh-experimental-tool-subagent-oar'
   config: {providers: {agy: agy}}
 ```
 
-> 说明：以上是 v0.1.x 的实测形态。v0.2.3 起提供方改为组合包内子路径 `@jiezhengj/subagent_oar_agy/agy-provider`，工具行显式 `toolName: subagent_oar_agy`，见 `contracts/bundle-patch.md`。
+> 说明：以上是 v0.1.x 的实测形态。v0.2.3 起提供方改为组合包内子路径 `@jiezhengj/subagent-oar-agy/agy-provider`，工具行显式 `toolName: subagent_oar_agy`，见 `contracts/bundle-patch.md`。
 
 ### T020 / T044 入口选择（SC-007，v0.2.5 重新基线）
 
@@ -128,7 +128,7 @@ node scripts/mode-smoke.mjs yolo
 ```bash
 # 从 app.asar 解包 CLI 后
 DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js \
-  plugin --profile headless add /path/to/@jiezhengj/subagent_oar_agy
+  plugin --profile headless add /path/to/@jiezhengj/subagent-oar-agy
 DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/bin.js \
   --profile headless --json "Use subagent_oar with runtime agy to reply exactly OK"
 ```
@@ -144,7 +144,7 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 | 生效 | `include:subagent-agy`、`include:tool-subagent-oar-agy` 均 `fiberPhase: active` |
 | 实机冒烟 | 新建子代理调用 `subagent_oar(runtime=agy)`，AGY 返回 `LIVE_GUI_OK`，未使用其他子代理工具 |
 
-- `list_bundles` 显示 `@jiezhengj/subagent_oar_agy` 0.1.0 `enabled: true`、`installed: true`。
+- `list_bundles` 显示 `@jiezhengj/subagent-oar-agy` 0.1.0 `enabled: true`、`installed: true`。
 - 安装来源是本机 tarball，provider 依赖以 `file:` 指向仓库路径；移动/删除仓库后需重新安装。
 - 卸载/禁用可在 DSH「设置 → 插件」中操作，或 `plugin_manager remove_bundle`。
 
@@ -166,17 +166,17 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 
 ## 本地化与改名（v0.2.1，SC-008）
 
-- **包名**：组合包 `@jiezhengj/subagent_oar_agy`，提供方 `@jiezhengj/subagent_oar_agy-provider`；插件显示名固定为「AGY 子智能体」（按界面语言本地化）。
+- **包名**：组合包 `@jiezhengj/subagent-oar-agy`，提供方 `@jiezhengj/subagent-oar-agy-provider`；插件显示名固定为「AGY 子智能体」（按界面语言本地化）。
 - **8 语言元数据**：两个包的 `locale/<lang>.json` 均含 `meta.title`/`meta.description`；组合包另有 `docs/DETAIL.<lang>.md`（zh/en/de/es/fr/ja/pt/ru）。
 - **运行时文案**：`src/i18n.ts` 覆盖 8 语言的失败、超时、取消、权限拒绝等文案；`locale: auto` 时依次读取 `locale` 配置、DSH `settings.yaml` 的 `locale.preference`、`DSH_LOCALE`/`LC_ALL`/`LANG`，最后回退英文。
 - **测试**：58 项全绿，新增 `i18n.test.ts`（语言表完整性、占位符、检测顺序、8 语言 locale 文件）与组合包 8 语言元数据/详情文件断言。
-- **实装**：卸载旧包名 0.1.2 → 安装 `@jiezhengj/subagent_oar_agy` 0.2.1（`application: applied`），`locale/*.json` 与 `docs/DETAIL.*.md` 均已落入 profile；真实会话 `subagent_oar_agy(runtime=agy)` 返回 `FINAL_INSTALL_OK`。
+- **实装**：卸载旧包名 0.1.2 → 安装 `@jiezhengj/subagent-oar-agy` 0.2.1（`application: applied`），`locale/*.json` 与 `docs/DETAIL.*.md` 均已落入 profile；真实会话 `subagent_oar_agy(runtime=agy)` 返回 `FINAL_INSTALL_OK`。
 
 ## 公开分发（GitHub，v0.2.2）
 
 - **隐私检查**：全仓库无令牌、密钥、邮箱、个人绝对路径（仅 `/tmp` 临时验证路径）；`node_modules`、`dist`、`coverage`、构建出的 `provider/` 与 tarball 均被忽略。
 - **仓库**：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY`，public，topics：`dsh-plugin`、`dsh`、`deepseek-harness`、`antigravity`、`agy`、`subagent`；`main` 分支已推送。
-- **发布包**：组合包改为自包含（构建时把提供方 `dist` 复制为 `provider/`，patch 引用 `@jiezhengj/subagent_oar_agy/agy-provider`），tarball 依赖只剩 npm 上的宿主包与官方 OAR 工具。
+- **发布包**：组合包改为自包含（构建时把提供方 `dist` 复制为 `provider/`，patch 引用 `@jiezhengj/subagent-oar-agy/agy-provider`），tarball 依赖只剩 npm 上的宿主包与官方 OAR 工具。
 - **Release**：`v0.2.2` 附带 `subagent_oar_agy-0.2.2.tgz`；安装框输入 `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.2/subagent_oar_agy-0.2.2.tgz`。
 - **安装验证**：临时 `DSH_HOME` 用该 URL 安装成功（pnpm 拉取 tarball，官方 OAR 工具从 npm 安装）；本机桌面 profile 已卸载 0.2.1 并按同一 URL 安装 0.2.2（`application: applied`）。
 
@@ -185,16 +185,16 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 
 ## 显示名回归修复（v0.2.3）
 
-- **症状**：从 GitHub Release 安装后，插件页显示名变成 `@jiezhengj/subagent_oar_agy`，而非「AGY 子智能体」。
-- **根因**：自包含改造给 `package.json` 增加 `exports` 后，Node 资源解析拒绝 `@jiezhengj/subagent_oar_agy/locale/en.json`、`/package.json`、`/icon`；DSH 的 `readPluginMeta` 读不到 locale 元数据，标题回退为包名。
+- **症状**：从 GitHub Release 安装后，插件页显示名变成 `@jiezhengj/subagent-oar-agy`，而非「AGY 子智能体」。
+- **根因**：自包含改造给 `package.json` 增加 `exports` 后，Node 资源解析拒绝 `@jiezhengj/subagent-oar-agy/locale/en.json`、`/package.json`、`/icon`；DSH 的 `readPluginMeta` 读不到 locale 元数据，标题回退为包名。
 - **修复**：`exports` 增加 `./locale/*`、`./agy-provider/locale/*`、`./icon`、`./package.json`；构建时一并复制提供方 `locale`；新增资源可解析性测试（59 项全绿）。
-- **验证**：`readPluginMeta` 对组合包返回 8 语言标题（zh 为「AGY 子智能体」），对 `@jiezhengj/subagent_oar_agy/agy-provider` 返回「AGY 子智能体运行时」；按 Release URL 重装后真实委派冒烟通过。
+- **验证**：`readPluginMeta` 对组合包返回 8 语言标题（zh 为「AGY 子智能体」），对 `@jiezhengj/subagent-oar-agy/agy-provider` 返回「AGY 子智能体运行时」；按 Release URL 重装后真实委派冒烟通过。
 
 ## 最终发布验证（v0.2.3，2026-11-08）
 
 - **发布物**：`v0.2.3` Release 资产 `subagent_oar_agy-0.2.3.tgz`，自包含（含 `provider/`、`locale/`、`docs/DETAIL.<lang>.md`）。
 - **安装路径**：临时 `DSH_HOME` 与本机桌面 profile 均用安装框地址安装成功；桌面卸载 0.2.2 后安装 0.2.3（`application: applied`）。
-- **显示名/元数据**：`readPluginMeta` 对组合包返回 8 语言标题（zh「AGY 子智能体」）、描述与图标；对 `@jiezhengj/subagent_oar_agy/agy-provider` 返回 8 语言「AGY 子智能体运行时」。
+- **显示名/元数据**：`readPluginMeta` 对组合包返回 8 语言标题（zh「AGY 子智能体」）、描述与图标；对 `@jiezhengj/subagent-oar-agy/agy-provider` 返回 8 语言「AGY 子智能体运行时」。
 - **功能冒烟**：安装 0.2.3 后 `subagent_oar_agy(runtime=agy)` 返回 `TITLE_FIX_OK`。
 - **README**：根 `README.md` 为语言索引页，链接 `README.de/en/es/fr/ja/pt/ru/zh.md`；组合包 README 也互链；安装框地址与 Release 一致。
 - **仓库**：`https://github.com/jiezhengj/DSH-Subagent-OAR-AGY`，public，topics 含 `dsh-plugin`；`main` 已推送。
@@ -211,7 +211,7 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 | 任务 | 结果 |
 |---|---|
 | T042 官方工具包可用性校验与同形回退 | 工具行改为包内 `tool.js`：官方包可解析时挂载官方插件；缺失时警告并注册内置同形工具。单元测试覆盖两条路径；另用去掉官方依赖的变体包安装到临时 profile（确认 profile 内无官方包），会话仍通过 `subagent_oar_agy` 返回 `FALLBACK_OK` |
-| T043 安装文档修正 | 组合包 README 删除未上架 npm 的 `dsh plugin add @jiezhengj/subagent_oar_agy`，改为 Release 地址/本地 tarball；配置表补 `locale`；INSTALL 本地 tarball 文件名改为 `<version>` |
+| T043 安装文档修正 | 组合包 README 删除未上架 npm 的 `dsh plugin add @jiezhengj/subagent-oar-agy`，改为 Release 地址/本地 tarball；配置表补 `locale`；INSTALL 本地 tarball 文件名改为 `<version>` |
 | T044 真机验收重新基线 | 10/10 委派成功（14.8–19.1 s）、启动确认 24.5 ms、禁用/恢复与无残留进程均通过（见上） |
 | T045 与官方 OAR 共存 | 同会话同时调用 `subagent_oar`、`subagent_oar_agy`，分别返回 `OFFICIAL_OK` / `AGY_OK` |
 | T046 许可证 | 新增根 `LICENSE`（MIT）；根与两个包的 `package.json` 均加 `"license": "MIT"`；README 增加许可证声明 |
@@ -219,7 +219,7 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 | T048 DSH 版本拒绝 | 用 `engines.dsh: ">=99.0.0 <100.0.0"` 的临时 bundle 执行 `dsh plugin add`，宿主拒绝安装并输出 `requirements {"engines.dsh":">=99.0.0 <100.0.0"}` 与所需范围 |
 
 - 测试：`pnpm test` → 11 文件 / 63 项全绿。
-- 版本：`@jiezhengj/subagent_oar_agy@0.2.5`，Release 资产为最终验证对象。
+- 版本：`@jiezhengj/subagent-oar-agy@0.2.5`，Release 资产为最终验证对象。
 
 ## v0.2.5 发布后实装
 
@@ -227,7 +227,7 @@ DSH_HOME=/tmp/dsh_home node /tmp/dsh_app/dsh/node_modules/@deepseek-ai/dsh/lib/b
 |---|---|
 | Release 资产 | `v0.2.5` / `subagent_oar_agy-0.2.5.tgz` |
 | 桌面 profile 安装 | 从 Release URL 重装成功（pnpm 3.6 s），版本 0.2.5 |
-| 行状态 | `include:subagent-agy`、`include:tool-subagent-oar-agy`（模块 `@jiezhengj/subagent_oar_agy/tool`）均启用 |
+| 行状态 | `include:subagent-agy`、`include:tool-subagent-oar-agy`（模块 `@jiezhengj/subagent-oar-agy/tool`）均启用 |
 | 元数据 | 显示名「AGY 子智能体」；图标为 36×36 透明画布 |
 | 实机冒烟 | `subagent_oar_agy(runtime=agy)` 返回 `FINAL_V025_OK` |
 | 官方工具解析 | 桌面安装包含官方工具依赖，工具行走官方实现路径（回退未触发） |

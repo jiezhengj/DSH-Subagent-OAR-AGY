@@ -4,10 +4,10 @@
 2. Вставьте это в поле установки и установите:
 
 ```
-@jiezhengj/subagent_oar_agy
+@jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
 
 3. Включите «Субагент AGY»; в новой сессии модель сможет вызывать `subagent_oar_agy`.
 4. Перезагрузите DSH по запросу (при необходимости перезапустите) и вызовите `subagent_oar_agy` в новой сессии.
@@ -16,7 +16,7 @@ Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/down
 
 # Переход с tgz на установку по имени
 
-Профиль, установленный из tgz, не может проверять обновления. Удалите старую запись в управлении плагинами (или выполните `dsh plugin remove @jiezhengj/subagent_oar_agy`) и установите по имени выше; конфигурация плагина обычно сохраняется; если она удалилась вместе со старой записью, введите прежние настройки заново. В разделе версий появятся текущая версия и «Актуально», после чего обновления можно будет выполнять в приложении.
+Профиль, установленный из tgz, не может проверять обновления. Удалите старую запись в управлении плагинами (или выполните `dsh plugin remove @jiezhengj/subagent-oar-agy`) и установите по имени выше; конфигурация плагина обычно сохраняется; если она удалилась вместе со старой записью, введите прежние настройки заново. В разделе версий появятся текущая версия и «Актуально», после чего обновления можно будет выполнять в приложении.
 
 # Что делает плагин
 
@@ -44,7 +44,7 @@ Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/down
 # Альтернативная установка
 
 ```bash
-dsh plugin add @jiezhengj/subagent_oar_agy
+dsh plugin add @jiezhengj/subagent-oar-agy
 ```
 
 Или соберите из этого репозитория:

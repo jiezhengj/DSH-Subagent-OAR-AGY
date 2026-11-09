@@ -13,7 +13,7 @@ const pkg = readJson('package.json')
 const rootLicense = readFileSync(`${repoRoot}/LICENSE`, 'utf8')
 const bundleLicense = readFileSync(`${bundleRoot}/LICENSE`, 'utf8')
 
-const expectedName = '@jiezhengj/subagent_oar_agy'
+const expectedName = '@jiezhengj/subagent-oar-agy'
 const semver = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u
 
 assert.equal(pkg.name, expectedName, 'package name must be the published short name')

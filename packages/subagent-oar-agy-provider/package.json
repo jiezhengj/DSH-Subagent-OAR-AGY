@@ -1,5 +1,5 @@
 {
-  "name": "@jiezhengj/subagent_oar_agy-provider",
+  "name": "@jiezhengj/subagent-oar-agy-provider",
   "version": "0.1.0",
   "description": "DSH subagent provider: delegate independent tasks to the local Antigravity CLI (agy).",
   "type": "module",

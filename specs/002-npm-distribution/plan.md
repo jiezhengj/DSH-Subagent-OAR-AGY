@@ -6,7 +6,7 @@
 
 ## Summary
 
-把 `@jiezhengj/subagent_oar_agy` 组合包从「只发 GitHub Release tgz」扩展为「同时发布到公共 npm 注册表」，安装框主路径变成填 `@jiezhengj/subagent_oar_agy`，并保留 tgz 作为备选。发布前由 `prepublishOnly` 自动构建 provider、生成包内产物并校验清单，发布后把同一份 npm tarball 作为 `v0.2.6` Release 资产；文档统一改为主推名称、tgz 地址作为备选。不改变插件运行时行为、工具表面与安全模型。
+把 `@jiezhengj/subagent-oar-agy` 组合包从「只发 GitHub Release tgz」扩展为「同时发布到公共 npm 注册表」，安装框主路径变成填 `@jiezhengj/subagent-oar-agy`，并保留 tgz 作为备选。发布前由 `prepublishOnly` 自动构建 provider、生成包内产物并校验清单，发布后把同一份 npm tarball 作为 `v0.2.6` Release 资产；文档统一改为主推名称、tgz 地址作为备选。不改变插件运行时行为、工具表面与安全模型。
 
 ## Technical Context
 
@@ -24,7 +24,7 @@
 
 **Performance Goals**: 一次发布（构建 + 校验 + 上传）≤5 分钟；npm tarball ≤50 kB、解包 ≤150 kB（当前 45.9 kB / 135.4 kB）；使用者按名称安装到可用 ≤2 步
 
-**Constraints**: 作用域包必须显式 `publishConfig.access = "public"`；包名固定为 `@jiezhengj/subagent_oar_agy`（27 字符）；首发版本 `0.2.6`（`v0.2.5` 的 tag/Release 已发布，不可覆盖）；发布时 npm 若要求 OTP 由发布者当场提供；发布凭据不得进入仓库、脚本输出或日志；打包前必须从干净状态构建，避免发出缺少 `provider/` 的空壳；npm 包内必须自带 `LICENSE`（仓库根 `LICENSE` 不会进入 npm tarball）
+**Constraints**: 作用域包必须显式 `publishConfig.access = "public"`；包名固定为 `@jiezhengj/subagent-oar-agy`（27 字符）；首发版本 `0.2.6`（`v0.2.5` 的 tag/Release 已发布，不可覆盖）；发布时 npm 若要求 OTP 由发布者当场提供；发布凭据不得进入仓库、脚本输出或日志；打包前必须从干净状态构建，避免发出缺少 `provider/` 的空壳；npm 包内必须自带 `LICENSE`（仓库根 `LICENSE` 不会进入 npm tarball）
 
 **Scale/Scope**: 1 个 npm 包、约 71 个文件、11 份安装文档（根索引 + 8 语言 + 组合包 README + INSTALL）、3 份契约、1 个校验脚本、1 个新增测试文件
 

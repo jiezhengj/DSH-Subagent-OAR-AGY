@@ -4,10 +4,10 @@
 2. Collez ceci dans le champ d’installation puis installez :
 
 ```
-@jiezhengj/subagent_oar_agy
+@jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
 
 3. Activez « Sous-agent AGY » ; le modèle pourra appeler `subagent_oar_agy` dans une nouvelle session.
 4. Rechargez DSH lorsque cela est demandé (redémarrez si nécessaire), puis appelez `subagent_oar_agy` dans une nouvelle session.
@@ -16,7 +16,7 @@ Prérequis : DSH 0.2.2-rc.1 ou plus récent (inférieur à 0.3.0), CLI Antigravi
 
 # Migrer d’une installation tgz vers le nom
 
-Un profil installé depuis un tgz ne peut pas rechercher de mises à jour. Supprimez l’ancienne entrée dans la gestion des plugins (ou exécutez `dsh plugin remove @jiezhengj/subagent_oar_agy`), puis installez avec le nom ci-dessus ; la configuration du plugin est normalement conservée ; si elle est supprimée avec l’ancienne entrée, saisissez à nouveau vos réglages précédents. La section Version affichera ensuite la version actuelle et « À jour », ce qui permettra les mises à jour dans l’application.
+Un profil installé depuis un tgz ne peut pas rechercher de mises à jour. Supprimez l’ancienne entrée dans la gestion des plugins (ou exécutez `dsh plugin remove @jiezhengj/subagent-oar-agy`), puis installez avec le nom ci-dessus ; la configuration du plugin est normalement conservée ; si elle est supprimée avec l’ancienne entrée, saisissez à nouveau vos réglages précédents. La section Version affichera ensuite la version actuelle et « À jour », ce qui permettra les mises à jour dans l’application.
 
 # Ce que fait ce plugin
 
@@ -44,7 +44,7 @@ Via le patch de profil (pas d’écran de réglages dédié) :
 # Installation alternative
 
 ```bash
-dsh plugin add @jiezhengj/subagent_oar_agy
+dsh plugin add @jiezhengj/subagent-oar-agy
 ```
 
 Ou compilez depuis ce dépôt :

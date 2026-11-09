@@ -4,10 +4,10 @@
 2. インストール欄に以下を貼り付けてインストールします：
 
 ```
-@jiezhengj/subagent_oar_agy
+@jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
 
 3. 「AGY サブエージェント」を有効化すると、新しいセッションでモデルが `subagent_oar_agy` を呼べます。
 4. 促されたら DSH を再読み込み（必要なら再起動）し、新しいセッションで `subagent_oar_agy` を呼び出します。
@@ -16,7 +16,7 @@ Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/down
 
 # tgz から名前インストールへの移行
 
-tgz からインストールしたプロファイルは更新を確認できません。プラグイン管理で古いエントリを削除（または `dsh plugin remove @jiezhengj/subagent_oar_agy` を実行）し、上記の名前で再インストールしてください。プラグイン設定は通常保持されます。古いエントリと一緒に削除された場合は、以前の設定を再入力してください。バージョン欄に現在のバージョンと「最新」が表示され、以後はアプリ内で更新できます。
+tgz からインストールしたプロファイルは更新を確認できません。プラグイン管理で古いエントリを削除（または `dsh plugin remove @jiezhengj/subagent-oar-agy` を実行）し、上記の名前で再インストールしてください。プラグイン設定は通常保持されます。古いエントリと一緒に削除された場合は、以前の設定を再入力してください。バージョン欄に現在のバージョンと「最新」が表示され、以後はアプリ内で更新できます。
 
 # このプラグインの機能
 
@@ -44,7 +44,7 @@ tgz からインストールしたプロファイルは更新を確認できま�
 # 代替のインストール方法
 
 ```bash
-dsh plugin add @jiezhengj/subagent_oar_agy
+dsh plugin add @jiezhengj/subagent-oar-agy
 ```
 
 このリポジトリからビルドする場合：

@@ -65,7 +65,7 @@
 - [x] T033 编写 `packages/subagent-oar-agy-bundle/docs/DETAIL.<lang>.md`（8 语言）：架构、安全边界、失败语义、与官方 OAR 的关系
 - [x] T034 跑通 `packages/subagent-oar-agy-provider/test/` 全部单元/集成测试，核心模块（`stream`/`protocol`/`errors`/`timer`）行覆盖 ≥ 90%
 - [x] T035 真实 AGY 10 次委派冒烟并记录 SC-001/SC-002 数据到 `specs/001-subagent-oar-agy/validation.md`（需用户授权、消耗配额）
-- [x] T038 [US4] 自包含组合包：`scripts/vendor-provider.mjs` 构建时复制提供方 `dist` 与 `locale` 至 `provider/`，patch 改为包内子路径 `@jiezhengj/subagent_oar_agy/agy-provider`，移除提供方运行时依赖；测试断言 tarball 自包含（FR-014、FR-023）
+- [x] T038 [US4] 自包含组合包：`scripts/vendor-provider.mjs` 构建时复制提供方 `dist` 与 `locale` 至 `provider/`，patch 改为包内子路径 `@jiezhengj/subagent-oar-agy/agy-provider`，移除提供方运行时依赖；测试断言 tarball 自包含（FR-014、FR-023）
 - [x] T039 [US4] 公开发布：GitHub 仓库 public + topics（含 `dsh-plugin`）、Release `v0.2.3` 附 tarball、根 README 索引页与 8 语言正文互链；在临时 `DSH_HOME` 与桌面 profile 用安装框地址安装并真实冒烟（FR-023、SC-009）
 - [x] T040 [US4] 显示名回归修复：`exports` 补齐 `./locale/*` 等元数据子路径（否则 DSH 回退包名），用 `readPluginMeta` 复核组合包与提供方标题为 8 语言，并补充资源可解析性测试（FR-022、SC-008）
 - [x] T041 [US4] 图标改为 36×36 透明画布（官方风格，无固定底色），随卡片浅/深主题背景呈现；发布 v0.2.4 并实装复核（FR-022、SC-008）
@@ -124,7 +124,7 @@ T036, T037, T039, T040, T041 ─► 完成
 | # | 严重度 | 差距类型 | 来源 | 发现 |
 |---|---|---|---|---|
 | F1 | HIGH | missing | FR-014 | 未实现官方 OAR 工具包的加载时可用性校验，也没有"自写同形工具"回退形态；`cordis.patch.yml` 直接挂载 `@deepseek-ai/dsh-experimental-tool-subagent-oar`，包缺失时只能由 pnpm 安装失败兜底，不满足 FR-014 的"明确报错并回退"要求。 |
-| F2 | MEDIUM | contradicts | FR-023、FR-022、SC-004 | `packages/subagent-oar-agy-bundle/README.md` 仍写"最短路径：`dsh plugin add @jiezhengj/subagent_oar_agy`"，但本包未上架 npm，该命令不可用；同一 README 的配置表缺少 `locale` 行，与运行时支持的 8 语言配置不一致。 |
+| F2 | MEDIUM | contradicts | FR-023、FR-022、SC-004 | `packages/subagent-oar-agy-bundle/README.md` 仍写"最短路径：`dsh plugin add @jiezhengj/subagent-oar-agy`"，但本包未上架 npm，该命令不可用；同一 README 的配置表缺少 `locale` 行，与运行时支持的 8 语言配置不一致。 |
 | F3 | MEDIUM | partial | SC-001、SC-002、SC-005、SC-007 | 真机会话验收证据早于改名与自包含打包：`validation.md` 的 SC-007/T020 仍记录 `subagent_oar(runtime=agy)`，10 次委派、启动确认、禁用恢复等证据也未在 v0.2.4 的 `subagent_oar_agy` 上重新基线。 |
 | F4 | MEDIUM | partial | US4/AC4、FR-016 | "与官方 OAR 组合包共存"从未真正验证：T021 实际测试的是同一包的第二行实例（重复 `subagent_oar`），未安装官方 OAR 组合包并确认两个工具名同时可用。 |
 | F5 | MEDIUM | missing | Constitution 附加约束（许可证） | 公开仓库没有 `LICENSE` 文件，两个 `package.json` 均无 `license` 字段，plan 也未确定许可证；与"npm 包名、scope、许可证与免责声明在 plan 阶段确定"不符。 |
@@ -134,7 +134,7 @@ T036, T037, T039, T040, T041 ─► 完成
 ### 追加任务
 
 - [x] T042 [US1] 按 FR-014 补齐官方 OAR 工具包可用性校验与备选形态：加载时检测工具包可解析，缺失时给出可操作诊断；实现"自写同形工具"回退并保持工具名、参数与返回表面不变；补工具包缺失/回退路径测试（per FR-014，missing）
-- [x] T043 [US4] 修正组合包 README：删除未上架 npm 的 `dsh plugin add @jiezhengj/subagent_oar_agy` 说法，统一为 Release tarball 地址与本地 tarball 两种安装路径；配置表补 `locale` 行（per FR-023、FR-022、SC-004，contradicts）
+- [x] T043 [US4] 修正组合包 README：删除未上架 npm 的 `dsh plugin add @jiezhengj/subagent-oar-agy` 说法，统一为 Release tarball 地址与本地 tarball 两种安装路径；配置表补 `locale` 行（per FR-023、FR-022、SC-004，contradicts）
 - [x] T044 [US1] 在 v0.2.4 上重跑真机会话验收：10 次委派（SC-001）、启动确认计时（SC-002）、禁用/重装恢复与无残留进程（SC-005）、10 次入口选择（SC-007），全部使用 `subagent_oar_agy` 并更新 `validation.md` 的旧工具名与证据（per SC-001、SC-002、SC-005、SC-007，partial）
 - [x] T045 [US4] 安装官方 OAR 组合包与本插件并存，验证 `subagent_oar` 与 `subagent_oar_agy` 同时注册、互不覆盖，两套工具均可独立委派；记录到 `validation.md` 与 `research.md` D9（per US4/AC4、FR-016，partial）
 - [x] T046 [US4] 与用户确认许可证（建议 MIT），新增 `LICENSE`，在两个 `package.json` 补 `license` 字段，并在根 README 声明；如用户在 plan 阶段已另有决定则按该决定执行（per Constitution 附加约束，missing）

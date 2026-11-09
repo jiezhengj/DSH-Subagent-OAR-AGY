@@ -2,7 +2,7 @@
 
 ## 名称与访问
 
-- `name` = `@jiezhengj/subagent_oar_agy`（作用域归属发布者账号；npm 校验器返回 `validForNewPackages: true`）
+- `name` = `@jiezhengj/subagent-oar-agy`（作用域归属发布者账号；npm 校验器返回 `validForNewPackages: true`）
 - `publishConfig.access` = `public`（作用域包默认 restricted，免费账号无法发布私有包）
 - `version` = 每次发布递增的语义化版本；首发 `0.2.6`（`0.2.5` 已作为 Release 发布，不可覆盖）
 - 包名中的下划线是合法的：DSH 安装规格正则允许 `[a-z0-9._~-]`，npm 校验器也接受
@@ -50,6 +50,6 @@
 
 ## 发布后核对
 
-- `npm view @jiezhengj/subagent_oar_agy@<version> version dist.tarball dist.integrity` 返回该版本。
-- `npm pack @jiezhengj/subagent_oar_agy@<version> --dry-run --json` 的文件清单与本地 `npm pack` 一致。
+- `npm view @jiezhengj/subagent-oar-agy@<version> version dist.tarball dist.integrity` 返回该版本。
+- `npm pack @jiezhengj/subagent-oar-agy@<version> --dry-run --json` 的文件清单与本地 `npm pack` 一致。
 - 包内 `package.json` 的 `version` 与 tag、Release、文档一致。

@@ -4,10 +4,10 @@
 2. Fügen Sie dies in das Installationsfeld ein und installieren Sie:
 
 ```
-@jiezhengj/subagent_oar_agy
+@jiezhengj/subagent-oar-agy
 ```
 
-Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.7/subagent_oar_agy-0.2.7.tgz`
+Fallback (tgz): `https://github.com/jiezhengj/DSH-Subagent-OAR-AGY/releases/download/v0.2.8/subagent-oar-agy-0.2.8.tgz`
 
 3. Aktivieren Sie „AGY-Subagent“; danach kann das Modell in einer neuen Sitzung `subagent_oar_agy` aufrufen.
 4. Laden Sie DSH nach Aufforderung neu (bei Bedarf Neustart) und rufen Sie danach `subagent_oar_agy` in einer neuen Sitzung auf.
@@ -16,7 +16,7 @@ Voraussetzungen: DSH 0.2.2-rc.1 oder neuer (unter 0.3.0), Antigravity CLI (`agy`
 
 # Migration von tgz zur Namensinstallation
 
-Ein aus einem tgz installiertes Profil kann nicht nach Updates suchen. Entfernen Sie den alten Eintrag in der Plugin-Verwaltung (oder führen Sie `dsh plugin remove @jiezhengj/subagent_oar_agy` aus) und installieren Sie anschließend über den oben genannten Namen; die Plugin-Konfiguration bleibt normalerweise erhalten; falls sie mit dem alten Eintrag entfernt wird, geben Sie Ihre bisherigen Einstellungen erneut ein. Die Versionsansicht zeigt danach die aktuelle Version und „Aktuell“, sodass spätere Updates in der App möglich sind.
+Ein aus einem tgz installiertes Profil kann nicht nach Updates suchen. Entfernen Sie den alten Eintrag in der Plugin-Verwaltung (oder führen Sie `dsh plugin remove @jiezhengj/subagent-oar-agy` aus) und installieren Sie anschließend über den oben genannten Namen; die Plugin-Konfiguration bleibt normalerweise erhalten; falls sie mit dem alten Eintrag entfernt wird, geben Sie Ihre bisherigen Einstellungen erneut ein. Die Versionsansicht zeigt danach die aktuelle Version und „Aktuell“, sodass spätere Updates in der App möglich sind.
 
 # Was dieses Plugin tut
 
@@ -44,7 +44,7 @@ Es delegiert unabhängige Aufgaben an die lokale Antigravity CLI (`agy`): Das Mo
 # Alternative Installation
 
 ```bash
-dsh plugin add @jiezhengj/subagent_oar_agy
+dsh plugin add @jiezhengj/subagent-oar-agy
 ```
 
 Oder aus diesem Repository bauen:

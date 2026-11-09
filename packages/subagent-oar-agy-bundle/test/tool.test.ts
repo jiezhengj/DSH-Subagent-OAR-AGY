@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Config, createFallbackTool, mountTool } from '@jiezhengj/subagent_oar_agy/tool'
+import { Config, createFallbackTool, mountTool } from '@jiezhengj/subagent-oar-agy/tool'
 
 /** 构造测试用的最小 Cordis 上下文。 */
 function fakeContext() {
