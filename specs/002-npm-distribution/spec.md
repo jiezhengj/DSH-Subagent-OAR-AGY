@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-08
 
-**Status**: Draft
+**Status**: Completed
 
 **Input**: User description: "发布到 npm，让 DSH 安装框只填 @jiezhengj/subagent_oar_agy 短名称即可安装，并显示版本与更新；同时保留 GitHub Release tarball 备选，保证 npm 与 Release 同版本同内容。"
 
@@ -142,5 +142,6 @@ Feature 001 的组合包已经能通过 GitHub Release tarball 安装，但安�
 - **2026-11-08 分发名称**：采用 `@jiezhengj/subagent_oar_agy`。沿用 feature 001 已定的包名，零重命名；作用域由发布者持有，短名称长度为 27 个字符。
 - **2026-11-08 发布方式**：本机手动发布，不引入发布流水线；发布令牌只留在发布者本机的注册表认证状态里，OTP 当场输入。
 - **2026-11-08 首发版本 0.2.6**：`v0.2.5` 的 Release 与 tag 已存在且不可覆盖，本次 npm 首发取 `0.2.6`，同轮创建 `v0.2.6` Release 并附 `subagent_oar_agy-0.2.6.tgz`；`v0.2.5` 保持原样，作为历史版本继续可装。
+- **2026-11-09 更新验证版本 0.2.7**：为在真实 DSH 中验证「发现更新 → 应用内升级」，发布与 `0.2.6` 内容等价的 `0.2.7`，并创建同版本 Release；首发记录仍为 `0.2.6`，交付与验证记录见 `validation.md`。
 - **2026-11-08 发布位置**：在 `packages/subagent-oar-agy-bundle/` 目录用系统 npm 执行 `npm publish --access public`；仓库保持 pnpm workspace，不新增 npm workspaces 配置，避免污染现有 pnpm 锁文件与 profile 安装流程。
 - **2026-11-08 文档主路径**：根 README（英文索引）、8 语言 README、组合包 README、`docs/INSTALL.md` 的安装框改为填名称；tgz 地址保留为备选；`README.zh.md` 等语言全文不再以 tgz 为主路径。

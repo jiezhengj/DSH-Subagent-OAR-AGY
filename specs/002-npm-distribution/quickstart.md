@@ -4,9 +4,9 @@
 
 ```sh
 cd /Users/jiezhengj/Documents/Project/subagent_oar_agy
-V=$(node -p "require('./packages/subagent-oar-agy-bundle/package.json').version")   # 首发应为 0.2.6
+V=$(node -p "require('./packages/subagent-oar-agy-bundle/package.json').version")   # 首发 0.2.6；为验证更新发布的等价版本为 0.2.7
 echo "$V"
-[ "$V" = "0.2.6" ] || { echo "版本不是 0.2.6：先执行 T010 升版本"; exit 1; }
+[ "$V" = "0.2.7" ] || { echo "当前交付版本应为 0.2.7：先核对 package.json"; exit 1; }
 ```
 
 ## 0. 前置核对
@@ -115,14 +115,14 @@ if [ "$SC006_RC" -ne 0 ]; then echo "SC-006 FAIL (exit $SC006_RC)"; fi
 
 - 读取 `/tmp/vhome/profiles/deskclone/package.json`，确认依赖是注册表规格（名称 + 版本/范围），而不是 URL。
 - 先回插件列表页点「刷新」或整页重载（触发 `checkAllVersions`），再打开「版本」区，确认显示当前版本与「已是最新版本」；记录上次检查时间。按 tasks.md 顺序先跑 T016 时这里会留下 refused 缓存，不刷新会读到「无法连接安装源」；线性执行到本步通常尚无缓存，刷新仍建议保留。
-- 模拟「有更新」：npm 首发只有 0.2.6，不存在更旧的已发布版本，因此**不要改依赖值**；改为编辑隔离副本已装包的版本号：
+- 模拟「有更新」：当前已发布 0.2.6 与 0.2.7；模拟「有更新」时**不要改依赖值**，只把隔离副本已装包的版本号改小：
 
 ```sh
-node -e "const p='/tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent_oar_agy/package.json';const d=require(p);d.version='0.2.5';require('fs').writeFileSync(p,JSON.stringify(d,null,2)+'\n')"
+node -e "const p='/tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent_oar_agy/package.json';const d=require(p);d.version='0.2.6';require('fs').writeFileSync(p,JSON.stringify(d,null,2)+'\n')"
 grep '"version"' /tmp/vhome/profiles/deskclone/node_modules/@jiezhengj/subagent_oar_agy/package.json
 ```
 
-回列表页刷新后重开「版本」区，期望出现「可更新到 0.2.6」；如有更新入口可点一次，确认版本回到 `$V`、依赖仍是注册表规格。若界面缓存导致未刷新，记录 `updateRefusal()` 的 registry 分支证据与例外。还原只把已装包的 `version` 改回 `$V`，不要 `cp -a` 复制 profile（deskclone 已存在会嵌套 `deskclone/desktop`；先删再拷会把依赖退回桌面 profile 的 tgz URL）。不兼容版本依据 `engines.dsh` 过滤（记录为代码核对，不修改真实桌面）。
+回列表页刷新后重开「版本」区，期望出现「可更新到 0.2.7」；如有更新入口可点一次，确认版本回到 `$V`、依赖仍是注册表规格。若界面缓存导致未刷新，记录 `updateRefusal()` 的 registry 分支证据与例外。还原只把已装包的 `version` 改回 `$V`，不要 `cp -a` 复制 profile（deskclone 已存在会嵌套 `deskclone/desktop`；先删再拷会把依赖退回桌面 profile 的 tgz URL）。不兼容版本依据 `engines.dsh` 过滤（记录为代码核对，不修改真实桌面）。
 - tgz 来源的不可更新性在第 7 步生成资产、T027 安装后验证；本步不要求存在 tgz 副本。
 
 ## 7. Release 同版本（新版本，不动旧版本）
